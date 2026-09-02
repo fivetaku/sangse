@@ -6,7 +6,7 @@
 
 입력 규약:
   - copy.md: '## Q1' ~ '## Q8' 헤딩으로 섹션 구분. 헤딩 뒤 텍스트는 섹션 제목.
-      본문은 단순 마크다운(문단, '-' 불릿, **굵게**, ![alt](path), [[CTA: 문구 | url]]).
+      본문은 단순 마크다운(문단, '-' 불릿, **굵게**, | 표 |, ![alt](path), [[CTA: 문구 | url]]).
       '[자료 필요: ...]' / '[선택: ...]' / '[이미지 생성 실패 ...]' 는 노란 플레이스홀더 박스로 렌더.
   - images.json (선택): {"Q1": "/abs/or/rel/path.png", ...}. 섹션 본문 위에 삽입.
       copy.md 안에 이미지가 이미 있으면 images.json 항목은 건너뜀.
@@ -78,6 +78,20 @@ def render_block(md, base_dir, report):
             report["placeholders"].append(line.strip())
             out.append(f'<div class="todo">{inline(line.strip())}</div>')
             i += 1; continue
+        if line.lstrip().startswith("|"):
+            flush()
+            rows = []
+            while i < len(lines) and lines[i].lstrip().startswith("|"):
+                cells = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+                if not all(re.fullmatch(r":?-{3,}:?", c) for c in cells):
+                    rows.append(cells)
+                i += 1
+            if rows:
+                head_cells, body_rows = rows[0], rows[1:]
+                thead = "<tr>" + "".join(f"<th>{inline(c)}</th>" for c in head_cells) + "</tr>"
+                tbody = "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in body_rows)
+                out.append(f'<table class="spec"><thead>{thead}</thead><tbody>{tbody}</tbody></table>')
+            continue
         if line.lstrip().startswith(("- ", "* ")):
             flush()
             items = []

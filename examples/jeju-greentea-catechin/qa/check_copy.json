@@ -1,0 +1,73 @@
+{
+  "path": "/Users/chulrolee/.claude/skills/sangse/examples/jeju-greentea-catechin/copy.md",
+  "category": [
+    "common",
+    "health_food"
+  ],
+  "platform": "smartstore",
+  "checks": [
+    {
+      "id": "C1",
+      "status": "PASS",
+      "message": "Q1~Q8 순서 정상",
+      "detail": []
+    },
+    {
+      "id": "C2",
+      "status": "PASS",
+      "message": "Q1 금지어 없음",
+      "detail": []
+    },
+    {
+      "id": "C3",
+      "status": "PASS",
+      "message": "모든 숫자가 입력에 존재",
+      "detail": []
+    },
+    {
+      "id": "C7",
+      "status": "PASS",
+      "message": "헤드라인 길이 정상",
+      "detail": []
+    },
+    {
+      "id": "C8",
+      "status": "PASS",
+      "message": "CTA 4회, 문구 동일: 첫 구매가로 시작하기",
+      "detail": []
+    },
+    {
+      "id": "C9",
+      "status": "PASS",
+      "message": "금지어 없음 (카테고리: common, health_food)",
+      "detail": []
+    },
+    {
+      "id": "C10",
+      "status": "PASS",
+      "message": "사양 표 + FAQ 존재",
+      "detail": []
+    },
+    {
+      "id": "P",
+      "status": "INFO",
+      "message": "플레이스홀더 5개",
+      "detail": [
+        "[자료 필요: 실제 결과물 화면 1장 — 병 개봉·캡슐 사진]",
+        "[자료 필요: 첫 구매 고객 후기 1~2개 — 섭취 편의·냄새·배송 경험 위주. 효능 관련 후기는 싣지 않습니다]",
+        "[자료 필요: 상품정보제공고시 항목(제조원·유통기한·영양정보 표시면) 및 광고 심의필 번호]",
+        "[자료 필요: 라벨의 섭취 시 주의사항 원문 전체]",
+        "[자료 필요: 실제 배송 정책 — 출고일·택배사]"
+      ]
+    },
+    {
+      "id": "I",
+      "status": "PASS",
+      "message": "이미지 4장 실존",
+      "detail": []
+    }
+  ],
+  "fail": 0,
+  "warn": 0,
+  "verdict": "PASS"
+}

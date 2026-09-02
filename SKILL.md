@@ -65,21 +65,32 @@ sangse/{slug}/
 - **Q7**은 환불·피드백 범위를 정책 그대로. 환불 불가면 그대로 쓰고 샘플·미리보기·FAQ로 리스크를 줄인다.
 - **Q8**은 기한·할인이 입력에 있을 때만. 없으면 CTA와 `[선택: …]` 안내.
 
-리서치로 보완된 규칙(근거는 `references/evidence.md`): Q6 아래 **사양 표**(성분·용량·규격)를 둔다 — 스펙이 없으면 고객은 경쟁 페이지로 이탈한다. 물성 상품·스마트스토어·펀딩이면 Q7 아래 **`### FAQ` 선택 블록**(실제 문의 기반 3~5문항, 배송·교환·AS·호환)을 켠다. 같은 CTA를 Q2·Q4·Q8에 반복한다. 검색 유입이 주면 Q1에 카테고리 키워드를 넣고 가격을 첫 화면 근처에 둔다. 규제 업종(식품·건기식 등)이면 `references/compliance.md`의 치환표를 초안 단계에서 적용한다 — 기능성 문구는 고시 문구 그대로, 질병·의약품 용어 금지, 후기로 효능 암시 금지.
+리서치로 보완된 규칙(근거는 `references/evidence.md`): Q6 아래 **사양 표**(성분·용량·규격)를 둔다 — 스펙이 없으면 고객은 경쟁 페이지로 이탈한다. 물성 상품·스마트스토어·펀딩이면 Q7 아래 **`### FAQ` 선택 블록**(실제 문의 기반 3~5문항, 배송·교환·AS·호환)을 켠다. 같은 CTA를 Q1 끝(첫 화면 근처)·Q2·Q4·Q8에 반복한다 — 모바일에서 9:16 히어로 아래 첫 CTA가 두 화면 안에 들어오려면 Q1에 하나가 있어야 한다(게이트 3 계측으로 확인된 규칙). 검색 유입이 주면 Q1에 카테고리 키워드를 넣고 가격을 첫 화면 근처에 둔다. 규제 업종(식품·건기식 등)이면 `references/compliance.md`의 치환표를 초안 단계에서 적용한다 — 기능성 문구는 고시 문구 그대로, 질병·의약품 용어 금지, 후기로 효능 암시 금지.
 
 플랫폼이 스마트스토어·크몽이면 모바일 세로 스크롤을 전제로 문장을 더 짧게 끊는다.
 
-### Step 5. 검수 루프 → `copy.md` 갱신 + `review-log.md`
-**타입**: review + rag(`references/review-checklist.md`)
+### Step 5. 검증 게이트 1 — 자동 검사 → `qa/check_copy.json`
+**타입**: script + rag(`references/verification.md`)
 
-의심 많은 고객 페르소나로 몰입해 **모든 문장 뒤에 "그래서 나한테 뭐가 좋은데?"를 붙여** 읽는다. 통과/번역/삭제로 판정하고 수정 문장을 로그에 남긴다. 그다음 구조 체크 8항(섹션 8개 존재, Q1 금지어 없음, 수치·후기·사례 전부 원문 대조, Q7·Q8 미확인 문구 없음, 타겟 좁음, 길이, CTA)을 돈다. C3 대조는 실제로 grep 한다 — copy.md의 숫자를 뽑아 raw-input.md와 사용자 답변에서 찾는다. 없으면 삭제하거나 플레이스홀더로 바꾼다.
+```bash
+python3 ~/.claude/skills/sangse/scripts/check_copy.py "sangse/{slug}" --category {common|food|health_food|cosmetics} --platform {web|smartstore|kmong}
+```
 
-### Step 6. 카피 승인 게이트
+코드가 판정한다: 8섹션 순서, Q1 첫 화면 금지어, **copy.md의 모든 숫자가 입력에 있는지**(파생 수치는 intake에 계산식 필요), 헤드라인 20자, CTA 3회 동일, 카테고리 금지어(`assets/banned-words.json`), Q6 사양 표·Q7 FAQ, 이미지 실존. exit 0이 아니면 다음으로 가지 않는다. 지목된 것만 고치고 재실행한다. WARN은 문맥 판단 이유를 `review-log.md`에 한 줄 남긴다.
+
+### Step 6. 검증 게이트 2 — 고객 시뮬레이션 리뷰 → `qa/sim-review-r{n}.md`
+**타입**: review (Agent 4개 병렬) + rag(`references/verification.md` §2·§5)
+
+카피를 쓴 Claude가 스스로 검사하지 않는다. **별도 에이전트 4개를 한 메시지에 동시 스폰**한다 — 의심 많은 타겟 고객(intake M2 페르소나로 Q1~Q8마다 네/아니오 + 걸린 문장 인용 + 원하는 문장), 규제 심사관(compliance.md 기준 위반 열거), CRO 리뷰어(evidence.md 기준 6항목 채점), 경쟁사 마케터(가격 비교로 끌어갈 틈 3개 + 방어 문장). 각 리뷰어는 copy.md·raw-input.md·intake-checklist.md만 읽고 `VERDICT: PASS|FAIL`로 끝낸다.
+
+통과 기준은 **고객 8/8 네 + 규제 위반 0건**. 미달이면 지목 문장만 고쳐 최대 2라운드 재리뷰(전면 재작성 금지), 고친 문장은 `review-log.md`에 `원문 → 수정문 (리뷰어)`로 남긴다. 2라운드 뒤에도 남은 "아니오"는 사용자에게 결정을 넘긴다. 이 게이트가 "맞지만 안 팔리는" 카피를 잡는다.
+
+### Step 7. 카피 승인 게이트
 **타입**: review (AskUserQuestion 1콜)
 
-copy.md 요약(Q1 헤드라인, 플레이스홀더 목록, 번역/삭제 건수)을 보여주고 묻는다: ① 이대로 이미지·HTML 진행 (추천) ② 카피 수정할 부분 있음 ③ 카피만 받고 이미지는 생략. 이 게이트 없이 이미지를 만들지 않는다. 사용자가 착수 시 "이미지 없이 카피만"이라고 했으면 이 게이트에서 종료하고 Step 8로 간다(index.html은 이미지 없이도 조립한다).
+copy.md 요약(Q1 헤드라인, 플레이스홀더 목록, 번역/삭제 건수)을 보여주고 묻는다: ① 이대로 이미지·HTML 진행 (추천) ② 카피 수정할 부분 있음 ③ 카피만 받고 이미지는 생략. 게이트 1·2 스코어(자동 검사 결과, 고객 네/아니오 수, 규제 위반 수)를 함께 보여준다. 이 게이트 없이 이미지를 만들지 않는다. 사용자가 착수 시 "이미지 없이 카피만"이라고 했으면 이 게이트에서 종료하고 Step 9로 간다(index.html은 이미지 없이도 조립한다).
 
-### Step 7. 이미지 브리프 → `pumasi:image` 호출
+### Step 8. 이미지 브리프 → `pumasi:image` 호출
 **타입**: prompt + api_mcp(Skill `pumasi:image`) + rag(`references/image-briefs.md`)
 
 `image-briefs.md`를 먼저 쓴다(섹션별 목적·비율·12자 이내 텍스트·장면). 기본은 **필수 4장**(Q1 히어로, Q2 결과, Q4 미리보기, Q6 구성). 사용자가 "전부"라면 선택 4장 추가. 장수와 예상 시간(1장 약 1분)을 알린다.
@@ -93,7 +104,7 @@ copy.md 요약(Q1 헤드라인, 플레이스홀더 목록, 번역/삭제 건수)
 6. 실패한 장은 `[이미지 생성 실패 — 재시도 필요]`로 표기하고 다음 장으로. 파이프라인을 막지 않는다.
 7. 결과 경로를 `images.json`에 `{"Q1": "…"}`로 기록한다. 파일 복사·재인코딩 금지, 참조만.
 
-### Step 8. HTML 조립 → `index.html`
+### Step 9. HTML 조립 → `index.html`
 **타입**: script
 
 ```bash
@@ -102,17 +113,24 @@ python3 ~/.claude/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platf
 
 표준 라이브러리만 쓰는 조립기가 `copy.md`의 `## Q1`~`## Q8`을 섹션으로, `images.json`을 각 섹션 상단 이미지로, `[[CTA: …]]`를 버튼으로, `[자료 필요: …]`를 노란 박스로 렌더한다(숨기지 않는다). 템플릿은 `assets/template.html`(모바일 우선, 최대 720px, 단일 파일). stdout JSON의 `missing_sections`·`missing_images`·`placeholders`를 읽고 경고를 사용자 보고에 반영한다.
 
-### Step 9. 완료 보고
+### Step 10. 검증 게이트 3 — 렌더 검증 + 5초 테스트 → `qa/render-*.png`, `qa/five-second.md`
+**타입**: review (브라우저 도구) + rag(`references/verification.md` §3)
+
+`python3 ~/.claude/skills/sangse/scripts/render_check.py "sangse/{slug}" --widths 390,860 --full`로 Playwright가 **390px와 860px** viewport에서 index.html을 실제로 열어 첫 화면·전체 스크린샷을 `qa/`에 저장하고 가로 스크롤·헤드라인 위치·CTA 위치·깨진 이미지를 계측한다(헤드리스 Chrome CLI는 최소 창 폭 500px라 쓰지 않는다). 스크린샷을 Read로 직접 보고 확인: 첫 화면 안에 Q1 헤드라인, 가로 스크롤 없음, 이미지 안 한글 정상, 플레이스홀더 노출, CTA가 첫 두 화면 안. 그다음 **5초 테스트** — 첫 화면 스크린샷 1장만 새 에이전트에 주고 "무엇을 파나 / 누구를 위한 건가 / 사면 뭐가 달라지나"를 답하게 한다. 세 답이 intake M1·M2·M4와 맞아야 통과. 틀리면 Q1 헤드라인이나 히어로 이미지 텍스트를 고치고 재렌더한다. 스크린샷을 안 본 렌더 검증은 검증이 아니다.
+
+### Step 11. 완료 보고
 **타입**: generate
 
-보고에 반드시 넣는다: ① 산출물 경로 ② **채우면 완성되는 항목 표**(플레이스홀더) ③ review-log 요약(번역/삭제 건수 + 대표 예 2개) ④ 경고 한 줄 "가격·환불·기한 문구는 실제 결제·법적 책임과 연결됩니다. 퍼블리시 전 직접 확인하세요." ⑤ 첫 A/B 가설 1개(상단 섹션부터). "매출이 오른다"는 성과 약속을 보고 어디에도 쓰지 않는다 — 검증 불가능한 주장이고 그 자체가 과장 광고의 문법이다.
+보고에 반드시 넣는다: ① 산출물 경로 ② **검증 스코어카드**(`verification.md` §4 형식 — 게이트 1 fail/warn 수, 게이트 2 고객 네 수·규제 위반·CRO 점수·경쟁 반박 방어 수·라운드 수, 게이트 3 렌더·5초 결과) ③ **채우면 완성되는 항목 표**(플레이스홀더) ④ review-log 요약(번역/삭제 건수 + 대표 예 2개) ⑤ 경고 한 줄 "가격·환불·기한 문구는 실제 결제·법적 책임과 연결됩니다. 퍼블리시 전 직접 확인하세요." ⑥ 첫 A/B 가설 1개(상단 섹션부터) — 게이트 2에서 의견이 갈린 문장이 첫 후보다. "매출이 오른다"는 성과 약속을 보고 어디에도 쓰지 않는다 — 검증 불가능한 주장이고 그 자체가 과장 광고의 문법이다.
 
 ## Red Flags — 이 생각이 들면 멈춘다
 
 - "예시 수치라도 넣어야 그림이 살지" → Iron Law 위반. 플레이스홀더.
 - "이 기능이 자랑스러우니 Q1에 넣자" → 기능은 Q3. Q1은 고객 장면.
 - "질문 4개로 부족하니 더 묻자" → 묻지 않고 플레이스홀더로 진행 후 보고에 표로.
-- "이미지부터 뽑아 보여주면 반응이 좋을 텐데" → Step 6 승인 전 이미지 금지.
+- "이미지부터 뽑아 보여주면 반응이 좋을 텐데" → Step 7 승인 전 이미지 금지.
+- "내가 쓴 카피니까 내가 검수하면 되지" → 게이트 2는 별도 에이전트 4개. 작성자 자기 검수는 검증이 아니다.
+- "HTML 조립됐으니 끝" → 게이트 3 스크린샷을 실제로 보기 전엔 완료가 아니다.
 - "pumasi:image 질문이 귀찮으니 imagen.sh를 직접" → 스킬 경유 원칙 위반.
 - "환불 불가라니 '만족 보장'이라고 부드럽게" → 정책 그대로. 다른 리스크 감소 장치로.
 
@@ -134,7 +152,8 @@ python3 ~/.claude/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platf
 - `references/framework.md` — 8질문 프레임워크 정본: 원칙 9개, 안티패턴, 섹션별 임무·재료·이미지 역할, 카피 작성 규칙
 - `references/intake-checklist.md` — 필수 입력 4종, 슬롯 10개, 플레이스홀더 규칙, 타겟 좁히기 절차
 - `references/interview.md` — 불확실성 기반 제품 인터뷰: 우선순위, 질문 은행(옵션 설계), 스킵 규칙, 1라운드 예시 JSON
-- `references/review-checklist.md` — 문장 단위 검수법, 구조 체크 8항, 이미지·HTML 검수, 완료 보고 필수 항목
+- `references/review-checklist.md` — 문장 단위 검수법, 구조 체크 C1~C10, 이미지·HTML 검수 항목
+- `references/verification.md` — 검증 3중 게이트: 자동 검사 항목표, 고객 시뮬 리뷰어 4인 프롬프트 골격과 통과 기준, 렌더·5초 테스트 절차, 스코어카드 형식
 - `references/evidence.md` — 8질문을 뒷받침·보완하는 외부 근거(A~C등급만): 표준 anatomy, 인식 단계, 첫 화면 데이터, VoC 실측, 프레임워크 대응표. 카피 인용용이 아니라 "왜 이 규칙인가" 설명용
 - `references/compliance.md` — 규제 업종 표현 필터: 식품표시광고법 금지 유형, 건강기능식품 고시 문구·심의·필수 표시, 일반식품 기능성 표시 조건
 - `references/image-briefs.md` — pumasi:image 호출 규격(질문 스킵 키워드, 앵커 우선), 플랫폼별 비율, 섹션별 이미지 역할과 필수/선택
@@ -142,8 +161,11 @@ python3 ~/.claude/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platf
 
 ## Scripts
 
-- `scripts/assemble_html.py` — copy.md + images.json → index.html 조립. 표준 라이브러리만. 누락 섹션·이미지·플레이스홀더를 JSON으로 보고
+- `scripts/check_copy.py` — 검증 게이트 1. copy.md 구조·숫자 출처·헤드라인·CTA·금지어·사양표·이미지 실존을 판정, `qa/check_copy.json` 저장, FAIL이면 exit 1
+- `scripts/assemble_html.py` — copy.md + images.json → index.html 조립(문단·불릿·표·CTA·플레이스홀더). 표준 라이브러리만. 누락 섹션·이미지·플레이스홀더를 JSON으로 보고
+- `scripts/render_check.py` — 검증 게이트 3. Playwright(Node)로 viewport 에뮬레이션 스크린샷 + 가로 스크롤·헤드라인·CTA·이미지 계측, `qa/render_check.json`
 
 ## Assets
 
+- `assets/banned-words.json` — 카테고리별(common/q1_hero/food/health_food/cosmetics) 금지·경고 정규식. check_copy.py가 읽는다
 - `assets/template.html` — 모바일 우선 단일 파일 HTML 템플릿. `{{TITLE}}` `{{WIDTH}}` `{{PLATFORM}}` `{{SECTIONS}}` 치환

@@ -22,8 +22,12 @@
   img { display: block; width: 100%; height: auto; }
   .cta { display: block; text-align: center; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 16px; border-radius: 12px; margin: 16px 0 0; font-size: 17px; }
   .todo { background: var(--todo); border: 1px dashed #d4a500; padding: 12px; border-radius: 8px; font-size: 14px; color: #6b5400; margin: 12px 0; }
+  table.spec { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 14px; }
+  table.spec th, table.spec td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e6e6ea; vertical-align: top; }
+  table.spec th { width: 32%; color: var(--muted); font-weight: 600; background: #fafafb; }
   .todo-inline { background: var(--todo); padding: 0 4px; border-radius: 4px; color: #6b5400; }
   footer { padding: 24px; font-size: 12px; color: var(--muted); text-align: center; }
+  @media (min-width: 600px) { figure { margin: 0 auto 16px; max-width: 400px; } .sec.hero figure { margin-top: 24px; } }
   @media (max-width: 420px) { .sec { padding: 32px 18px; } figure { margin: 0 -18px 16px; } .sec.hero h2 { font-size: 26px; } }
 </style>
 </head>
@@ -33,6 +37,7 @@
 <figure><img src="images/q1.png" alt="러닝 끝, 젤리 집었다 놓은 날" loading="lazy"></figure>
 <h2>러닝 끝, 젤리 집었다 놓은 날</h2>
 <p>러닝 끝나고 샤워 전에 뭔가 달달한 게 당기는데, 설탕 젤리 봉지를 보면 방금 뛴 게 아까워집니다. 매실청은 병째라 가방에 못 넣고, 에너지젤은 인공 향이 강하죠. 광양 매실로 만든 20 g 스틱젤리는 그 자리를 위해 만들었습니다.</p>
+<a class="cta" href="#order">런칭가로 30포 받기</a>
 </section>
 
 <section class="sec" id="q2">
@@ -68,7 +73,7 @@
 <figure><img src="images/q6.png" alt="받으시는 것과 순서" loading="lazy"></figure>
 <h2>받으시는 것과 순서</h2>
 <p>1. <strong>먼저 받는 것</strong>: 매실추출물 스틱젤리 20 g × 30포, 지퍼백 파우치 2. <strong>매일 하는 것</strong>: 운동 후 한 포, 기록 카드 한 칸 3. <strong>막힐 때</strong>: 신맛이 강하면 냉장 후 드세요. 문의는 스토어 톡톡으로 4. <strong>한 달 뒤</strong>: 30칸이 찬 기록 카드. 2박스 주문은 무료배송</p>
-<p>| 항목 | 내용 | |---|---| | 내용량 | 20 g × 30포 (600 g) | | 원료 | 매실추출물 (전남 광양산 매실) | | 지표성분 | <mark class="todo-inline">[자료 필요: 1일 섭취량당 지표성분 함량 — 라벨 기준]</mark> | | 기능성 | 피로 개선에 도움을 줄 수 있음 | | 열량·당 | 1포 25 kcal, 설탕 무첨가(알룰로스) | | 섭취법 | 1일 1회, 1회 1포 | | 보관 | 상온 (냉장 가능) | | 인증 | 건강기능식품 |</p>
+<table class="spec"><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>내용량</td><td>20 g × 30포 (600 g)</td></tr><tr><td>원료</td><td>매실추출물 (전남 광양산 매실)</td></tr><tr><td>지표성분</td><td><mark class="todo-inline">[자료 필요: 1일 섭취량당 지표성분 함량 — 라벨 기준]</mark></td></tr><tr><td>기능성</td><td>피로 개선에 도움을 줄 수 있음</td></tr><tr><td>열량·당</td><td>1포 25 kcal, 설탕 무첨가(알룰로스)</td></tr><tr><td>섭취법</td><td>1일 1회, 1회 1포</td></tr><tr><td>보관</td><td>상온 (냉장 가능)</td></tr><tr><td>인증</td><td>건강기능식품</td></tr></tbody></table>
 <div class="todo"><mark class="todo-inline">[자료 필요: 상품정보제공고시 항목(제조원·유통기한·영양정보 표시면) 및 광고 심의필 번호]</mark></div>
 </section>
 

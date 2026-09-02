@@ -29,6 +29,8 @@ Claude Code 스킬. 제품·서비스 정보를 던지면 **"고객이 결제 �
 
 세 상품·수치·인증은 전부 가상 설정이며, 노란 박스는 실제 자료가 들어와야 완성되는 자리다.
 
+각 예시 폴더의 `qa/`에 검증 3중 게이트 산출물이 그대로 들어 있다: `check_copy.json`(자동 검사), `sim-review-r1/r2.md`(고객·규제·CRO·경쟁사 4인 리뷰, 홍삼만 실행), `render_check.json` + `render-390/860.png`(실제 렌더 계측), `five-second.md`(첫 화면 5초 테스트). 게이트가 실제로 잡아낸 것: Q1에 CTA가 없으면 모바일 첫 CTA가 두 화면 밖으로 밀림, 9:16 이미지가 데스크톱 폭에서 헤드라인을 첫 화면 밖으로 밀어냄, 사양 표 미렌더, 7 mg 함량의 맥락 부재, 후기 부재를 환불 정책으로만 메우려는 약점.
+
 ## 설치
 
 ```bash
@@ -45,7 +47,7 @@ git clone https://github.com/fivetaku/sangse ~/.claude/skills/sangse
 
 또는 "상세페이지 만들어줘", "스마트스토어 상세 써줘"라고 말하면 자동 트리거된다.
 
-흐름: 정보 수집 → **제품 인터뷰**(불확실한 것만, 최대 4문항 × 2라운드) → 오퍼 점검 → 8섹션 카피 → 의심 많은 고객 눈 검수 → **카피 승인** → 이미지(필수 4장) → HTML 조립 → 보고.
+흐름: 정보 수집 → **제품 인터뷰**(불확실한 것만, 최대 4문항 × 2라운드) → 오퍼 점검 → 8섹션 카피 → **검증 게이트 1** 자동 검사(스크립트) → **게이트 2** 고객 시뮬레이션 리뷰(의심 많은 고객·규제 심사관·CRO·경쟁사 마케터 4인 병렬, 고객 8/8 네까지 최대 2라운드) → **카피 승인** → 이미지(필수 4장) → HTML 조립 → **게이트 3** 실제 렌더 + 5초 테스트 → 스코어카드 보고.
 
 산출물은 프로젝트 루트 `sangse/{slug}/`에 쌓인다: `raw-input.md`, `intake-checklist.md`, `offer-check.md`, `copy.md`, `review-log.md`, `image-briefs.md`, `images.json`, `index.html`.
 
@@ -62,7 +64,10 @@ sangse/
 │   ├── image-briefs.md           # pumasi:image 호출 규격
 │   ├── evidence.md               # 8질문을 뒷받침·보완하는 외부 근거(A~C등급)
 │   └── compliance.md             # 규제 업종 표현 필터 (식품·건기식 상세, 그 외 법령 인덱스)
+├── references/verification.md    # 검증 3중 게이트(자동 검사·고객 시뮬 리뷰·렌더/5초 테스트)
+├── scripts/check_copy.py         # 게이트 1: 구조·숫자 출처·금지어·CTA·표·이미지 자동 판정
 ├── scripts/assemble_html.py      # copy.md + images.json → index.html (표준 라이브러리만)
+├── scripts/render_check.py       # 게이트 3: Playwright 렌더 스크린샷 + 레이아웃 계측
 ├── assets/template.html          # 모바일 우선 단일 파일 템플릿
 └── examples/                     # 가상 상품 예시
 ```

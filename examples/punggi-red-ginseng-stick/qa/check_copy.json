@@ -1,0 +1,75 @@
+{
+  "path": "/Users/chulrolee/.claude/skills/sangse/examples/punggi-red-ginseng-stick/copy.md",
+  "category": [
+    "common",
+    "health_food"
+  ],
+  "platform": "smartstore",
+  "checks": [
+    {
+      "id": "C1",
+      "status": "PASS",
+      "message": "Q1~Q8 순서 정상",
+      "detail": []
+    },
+    {
+      "id": "C2",
+      "status": "PASS",
+      "message": "Q1 금지어 없음",
+      "detail": []
+    },
+    {
+      "id": "C3",
+      "status": "PASS",
+      "message": "모든 숫자가 입력에 존재",
+      "detail": []
+    },
+    {
+      "id": "C7",
+      "status": "PASS",
+      "message": "헤드라인 길이 정상",
+      "detail": []
+    },
+    {
+      "id": "C8",
+      "status": "PASS",
+      "message": "CTA 4회, 문구 동일: 런칭가로 한 달 시작하기",
+      "detail": []
+    },
+    {
+      "id": "C9",
+      "status": "WARN",
+      "message": "경고어 1건 — 문맥 확인",
+      "detail": [
+        "[health_food] L55: '효과가'"
+      ]
+    },
+    {
+      "id": "C10",
+      "status": "PASS",
+      "message": "사양 표 + FAQ 존재",
+      "detail": []
+    },
+    {
+      "id": "P",
+      "status": "INFO",
+      "message": "플레이스홀더 5개",
+      "detail": [
+        "[자료 필요: 실제 결과물 화면 1장 — 개봉 사진 또는 스틱 섭취 영상 캡처]",
+        "[자료 필요: 첫 구매 고객 후기 1~2개 — 맛·편의·배송 경험 위주. 효능 관련 후기는 싣지 않습니다]",
+        "[자료 필요: 건강기능식품 인증 마크 이미지]",
+        "[자료 필요: 상품정보제공고시 항목(제조원·유통기한·영양정보 표시면) 및 광고 심의필 번호]",
+        "[자료 필요: 실제 배송 정책 — 출고일·택배사]"
+      ]
+    },
+    {
+      "id": "I",
+      "status": "PASS",
+      "message": "이미지 4장 실존",
+      "detail": []
+    }
+  ],
+  "fail": 0,
+  "warn": 1,
+  "verdict": "PASS"
+}

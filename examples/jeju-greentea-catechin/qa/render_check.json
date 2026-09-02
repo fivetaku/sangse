@@ -1,0 +1,45 @@
+{
+  "checks": [
+    {
+      "width": 390,
+      "status": "PASS",
+      "fails": [],
+      "metrics": {
+        "vw": 390,
+        "scrollWidth": 390,
+        "horizontalScroll": false,
+        "q1HeadlineTop": 713,
+        "q1HeadlineInFirstViewport": true,
+        "firstCtaTop": 938,
+        "ctaInFirstTwoViewports": true,
+        "placeholders": 8,
+        "brokenImages": 0,
+        "imageCount": 4,
+        "pageHeight": 6621,
+        "requestFailed": []
+      },
+      "screenshot": "/Users/chulrolee/.claude/skills/sangse/examples/jeju-greentea-catechin/qa/render-390.png"
+    },
+    {
+      "width": 860,
+      "status": "PASS",
+      "fails": [],
+      "metrics": {
+        "vw": 860,
+        "scrollWidth": 860,
+        "horizontalScroll": false,
+        "q1HeadlineTop": 755,
+        "q1HeadlineInFirstViewport": true,
+        "firstCtaTop": 899,
+        "ctaInFirstTwoViewports": true,
+        "placeholders": 8,
+        "brokenImages": 0,
+        "imageCount": 4,
+        "pageHeight": 5836,
+        "requestFailed": []
+      },
+      "screenshot": "/Users/chulrolee/.claude/skills/sangse/examples/jeju-greentea-catechin/qa/render-860.png"
+    }
+  ],
+  "verdict": "PASS"
+}
