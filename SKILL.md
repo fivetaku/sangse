@@ -39,7 +39,16 @@ sangse/{slug}/
 
 ## 워크플로우
 
-### Step 0. (조건부) 레퍼런스 해부
+### Step 0. 의존성 확인 (항상 맨 먼저)
+**타입**: script
+
+```bash
+bash ~/.claude/skills/sangse/scripts/check_deps.sh
+```
+
+gptaku-plugins 마켓플레이스와 `pumasi` 플러그인(`/pumasi:image`, Codex CLI 이미지 생성), `insane-search`(선택), Codex `image_generation` 플래그, Node+Playwright(게이트 3), python3를 점검한다. MISSING이 있으면 출력된 명령을 보여주고 `bash …/check_deps.sh --install`로 설치를 시도한다(`claude plugin marketplace add fivetaku/gptaku_plugins` → `claude plugin install pumasi@gptaku-plugins`). 플러그인을 새로 설치했으면 **세션 재시작이 필요하다고 사용자에게 알린다**. pumasi가 없으면 컷 이미지 없이 카피·legal·텍스트 플레이스홀더 시안까지만 만들고 그 사실을 첫 보고에 적는다.
+
+### Step 0-1. (조건부) 레퍼런스 해부
 **타입**: script + Agent + rag(`references/reference-capture.md`)
 
 카테고리·채널의 컷 패턴이 `references/reference-patterns.md`에 없으면(현재: 건기식·식품 3채널, 가전 2개), 같은 제품군의 실제 상세 2~3개를 `scripts/capture_reference.js`로 캡처하고 상세 이미지 원본을 조각내 해부 에이전트에 맡긴 뒤, 템플릿을 `assets/cut-templates.json`에 추가한다. 패턴이 있으면 건너뛴다.
@@ -178,6 +187,7 @@ python3 ~/.claude/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platf
 - `scripts/check_cuts.py` — 검증 게이트 1(컷 시트). 컷 문법·템플릿 슬롯 한도·Q 커버리지·앵커·법정 가드·숫자 출처·금지어·legal 블록·이미지 실존, `qa/check_cuts.json`, FAIL이면 exit 1
 - `scripts/check_copy.py` — 게이트 1(문단형 copy.md 호환 모드)
 - `scripts/assemble_html.py` — copy.md + images.json → index.html 조립(문단·불릿·표·CTA·플레이스홀더). 표준 라이브러리만. 누락 섹션·이미지·플레이스홀더를 JSON으로 보고
+- `scripts/check_deps.sh` — Step 0 의존성 점검·자동 설치(gptaku-plugins 마켓·pumasi·insane-search·codex 플래그·playwright·python3)
 - `scripts/capture_reference.js` — 레퍼런스 상세페이지 헤드풀 Chrome 전체 캡처 + 큰 이미지 인벤토리(Node+Playwright)
 - `scripts/render_check.py` — 검증 게이트 3. Playwright(Node)로 viewport 에뮬레이션 스크린샷 + 가로 스크롤·헤드라인·CTA·이미지 계측, `qa/render_check.json`
 

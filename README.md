@@ -37,9 +37,23 @@ Claude Code 스킬. 제품·서비스 정보를 던지면 **"고객이 결제 �
 
 ```bash
 git clone https://github.com/fivetaku/sangse ~/.claude/skills/sangse
+bash ~/.claude/skills/sangse/scripts/check_deps.sh            # 의존성 점검
+bash ~/.claude/skills/sangse/scripts/check_deps.sh --install  # 누락분 자동 설치 시도
 ```
 
-이미지 생성을 쓰려면 [gptaku-plugins](https://github.com/gptaku/gptaku-plugins)의 `pumasi` 플러그인(`/pumasi:image`, Codex CLI 필요)이 설치돼 있어야 한다. 없으면 카피 + HTML까지만 만든다.
+의존성:
+- **gptaku-plugins 마켓플레이스 + `pumasi` 플러그인** — 컷 이미지 생성(`/pumasi:image`, Codex CLI `image_generation`). 수동 설치:
+  ```bash
+  claude plugin marketplace add fivetaku/gptaku_plugins
+  claude plugin install pumasi@gptaku-plugins
+  codex features enable image_generation
+  ```
+  설치 후 Claude Code 세션을 재시작한다. 없으면 카피·legal·텍스트 플레이스홀더 시안까지만 만든다.
+- `insane-search@gptaku-plugins`(선택) — 경쟁사 URL이 차단될 때.
+- Node + playwright(선택) — 검증 게이트 3 렌더 계측. `mkdir -p ~/.insane-search/node && cd ~/.insane-search/node && npm i playwright`.
+- python3 — 게이트 1·조립기(표준 라이브러리만).
+
+스킬은 실행 시작 때 이 점검을 자동으로 돌린다(Step 0).
 
 ## 사용
 
