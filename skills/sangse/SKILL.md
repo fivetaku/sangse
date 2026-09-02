@@ -1,6 +1,6 @@
 ---
 name: sangse
-description: This skill should be used when the user asks to "/sangse", "sangse", "상세 만들어줘", "상세페이지 만들어줘", "상세페이지 써줘", "랜딩페이지 카피 써줘", "스마트스토어 상세 만들어줘", "크몽 상세페이지", "세일즈 페이지 만들어줘", "이 제품 소개 페이지 써줘", "상세페이지 다시 써줘", "detail page", "sales page copy", "landing page copy", "product page". 사용자가 준 제품·서비스 정보(텍스트·파일·URL)를 "고객이 결제 전 던지는 8가지 질문" 순서의 **이미지 컷 시트**(컬리·쿠팡·스마트스토어식 세로 컷 12~20장, 카피는 이미지 안)로 설계하고, 검증 뒤 /pumasi:image로 컷 이미지를 만들어 HTML 시안까지 조립한다. 기능 나열형 소개글을 고객 언어로 바꾸는 요청이면 "상세페이지"라는 단어가 없어도 이 스킬을 쓴다. 단, 이미지 규격 질문·완성된 카피의 맞춤법 교정·이미지 1장만 만드는 요청에는 쓰지 않는다.
+description: Korean e-commerce detail page builder — turns product facts (text, file, URL) into an image cut sheet ordered by the 8 questions a customer asks before paying (12~20 vertical cuts in the Kurly / Coupang / Smart Store convention, copy inside the image), verifies it through three gates, generates the cut images via /pumasi:image and assembles an HTML draft. Also triggers when a feature-list product blurb must be rewritten in customer language, even without the word "detail page". Not for image-spec questions, proofreading finished copy, or single-image requests. Korean triggers: "/sangse", "상세 만들어줘", "상세페이지 만들어줘", "상세페이지 써줘", "랜딩페이지 카피 써줘", "스마트스토어 상세 만들어줘", "세일즈 페이지 만들어줘", "이 제품 소개 페이지 써줘", "상세페이지 다시 써줘". English triggers: "sangse", "detail page", "make a detail page", "product page copy", "sales page copy", "landing page copy".
 ---
 
 <!-- first-run setup: idempotent, non-blocking, self-skips after first run -->

@@ -2,6 +2,12 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.5.2 — 2026-09-03
+- 전용 대표 이미지 `assets/sangse-hero-01.png` 생성(/pumasi:image, 시리즈 일러스트 톤) — 예시 컷 재활용본 제거.
+- README 5개 언어를 마켓 표준 구조(PLUGIN_STANDARD §13: 태그라인·Quick Start·Why·How it works·Features·Commands·Requirements·클로징)로 재작성. 크몽은 지원 채널 중 하나로만 언급.
+- `commands/sangse.md`에 언어 정책(output_lang 잠금, AskUserQuestion 라벨 번역)과 질문 정책(불확실 슬롯만) 인라인. SKILL description을 영어 본문 + 한/영 트리거로 교체(frontmatter 정책 v2.1).
+- `.gitattributes` 추가(LF 고정·바이너리 표시), 마켓 루트 README "무엇을 쓸까" 표에 sangse 등재.
+
 ## 0.5.1 — 2026-09-03
 - 마켓플레이스 표준 정합: README 일본어·스페인어·중국어 추가(5개 언어 상호 토글), 대표 이미지 `assets/sangse-hero.png`.
 - `tests/test-gates.sh` 신설 — examples 3종에 게이트 1(`check_cuts.py`) PASS·조립기 컷 모드 스모크·`check_deps.sh`·프런트매터 계약을 고정.

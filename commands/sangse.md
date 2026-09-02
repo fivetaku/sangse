@@ -24,6 +24,10 @@ If the output is empty, just continue silently. (AskUserQuestion must NOT be in 
 
 # /sangse
 
+> **Language (shared/language-policy.md)**: lock `output_lang` to the language of the request text (or, if none, the conversation so far) before reading anything else. Every user-facing output — replies, AskUserQuestion `question`/`header`/`label`/`description`, and files written to disk (`cuts.md`, `legal.md`, the report) — follows `output_lang`. The JSON below is a template: translate its labels, never emit it verbatim in another language. Identifiers, file names, commands and the `[자료 필요: …]` token are not translated. Do not default to Korean because the plugin was made in Korea.
+>
+> **Questioning (shared/questioning-policy.md)**: ask only slots that cannot be inferred from the input (target, platform, traffic source, proof, refund policy, regulated category); at most 4 questions per round, 2 rounds. If the input already answers a slot, do not ask it.
+
 Build a Korean e-commerce detail page as an **image cut sheet**: 12~20 vertically stacked cuts (headline, sub, body inside the image, Kurly/Coupang/Smart Store convention) plus an HTML legal block, following the "8 questions a customer silently asks before paying" order.
 
 ## Parse Arguments
