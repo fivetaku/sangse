@@ -1,6 +1,6 @@
 ---
 name: sangse
-description: This skill should be used when the user asks to "/sangse", "sangse", "상세 만들어줘", "상세페이지 만들어줘", "상세페이지 써줘", "랜딩페이지 카피 써줘", "스마트스토어 상세 만들어줘", "크몽 상세페이지", "세일즈 페이지 만들어줘", "이 제품 소개 페이지 써줘", "상세페이지 다시 써줘", "detail page", "sales page copy", "landing page copy", "product page". 사용자가 준 제품·서비스 정보(텍스트·파일·URL)를 "고객이 결제 전 던지는 8가지 질문" 순서의 상세페이지 카피로 번역하고, 승인 뒤 /pumasi:image로 섹션 이미지를 만들어 HTML 시안까지 조립한다. 기능 나열형 소개글을 고객 언어로 바꾸는 요청이면 "상세페이지"라는 단어가 없어도 이 스킬을 쓴다. 단, 이미지 규격 질문·완성된 카피의 맞춤법 교정·이미지 1장만 만드는 요청에는 쓰지 않는다.
+description: This skill should be used when the user asks to "/sangse", "sangse", "상세 만들어줘", "상세페이지 만들어줘", "상세페이지 써줘", "랜딩페이지 카피 써줘", "스마트스토어 상세 만들어줘", "크몽 상세페이지", "세일즈 페이지 만들어줘", "이 제품 소개 페이지 써줘", "상세페이지 다시 써줘", "detail page", "sales page copy", "landing page copy", "product page". 사용자가 준 제품·서비스 정보(텍스트·파일·URL)를 "고객이 결제 전 던지는 8가지 질문" 순서의 **이미지 컷 시트**(컬리·쿠팡·스마트스토어식 세로 컷 12~20장, 카피는 이미지 안)로 설계하고, 검증 뒤 /pumasi:image로 컷 이미지를 만들어 HTML 시안까지 조립한다. 기능 나열형 소개글을 고객 언어로 바꾸는 요청이면 "상세페이지"라는 단어가 없어도 이 스킬을 쓴다. 단, 이미지 규격 질문·완성된 카피의 맞춤법 교정·이미지 1장만 만드는 요청에는 쓰지 않는다.
 ---
 
 # sangse — 매출이 나는 상세페이지 제작
@@ -27,14 +27,22 @@ sangse/{slug}/
 ├── raw-input.md          # 수집한 원자료 (출처 추적의 기준)
 ├── intake-checklist.md   # 필수 4종 + 슬롯 10개 채움 현황
 ├── offer-check.md        # 오퍼 선행 점검
-├── copy.md               # Q1~Q8 카피 (검수 반영본)
+├── cuts.md               # 컷 시트: 컷 12~20개, 각 컷 = 템플릿·Q·헤드·서브·본문·비주얼·bg·image (references/cut-sheet.md)
+├── legal.md              # HTML로 남기는 법정·거래 블록 (주의사항·상세정보 표·영양표·원료·환불·고시)
 ├── review-log.md         # 번역/삭제 문장 로그 = A/B 가설 목록
-├── image-briefs.md       # 섹션별 이미지 브리프 + 생성 결과 경로
-├── images.json           # {"Q1": "…png"} — pumasi:image 산출물 참조
-└── index.html            # 조립된 시안
+├── images/c01.png …      # 컷 이미지 (pumasi:image 산출물, 폭 1000)
+├── qa/                   # 검증 게이트 산출물
+└── index.html            # 컷 세로 나열 + legal HTML
 ```
 
+형식의 근거는 `references/reference-patterns.md` — 컬리·쿠팡·정관장몰 실제 상세는 폭 1000 이미지 컷의 세로 나열이고 카피는 이미지 안에 있다. 텍스트 문단형 랜딩은 삼성·LG 같은 글로벌 브랜드 사이트 문법이라 국내 커머스에는 맞지 않는다. `copy.md` 문단 형식은 웹 랜딩 전용 호환 모드로만 남긴다.
+
 ## 워크플로우
+
+### Step 0. (조건부) 레퍼런스 해부
+**타입**: script + Agent + rag(`references/reference-capture.md`)
+
+카테고리·채널의 컷 패턴이 `references/reference-patterns.md`에 없으면(현재: 건기식·식품 3채널, 가전 2개), 같은 제품군의 실제 상세 2~3개를 `scripts/capture_reference.js`로 캡처하고 상세 이미지 원본을 조각내 해부 에이전트에 맡긴 뒤, 템플릿을 `assets/cut-templates.json`에 추가한다. 패턴이 있으면 건너뛴다.
 
 ### Step 1. 정보 수집 → `raw-input.md`
 **타입**: prompt (+ WebFetch)
@@ -51,12 +59,12 @@ sangse/{slug}/
 
 카피를 고치기 전에 오퍼를 본다. 오퍼는 가격표가 아니라 "고객이 받는 것 + 줄어드는 불안 + 지금 선택해야 하는 이유"의 전체 약속이다. 세 줄로 판정한다: ① 받는 것이 정보 나열(50강, PDF 20장)인지 불안 해소 장치(상담 질문지, 첫 고객 마케팅 설계)인지 ② 결제 직전 불안(내가 해도 될까, 실패하면, 얼마나 걸리나)에 답하는 구성품이 있는지 ③ 지금 이유가 있는지. 오퍼가 정보 나열이면 **구성품 재해석 제안**을 1개 이상 쓴다 — 단, 없는 구성품을 추가하는 게 아니라 있는 것을 고객 불안 순서로 다시 묶는다. 오퍼가 결정적으로 약하면(받는 것이 불명확) 카피로 넘어가기 전에 그 사실을 사용자에게 한 줄로 알린다. 카피만 바꾸면 클릭은 오르고 결제는 안 나기 때문이다.
 
-### Step 4. 8섹션 카피 → `copy.md`
-**타입**: prompt + rag(`references/framework.md`)
+### Step 4. 컷 시트 → `cuts.md` + `legal.md`
+**타입**: prompt + rag(`references/framework.md`, `references/cut-sheet.md`, `references/reference-patterns.md`)
 
-`# {페이지 제목}` 아래 `## Q1 {헤드라인}` ~ `## Q8 {헤드라인}` 8개 헤딩을 순서대로 쓴다(조립 스크립트가 이 헤딩을 파싱한다). 섹션당 헤드라인 20자 이내 + 본문 2~5문장. Q8 끝에 `[[CTA: 행동+결과 문구 | url]]`을 둔다.
+8질문 순서를 **컷 12~20장**으로 편성한다. 문법·기본 시퀀스(건기식 14컷: K2 히어로 → K3 페르소나 → K4 TPO → K5 목차 → K6 Point 1 → K7 기능성 → K8/L4 근거 → K6 Point 3 → K9 STEP → K10 추천 대상 → K11 구성 → L1 스펙 → C1 보증 → C2 CTA/L2 FAQ)은 `cut-sheet.md`, 템플릿별 슬롯 한도는 `assets/cut-templates.json`. 컷당 헤드 1개(4~17자, 2행이면 행당 5~9자) + 서브 1줄 + 본문 3줄(마지막 줄 볼드) + 비주얼 지시 + 배경색. 텍스트 10줄 이하, 줄당 24자 이하, 20px 미만 글자 금지. 가격·전화번호·심의번호·영양 수치·차트 값은 이미지에 넣지 않고 `legal.md`(주의사항·상세정보 표·영양표·원료명·환불·고시)로 보낸다. 웹 랜딩 전용으로 문단형 `copy.md`가 필요할 때만 `## Q1`~`## Q8` 헤딩 형식을 쓴다.
 
-각 섹션의 임무는 framework.md 표를 따른다. 특히:
+각 컷이 답하는 질문의 임무는 framework.md 표를 따른다. 특히:
 - **Q1**은 제품명·브랜드·"AI 기반"으로 시작하지 않는다. 고객이 오늘 겪는 고민의 장면 한 컷으로 시작한다. 배제되는 고객이 있을 만큼 좁게.
 - **Q2**는 "성공하세요"가 아니라 눈앞에 잡히는 도착 장면. 수치는 입력에 있는 것만.
 - **Q3**에서만 기능이 등장한다 — 기존 방식의 한계 → 우리 메커니즘 → 그것을 가능케 한 기능. 모든 기능 문장은 `[기능] 덕분에 [겪던 장면]이 [결과]로 바뀝니다` 꼴로 쓸 수 있어야 한다.
@@ -69,14 +77,14 @@ sangse/{slug}/
 
 플랫폼이 스마트스토어·크몽이면 모바일 세로 스크롤을 전제로 문장을 더 짧게 끊는다.
 
-### Step 5. 검증 게이트 1 — 자동 검사 → `qa/check_copy.json`
+### Step 5. 검증 게이트 1 — 자동 검사 → `qa/check_cuts.json`
 **타입**: script + rag(`references/verification.md`)
 
 ```bash
-python3 ~/.claude/skills/sangse/scripts/check_copy.py "sangse/{slug}" --category {common|food|health_food|cosmetics} --platform {web|smartstore|kmong}
+python3 ~/.claude/skills/sangse/scripts/check_cuts.py "sangse/{slug}" --category {common|food|health_food|cosmetics} --platform {web|smartstore|kmong}
 ```
 
-코드가 판정한다: 8섹션 순서, Q1 첫 화면 금지어, **copy.md의 모든 숫자가 입력에 있는지**(파생 수치는 intake에 계산식 필요), 헤드라인 20자, CTA 3회 동일, 카테고리 금지어(`assets/banned-words.json`), Q6 사양 표·Q7 FAQ, 이미지 실존. exit 0이 아니면 다음으로 가지 않는다. 지목된 것만 고치고 재실행한다. WARN은 문맥 판단 이유를 `review-log.md`에 한 줄 남긴다.
+코드가 판정한다: 컷 헤딩 문법·템플릿 존재·높이 범위, 헤드라인 행 수·행당 글자 수·본문 줄 수·줄당 글자 수(템플릿 한도), 컷 수 10~20과 Q1~Q8 커버리지·순서, 앵커 컷·배경색·K4 각주·K7 고시 문구, **cuts.md+legal.md의 모든 숫자가 입력에 있는지**(파생 수치는 intake에 계산식), 카테고리 금지어(`assets/banned-words.json`), legal 필수 블록, 이미지 실존·폭≥900. exit 0이 아니면 다음으로 가지 않는다. 지목된 것만 고치고 재실행한다. (문단형 copy.md는 `check_copy.py`.)
 
 ### Step 6. 검증 게이트 2 — 고객 시뮬레이션 리뷰 → `qa/sim-review-r{n}.md`
 **타입**: review (Agent 4개 병렬) + rag(`references/verification.md` §2·§5)
@@ -90,19 +98,19 @@ python3 ~/.claude/skills/sangse/scripts/check_copy.py "sangse/{slug}" --category
 
 copy.md 요약(Q1 헤드라인, 플레이스홀더 목록, 번역/삭제 건수)을 보여주고 묻는다: ① 이대로 이미지·HTML 진행 (추천) ② 카피 수정할 부분 있음 ③ 카피만 받고 이미지는 생략. 게이트 1·2 스코어(자동 검사 결과, 고객 네/아니오 수, 규제 위반 수)를 함께 보여준다. 이 게이트 없이 이미지를 만들지 않는다. 사용자가 착수 시 "이미지 없이 카피만"이라고 했으면 이 게이트에서 종료하고 Step 9로 간다(index.html은 이미지 없이도 조립한다).
 
-### Step 8. 이미지 브리프 → `pumasi:image` 호출
+### Step 8. 컷 이미지 생성 → `pumasi:image` 호출
 **타입**: prompt + api_mcp(Skill `pumasi:image`) + rag(`references/image-briefs.md`)
 
-`image-briefs.md`를 먼저 쓴다(섹션별 목적·비율·12자 이내 텍스트·장면). 기본은 **필수 4장**(Q1 히어로, Q2 결과, Q4 미리보기, Q6 구성). 사용자가 "전부"라면 선택 4장 추가. 장수와 예상 시간(1장 약 1분)을 알린다.
+`cuts.md`의 컷 하나가 브리프 하나다. **앵커(C01)를 먼저 생성해 Read로 텍스트와 제품 물리 상태를 확인**한 뒤 나머지를 `--ref 앵커`로 생성한다. 제품당 에이전트 1개(포그라운드 생성, 있는 컷은 건너뜀)로 맡기고 메인 세션은 그동안 다른 작업을 한다. 장수(보통 14)와 예상 시간(앵커 2분 + 13컷 × 1~1.5분)을 알린다. 모든 컷에 텍스트가 있으므로 생성 후 **전수 Read 검수**(자모·잘림 + 미개봉·내용물 노출·포장 결합·개수·손가락).
 
 호출 규칙:
 1. **Skill 도구로 `pumasi:image`만 호출**한다. codex exec·imagen.sh 직접 호출 금지 — 프록시 우회와 실패 사유 표면화가 그 스킬 안에 있다.
-2. args에 **`코덱스로` + 비율 키워드(`세로 9:16`/`가로 16:9`/`정방형 1:1`) + 퀄리티(`고품질`) + 스타일·배경·구도 문장**을 반드시 넣는다. 이 키워드가 있으면 그 스킬의 백엔드·비율·퀄리티 질문이 스킵돼 8장에 40문항이 뜨는 사태를 막는다.
-3. **앵커 우선**: Q1을 먼저 만들고 결과 `path:`를 받은 뒤 나머지를 전부 `--ref {Q1 경로}`(참조 이미지)로 물린다. 참조가 있으면 스타일 서술을 걷어내고 "첨부 이미지의 스타일·색감 유지" + 피사체 델타만 쓴다.
-4. 이미지 텍스트는 12자 이내 헤드라인·라벨만. 가격·전화번호·날짜·본문은 넣지 않는다(gpt-image-2가 약한 영역). 한글이 깨지면 "굵은 고딕, 대형"을 명시해 1~2회 재생성. HTML 후합성으로 도피하지 않는다.
-5. 사용자가 실물 스크린샷을 줬으면 Q4는 생성하지 않고 실물을 쓴다. 가짜 후기 말풍선·가짜 실명은 어떤 섹션에도 넣지 않는다.
-6. 실패한 장은 `[이미지 생성 실패 — 재시도 필요]`로 표기하고 다음 장으로. 파이프라인을 막지 않는다.
-7. 결과 경로를 `images.json`에 `{"Q1": "…"}`로 기록한다. 파일 복사·재인코딩 금지, 참조만.
+2. args에 **`코덱스로` + 비율 키워드 + `고품질` + 레이아웃·배경·텍스트 문장**(`image-briefs.md` §3 골격, 레이아웃은 `cut-templates.json`의 `layout`)을 넣는다. 이 키워드가 있으면 그 스킬의 백엔드·비율·퀄리티 질문이 스킵돼 14장에 70문항이 뜨는 사태를 막는다.
+3. **앵커 우선**: C01을 먼저 만들고 `path:`를 받은 뒤 나머지를 전부 `--ref {C01 경로}`로 물린다. 참조가 있으면 스타일 서술을 걷어내고 "첨부 이미지의 색·조명·재질 유지 + 레이아웃·텍스트만" 쓴다. 배경색은 `bg:`대로 컷마다 바꾼다.
+4. 이미지 안 텍스트는 cuts.md의 헤드·서브·본문·태그·각주 **그대로**(고시 문구·각주는 한 글자도 바꾸지 않는다). 가격·전화번호·심의번호·차트 값은 넣지 않는다. 한글이 깨지면 "굵은 고딕, 대형, 정확한 자모"를 명시해 1~2회 재생성. HTML 후합성으로 도피하지 않는다.
+5. 사용자가 실물 스크린샷·후기를 줬으면 K8/L4 컷에 실물을 쓴다. 가짜 후기·가짜 실명·식별 가능한 얼굴은 어떤 컷에도 넣지 않는다(얼굴 없는 라인 일러스트·손만).
+6. 실패한 컷은 `image: [이미지 생성 실패 — 재시도 필요]`로 두고 다음 컷으로. 조립기가 텍스트 플레이스홀더로 렌더하므로 파이프라인이 막히지 않는다.
+7. 결과 경로를 `cuts.md`의 해당 컷 `image:`에 기록한다(`sangse/{slug}/images/c{nn}.png`). 재인코딩·리사이즈 금지.
 
 ### Step 9. HTML 조립 → `index.html`
 **타입**: script
@@ -111,7 +119,7 @@ copy.md 요약(Q1 헤드라인, 플레이스홀더 목록, 번역/삭제 건수)
 python3 ~/.claude/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platform web|smartstore|kmong
 ```
 
-표준 라이브러리만 쓰는 조립기가 `copy.md`의 `## Q1`~`## Q8`을 섹션으로, `images.json`을 각 섹션 상단 이미지로, `[[CTA: …]]`를 버튼으로, `[자료 필요: …]`를 노란 박스로 렌더한다(숨기지 않는다). 템플릿은 `assets/template.html`(모바일 우선, 최대 720px, 단일 파일). stdout JSON의 `missing_sections`·`missing_images`·`placeholders`를 읽고 경고를 사용자 보고에 반영한다.
+`cuts.md`가 있으면 **컷 모드**: 각 컷 이미지를 폭 100%로 여백 없이 세로 나열하고(스마트스토어 860·웹 720), 이미지가 없는 컷은 배경색·헤드·본문 텍스트 플레이스홀더 블록으로 렌더하며, 끝에 `legal.md`를 HTML 표·불릿으로 붙인다. `[자료 필요: …]`는 노란 박스로 노출한다(숨기지 않는다). stdout JSON의 `missing_images`·`placeholders`를 보고에 반영한다. (`copy.md` 문단형은 구 모드로 그대로 지원.)
 
 ### Step 10. 검증 게이트 3 — 렌더 검증 + 5초 테스트 → `qa/render-*.png`, `qa/five-second.md`
 **타입**: review (브라우저 도구) + rag(`references/verification.md` §3)
@@ -131,6 +139,9 @@ python3 ~/.claude/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platf
 - "이미지부터 뽑아 보여주면 반응이 좋을 텐데" → Step 7 승인 전 이미지 금지.
 - "내가 쓴 카피니까 내가 검수하면 되지" → 게이트 2는 별도 에이전트 4개. 작성자 자기 검수는 검증이 아니다.
 - "HTML 조립됐으니 끝" → 게이트 3 스크린샷을 실제로 보기 전엔 완료가 아니다.
+- "글자만 맞으면 통과" → 컷 검수는 텍스트 + 제품 물리 상태(미개봉·내용물·포장 결합·개수·손가락). 매실 앵커에서 젤리가 밀려 나온 채 통과된 실측 사례가 있다.
+- "이미지 생성은 백그라운드로 띄우고 에이전트는 끝내자" → 에이전트는 포그라운드로 생성·검수·기록까지. 백그라운드는 메인 세션의 몫이다.
+- "이 카테고리 레퍼런스는 없으니 감으로" → `references/reference-capture.md`로 실제 상세를 먼저 해부한다. 텍스트 랜딩을 만들어 놓고 상세페이지라 부른 실측 사례가 이 스킬의 v0.1이다.
 - "pumasi:image 질문이 귀찮으니 imagen.sh를 직접" → 스킬 경유 원칙 위반.
 - "환불 불가라니 '만족 보장'이라고 부드럽게" → 정책 그대로. 다른 리스크 감소 장치로.
 
@@ -143,8 +154,8 @@ python3 ~/.claude/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platf
 | 설정 | 기본값 | 변경 방법 |
 |---|---|---|
 | 플랫폼 | 웹 랜딩 (16:9 히어로, 720px) | 착수 시 "스마트스토어용"/"크몽용" 또는 Step 2 질문 |
-| 이미지 장수 | 필수 4장 (Q1·Q2·Q4·Q6) | "이미지 전부" → 8장, "카피만" → 0장 |
-| 이미지 톤 | 화이트 배경 + 브랜드 1색 | 착수 시 색·분위기·기존 로고 경로 제공 |
+| 컷 수 | 14컷 (건기식 기본 시퀀스) | 10~20 사이에서 조정. "카피만" → 이미지 0장(텍스트 플레이스홀더 시안) |
+| 이미지 톤 | 브랜드 주색 1 + 뉴트럴 3(탄·크림·연회색) + 포인트 1, 컷마다 배경 전환 | 착수 시 색·분위기·기존 로고 경로 제공 |
 | 이미지 퀄리티 | 고품질 | "시안으로" → 초안 퀄리티 |
 
 ## References
@@ -156,16 +167,22 @@ python3 ~/.claude/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platf
 - `references/verification.md` — 검증 3중 게이트: 자동 검사 항목표, 고객 시뮬 리뷰어 4인 프롬프트 골격과 통과 기준, 렌더·5초 테스트 절차, 스코어카드 형식
 - `references/evidence.md` — 8질문을 뒷받침·보완하는 외부 근거(A~C등급만): 표준 anatomy, 인식 단계, 첫 화면 데이터, VoC 실측, 프레임워크 대응표. 카피 인용용이 아니라 "왜 이 규칙인가" 설명용
 - `references/compliance.md` — 규제 업종 표현 필터: 식품표시광고법 금지 유형, 건강기능식품 고시 문구·심의·필수 표시, 일반식품 기능성 표시 조건
-- `references/image-briefs.md` — pumasi:image 호출 규격(질문 스킵 키워드, 앵커 우선), 플랫폼별 비율, 섹션별 이미지 역할과 필수/선택
+- `references/cut-sheet.md` — 컷 시트 문법(cuts.md·legal.md), 기본 14컷 시퀀스, 텍스트 안전 규칙, 앵커 규칙
+- `references/reference-patterns.md` — 컬리·쿠팡·정관장몰·삼성·LG 실제 상세 5종 해부: 형식 결론, 타이포·여백·색 실측, 컷 템플릿 카탈로그 19종, 8질문↔컷 매핑, 법정 표시 배치, 채널별 차이
+- `references/image-briefs.md` — 컷 이미지 생성 규격: 앵커→--ref 순서, 포그라운드·재개 규칙, 텍스트+물리 정합성 검수, 질문 스킵 키워드, 컷 프롬프트 골격, 저장 경로
+- `references/reference-capture.md` — 새 카테고리·채널 상세를 해부해 패턴으로 바꾸는 절차: 캡처 스크립트, 채널별 차단 함정(스마트스토어 로그인 벽·쿠팡 paseo 우회), 조각·해부 에이전트 프롬프트, 템플릿 등록
 - 원전 분석: `~/ideation-workspace/30-research/2026-09-02-매출-떡상-상세페이지-작성법-영상분석.md`
 
 ## Scripts
 
-- `scripts/check_copy.py` — 검증 게이트 1. copy.md 구조·숫자 출처·헤드라인·CTA·금지어·사양표·이미지 실존을 판정, `qa/check_copy.json` 저장, FAIL이면 exit 1
+- `scripts/check_cuts.py` — 검증 게이트 1(컷 시트). 컷 문법·템플릿 슬롯 한도·Q 커버리지·앵커·법정 가드·숫자 출처·금지어·legal 블록·이미지 실존, `qa/check_cuts.json`, FAIL이면 exit 1
+- `scripts/check_copy.py` — 게이트 1(문단형 copy.md 호환 모드)
 - `scripts/assemble_html.py` — copy.md + images.json → index.html 조립(문단·불릿·표·CTA·플레이스홀더). 표준 라이브러리만. 누락 섹션·이미지·플레이스홀더를 JSON으로 보고
+- `scripts/capture_reference.js` — 레퍼런스 상세페이지 헤드풀 Chrome 전체 캡처 + 큰 이미지 인벤토리(Node+Playwright)
 - `scripts/render_check.py` — 검증 게이트 3. Playwright(Node)로 viewport 에뮬레이션 스크린샷 + 가로 스크롤·헤드라인·CTA·이미지 계측, `qa/render_check.json`
 
 ## Assets
 
-- `assets/banned-words.json` — 카테고리별(common/q1_hero/food/health_food/cosmetics) 금지·경고 정규식. check_copy.py가 읽는다
+- `assets/cut-templates.json` — 컷 템플릿 19종 규격(높이 범위·슬롯 글자 한도·Q·영문 레이아웃 서술). check_cuts.py와 이미지 프롬프트가 읽는다
+- `assets/banned-words.json` — 카테고리별(common/q1_hero/food/health_food/cosmetics) 금지·경고 정규식
 - `assets/template.html` — 모바일 우선 단일 파일 HTML 템플릿. `{{TITLE}}` `{{WIDTH}}` `{{PLATFORM}}` `{{SECTIONS}}` 치환

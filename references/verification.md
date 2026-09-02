@@ -5,8 +5,11 @@
 ## 게이트 1 — 자동 검사 (결정론적, 코드가 판정)
 
 ```bash
-python3 ~/.claude/skills/sangse/scripts/check_copy.py "sangse/{slug}" --category {common|food|health_food|cosmetics ...} --platform {web|smartstore|kmong}
+python3 ~/.claude/skills/sangse/scripts/check_cuts.py "sangse/{slug}" --category {common|food|health_food|cosmetics ...} --platform {web|smartstore|kmong}
+# 문단형 copy.md(웹 랜딩 호환 모드)는 check_copy.py
 ```
+
+컷 시트 검사 항목: T1 컷 헤딩·템플릿·높이 / T2 헤드 행 수·행당 글자·본문 줄 수·줄당 글자(템플릿 한도) / T3 컷 수 10~20·Q1~Q8 커버리지·순서 / T4 앵커 K2·bg·K4 각주·K7 고시 문구 / T5 숫자 출처(cuts+legal) / T6 금지어 / T7 legal 필수 블록 / I 이미지 실존·폭≥900. 아래 C1~C10 표는 문단형 기준이며 컷 모드에서는 T1~T7·I로 대응된다.
 
 | ID | 판정 | 실패 시 |
 |---|---|---|
@@ -44,8 +47,11 @@ Chairman(메인 Claude)이 4개 결과를 `qa/sim-review-r{n}.md`로 합치고, 
    ```
    Playwright viewport 에뮬레이션으로 `qa/render-390.png`·`qa/render-860.png`(첫 화면)와 `-full.png`(전체)를 저장하고, 가로 스크롤·Q1 헤드라인 첫 화면 내 위치·첫 CTA가 두 화면 안인지·깨진 이미지 수를 `qa/render_check.json`에 기록한다. FAIL이면 exit 1.
    **함정**: 헤드리스 Chrome CLI(`--window-size=390,…`)는 최소 창 폭이 500px라 390 스크린샷이 오른쪽이 잘린 것처럼 나온다(2026-09-02 실측: `innerWidth=500`). 이걸 레이아웃 결함으로 오판하지 말 것 — 반드시 viewport 에뮬레이션(Playwright·paseo resize)을 쓴다.
-2. 스크린샷을 **Read로 직접 본다**(계측 JSON만 믿지 않는다): 이미지 안 한글이 깨지지 않았는가 / 표가 표로 렌더됐는가 / 노란 플레이스홀더가 숨겨지지 않았는가 / 히어로 텍스트가 잘리지 않았는가.
-3. **5초 테스트**: `qa/render-390.png` **1장만** 새 에이전트에 Read 시키고(다른 파일 금지) 세 질문을 던진다 — "무엇을 파는 페이지인가 / 누구를 위한 것인가 / 사면 무엇이 달라지는가". 세 답이 intake의 M1·M2·M4와 맞으면 통과. 하나라도 못 맞히면 Q1 헤드라인·히어로 이미지 텍스트를 고치고 재렌더한다. 결과는 `qa/five-second.md`.
+2. 스크린샷을 **Read로 직접 본다**(계측 JSON만 믿지 않는다): 이미지 안 한글이 깨지지 않았는가 / 표가 표로 렌더됐는가 / 노란 플레이스홀더가 숨겨지지 않았는가 / 히어로 텍스트가 잘리지 않았는가 / **제품 물리 상태**(미개봉·내용물 노출·포장 결합·개수·손가락)가 정상인가.
+   컷 모드에서 render_check는 첫 컷이 화면 상단에 있는지·Q7/Q8 컷 존재·미생성 컷 수·가로 스크롤·깨진 이미지를 계측한다(헤드라인 위치·CTA 위치는 이미지 안이라 계측 불가 → Read로 본다).
+3. **5초 테스트**: `qa/render-390.png` **1장만** 새 에이전트에 Read 시키고(다른 파일 금지) 세 질문을 던진다 — "무엇을 파는 페이지인가 / 누구를 위한 것인가 / 사면 무엇이 달라지는가". 세 답이 intake의 M1·M2·M4와 맞으면 통과. 하나라도 못 맞히면 첫 컷(앵커)의 헤드·서브·본문을 고치고 재생성한다. 결과는 `qa/five-second.md`.
+   - 컷 모드에서 **가격은 판정 항목이 아니다** — 레퍼런스 3채널 모두 가격을 이미지 밖(플랫폼 UI)에 둔다. 문단형(web) 모드에서만 검색 유입 페이지의 첫 화면 가격을 본다.
+   - 5초 테스트는 앵커 컷 1장의 시험이므로 앵커 생성 직후에 돌려도 된다(뒤 13컷을 만들기 전에 잡는 것이 싸다).
 4. 스마트스토어·크몽이면 실제 등록 화면에 붙여 넣기 전 폭(860/720)과 이미지 용량(장당 20 MB 이하, 권장 2 MB 이하)을 확인한다.
 
 ## 4. 스코어카드 (완료 보고에 그대로 붙인다)

@@ -48,17 +48,22 @@ try { pw = require('playwright'); } catch (e) { try { pw = require('patchright')
     await page.waitForTimeout(200);
     const m = await page.evaluate(() => {
       const vw = window.innerWidth;
-      const h2 = document.querySelector('#q1 h2');
-      const cta = document.querySelector('.cta');
+      const cutsMode = !!document.querySelector('.cutsheet');
+      const firstCut = document.querySelector('.cutsheet > .cut, .cutsheet > .cut-ph');
+      const h2 = cutsMode ? (firstCut ? firstCut : null) : document.querySelector('#q1 h2');
+      const cta = cutsMode ? (document.querySelector('.cutsheet [data-q*="Q8"], .cutsheet [data-q*="Q7"]') || document.querySelector('.cta')) : document.querySelector('.cta');
       const imgs = [...document.images];
       return {
         vw,
         scrollWidth: document.documentElement.scrollWidth,
         horizontalScroll: document.documentElement.scrollWidth > vw + 1,
         q1HeadlineTop: h2 ? Math.round(h2.getBoundingClientRect().top) : null,
-        q1HeadlineInFirstViewport: h2 ? (h2.getBoundingClientRect().bottom <= 844) : false,
+        cutsMode,
+        cutCount: document.querySelectorAll('.cutsheet > .cut').length,
+        placeholderCuts: document.querySelectorAll('.cutsheet > .cut-ph').length,
+        q1HeadlineInFirstViewport: h2 ? (cutsMode ? h2.getBoundingClientRect().top <= 100 : h2.getBoundingClientRect().bottom <= 844) : false,
         firstCtaTop: cta ? Math.round(cta.getBoundingClientRect().top + window.scrollY) : null,
-        ctaInFirstTwoViewports: cta ? (cta.getBoundingClientRect().top + window.scrollY) <= 1688 : false,
+        ctaInFirstTwoViewports: cta ? (cutsMode ? true : (cta.getBoundingClientRect().top + window.scrollY) <= 1688) : false,
         placeholders: document.querySelectorAll('.todo, .todo-inline').length,
         brokenImages: imgs.filter(i => !i.complete || i.naturalWidth === 0).length,
         imageCount: imgs.length,
@@ -108,8 +113,13 @@ def main():
     for w, m in data.items():
         fails = []
         if m["horizontalScroll"]: fails.append(f"가로 스크롤 (scrollWidth {m['scrollWidth']} > {m['vw']})")
-        if not m["q1HeadlineInFirstViewport"]: fails.append(f"Q1 헤드라인이 첫 화면 밖 (top={m['q1HeadlineTop']})")
-        if not m["ctaInFirstTwoViewports"]: fails.append(f"첫 CTA가 두 화면 밖 (top={m['firstCtaTop']})")
+        if m.get("cutsMode"):
+            if not m["q1HeadlineInFirstViewport"]: fails.append("첫 컷이 첫 화면 상단에 없음")
+            if not m["ctaInFirstTwoViewports"]: fails.append("Q7/Q8 컷(보증·CTA) 없음")
+            if m.get("placeholderCuts"): fails.append(f"이미지 미생성 컷 {m['placeholderCuts']}개 (텍스트 플레이스홀더 렌더)")
+        else:
+            if not m["q1HeadlineInFirstViewport"]: fails.append(f"Q1 헤드라인이 첫 화면 밖 (top={m['q1HeadlineTop']})")
+            if not m["ctaInFirstTwoViewports"]: fails.append(f"첫 CTA가 두 화면 밖 (top={m['firstCtaTop']})")
         if m["brokenImages"]: fails.append(f"깨진 이미지 {m['brokenImages']}/{m['imageCount']}")
         checks.append({"width": int(w), "status": "FAIL" if fails else "PASS", "fails": fails, "metrics": m,
                        "screenshot": os.path.join(base, "qa", f"render-{w}.png")})
@@ -118,7 +128,8 @@ def main():
     for c in checks:
         mark = "✅" if c["status"] == "PASS" else "❌"
         m = c["metrics"]
-        print(f"{mark} {c['width']}px — vw={m['vw']} 높이={m['pageHeight']} 이미지={m['imageCount']} 플레이스홀더={m['placeholders']} CTA@{m['firstCtaTop']} → {c['screenshot']}")
+        extra = f" 컷={m.get('cutCount')}(+미생성 {m.get('placeholderCuts')})" if m.get("cutsMode") else f" CTA@{m['firstCtaTop']}"
+        print(f"{mark} {c['width']}px — vw={m['vw']} 높이={m['pageHeight']} 이미지={m['imageCount']} 플레이스홀더={m['placeholders']}{extra} → {c['screenshot']}")
         for f_ in c["fails"]:
             print(f"     - {f_}")
     print(f"\n{result['verdict']} → {os.path.join(base, 'qa', 'render_check.json')}")
