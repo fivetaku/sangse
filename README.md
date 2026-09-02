@@ -70,6 +70,7 @@ Step 0  dependency check          check_deps.sh  (--install)
 Step 1  product interview         only the uncertain slots · ≤4 questions × 2 rounds
 Step 2  offer check               what the customer gets + which anxiety it removes + why now
 Step 3  cut sheet                 cuts.md (14 cuts by default) + legal.md
+Step 3½ humanize                  humanize_cuts.py — GPT (Codex CLI) re-reads each cut's meaning and rewrites the copy like a person; per-cut guards keep numbers, placeholders, slot limits
         │
         ├─ Gate 1  check_cuts.py       deterministic: slot limits · Q coverage · every number traced · banned words · legal blocks
         ├─ Gate 2  4 reviewer agents   sceptical customer · regulatory examiner · CRO reviewer · competitor marketer
@@ -96,6 +97,7 @@ The cuts follow the **8 questions a customer silently asks before paying**: Is t
 | 29 measured cut templates | Dissected from real pages — Kurly, Coupang, a brand mall, Samsung, LG, Musinsa (fashion), Kmong (services) |
 | Uncertainty-driven interview | Asks only what cannot be inferred from the input; at most 4 questions × 2 rounds |
 | Offer check before copy | Weak offers are flagged before a single line of copy is written |
+| GPT humanize pass | A second model (Codex CLI) interprets what each cut is trying to say and rewrites it without AI tells (translation-ese, ad clichés, uniform rhythm, hedging — rules borrowed from humanize-korean); code guards reject any cut that adds a number, drops a placeholder, overflows a slot or introduces a banned word |
 | Gate 1 — deterministic checker | `check_cuts.py`: template slot limits, Q1~Q8 coverage, every number traced to the input, category banned words, mandatory legal blocks, image existence |
 | Gate 2 — four reviewer agents | Separate from the writer; pass = customer answers "yes" on all 8 questions and zero regulatory violations, max 2 rounds |
 | Gate 3 — real render | `render_check.py`: Playwright render at 390 / 860 px plus a 5-second first-screen test |
@@ -115,6 +117,7 @@ Nothing here is legal advice; final wording is subject to the relevant review bo
 | `/sangse 카피만 <product info>` | Copy only — stops after the copy approval gate |
 | `/sangse 스마트스토어 <product info>` | Pre-set the platform (also `웹`, `크몽`), skip that interview question |
 | `/sangse check <dir>` | Run only the verification gates on an existing `sangse/<slug>` folder |
+| `/sangse humanize <dir>` | Run only the GPT humanize pass on an existing folder and show what was accepted or rejected |
 
 ### Natural language triggers
 
@@ -129,11 +132,11 @@ Nothing here is legal advice; final wording is subject to the relevant review bo
 |---|---|
 | `commands/sangse.md` | Single entry point (`/sangse`), argument routing |
 | `skills/sangse/SKILL.md` | Workflow (Step 0 → interview → offer check → cut sheet → 3 gates → images → HTML → report), Iron Law, red flags |
-| `skills/sangse/references/` | `framework.md` (8 questions), `cut-sheet.md`, `reference-patterns.md` (7 real pages dissected, 29 templates), `interview.md`, `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
-| `skills/sangse/scripts/` | `check_deps.sh`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `capture_reference.js` |
-| `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `template.html` |
+| `skills/sangse/references/` | `framework.md` (8 questions), `cut-sheet.md`, `reference-patterns.md` (7 real pages dissected, 29 templates), `interview.md`, `humanize.md` (GPT rewrite prompt + guards), `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
+| `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `capture_reference.js` |
+| `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `humanize-schema.json`, `template.html` |
 | `setup/` | First-run setup (gptaku standard) |
-| `tests/test-gates.sh` | Regression: gate 1 PASS on the three examples, assembler smoke, dependency check, frontmatter contract |
+| `tests/test-gates.sh` | Regression: gate 1 PASS on the three examples, assembler smoke, humanize guards, dependency check, frontmatter contract |
 | `examples/` | Three fictional products with the full artefact trail and `qa/` results |
 
 ---

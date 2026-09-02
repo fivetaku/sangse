@@ -40,6 +40,7 @@ Inspect `$ARGUMENTS`:
 | contains `카피만` / `copy only` | Same, but stop after the copy approval gate — no image generation |
 | contains `스마트스토어` / `크몽` / `웹` | Pre-set the platform, skip that interview question |
 | `check <dir>` | Run only the verification gates on an existing `sangse/{slug}` folder (check_cuts.py → render_check.py) |
+| `humanize <dir>` | Run only Step 4-1 (GPT humanize via `humanize_cuts.py`) on an existing folder, show `qa/humanize.json`, then `--apply` on approval |
 | (no argument) | Ask for product info with AskUserQuestion — see below |
 
 ## No argument
@@ -66,4 +67,4 @@ Inspect `$ARGUMENTS`:
 
 ## Execute
 
-Follow `${CLAUDE_PLUGIN_ROOT}/skills/sangse/SKILL.md` exactly — Step 0 dependency check, product interview (only the uncertain slots), offer check, cut sheet (`cuts.md` + `legal.md`), gate 1 (`check_cuts.py`), gate 2 (4 simulated reviewers), copy approval, cut images via `/pumasi:image` (anchor → `--ref` chain, text + physical-plausibility inspection), HTML assembly, gate 3 (render + 5-second test), scorecard report. Never invent facts that are not in the input; leave `[자료 필요: …]` placeholders.
+Follow `${CLAUDE_PLUGIN_ROOT}/skills/sangse/SKILL.md` exactly — Step 0 dependency check, product interview (only the uncertain slots), offer check, cut sheet (`cuts.md` + `legal.md`), Step 4-1 humanize (`humanize_cuts.py` — GPT rewrites the copy, per-cut guards), gate 1 (`check_cuts.py`), gate 2 (4 simulated reviewers), copy approval, cut images via `/pumasi:image` (anchor → `--ref` chain, text + physical-plausibility inspection), HTML assembly, gate 3 (render + 5-second test), scorecard report. Never invent facts that are not in the input; leave `[자료 필요: …]` placeholders.

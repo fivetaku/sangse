@@ -2,6 +2,12 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.6.0 — 2026-09-03
+- **Step 4-1 윤문(humanize) 신설** — Claude가 쓴 컷 카피(headline·sub·body·footnote·cta)를 Codex CLI(GPT)에게 넘겨 컷마다 "이 컷이 하려는 말"을 해석한 뒤 사람이 쓴 문장으로 재생성한다(`scripts/humanize_cuts.py`, 규칙 정본 `references/humanize.md` — humanize-korean의 AI 티 분류를 커머스 카피용으로 차용). 게이트 1 앞에서 실행.
+- 컷별 가드(코드 판정): 원본에 없던 숫자 유입·플레이스홀더 소실·템플릿 슬롯 초과·카테고리 금지어 유입이면 그 컷은 원문 유지. `cuts.humanized.md` + `qa/humanize.json`(채택/거부/해석/변경률), `--apply`로 치환(원본은 `cuts.original.md`). `/sangse humanize <dir>` 라우트.
+- 실측 함정: codex `--output-schema`는 opencodex류 로컬 프록시에서 스트림이 끊긴다 → 스키마를 프롬프트에 인라인. env 프록시는 codex 호출에서만 우회.
+- `tests/test-gates.sh`에 윤문 가드 5건 추가(네트워크 없음, 24 assertions).
+
 ## 0.5.2 — 2026-09-03
 - 전용 대표 이미지 `assets/sangse-hero-01.png` 생성(/pumasi:image, 시리즈 일러스트 톤) — 예시 컷 재활용본 제거.
 - README 5개 언어를 마켓 표준 구조(PLUGIN_STANDARD §13: 태그라인·Quick Start·Why·How it works·Features·Commands·Requirements·클로징)로 재작성. 크몽은 지원 채널 중 하나로만 언급.

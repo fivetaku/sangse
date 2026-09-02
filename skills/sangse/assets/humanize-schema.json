@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["cuts"],
+  "properties": {
+    "cuts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "meaning"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^C\\d{2}$" },
+          "meaning": { "type": "string" },
+          "unchanged": { "type": "boolean" },
+          "note": { "type": "string" },
+          "headline": { "type": "string" },
+          "sub": { "type": "string" },
+          "body": { "type": "array", "items": { "type": "string" } },
+          "footnote": { "type": "string" },
+          "cta": { "type": "string" }
+        }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  }
+}

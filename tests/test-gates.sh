@@ -76,6 +76,36 @@ for ex in "${FIXTURES[@]}"; do
   fi
 done
 
+echo "[윤문 가드 — humanize_cuts.py, 네트워크 없음]"
+HZ="$TMP/hz"; mkdir -p "$HZ"; cp -R "$EXAMPLES/punggi-red-ginseng-stick/." "$HZ/"
+python3 "$SCRIPTS/humanize_cuts.py" "$HZ" --category health_food --dry-run >"$HZ/.prompt" 2>&1 \
+  && grep -q '### 컷 시트 (JSON)' "$HZ/.prompt" && grep -q '"id": "C14"' "$HZ/.prompt" \
+  && ok "--dry-run: 시스템 프롬프트 + 14컷 JSON 조립" || bad "--dry-run" "$(tail -1 "$HZ/.prompt")"
+cat > "$HZ/gpt.json" <<'EOJ'
+{"cuts":[
+ {"id":"C01","meaning":"출근길 한 포","body":["홍삼차 우릴 틈 없는 아침","가방에서 꺼내 한 포","6년근 홍삼농축액 10 mL","하루 한 포면 됩니다"]},
+ {"id":"C02","meaning":"x","body":["하루 99잔 커피 대신 한 포","서랍 속 홍삼정은 그만","10 mL 한 포로 끝"]},
+ {"id":"C03","meaning":"x","headline":"이 헤드라인은 슬롯 한도를 훨씬 넘기도록 아주 길게 쓴 문장입니다"},
+ {"id":"C04","meaning":"x","body":["피로 회복 치료제 대신 한 포"]},
+ {"id":"C06","meaning":"x","unchanged":true,"note":"자연스러움"}
+]}
+EOJ
+python3 "$SCRIPTS/humanize_cuts.py" "$HZ" --category health_food --from-json "$HZ/gpt.json" >"$HZ/.hz.out" 2>&1
+rc=$?
+[ "$rc" -eq 0 ] && [ -f "$HZ/cuts.humanized.md" ] && [ -f "$HZ/qa/humanize.json" ] \
+  && ok "--from-json exit 0 + cuts.humanized.md + qa/humanize.json" || bad "--from-json" "exit=$rc $(tail -1 "$HZ/.hz.out")"
+python3 - "$HZ/qa/humanize.json" <<'PY' && ok "가드 판정: C01 채택 · C02 숫자 거부 · C03 슬롯 거부 · C04 금지어 거부 · C06 미변경" || bad "가드 판정" "$(cat "$HZ/qa/humanize.json" | head -c 300)"
+import json,sys
+d=json.load(open(sys.argv[1]))
+acc={a["id"] for a in d["accepted"]}; rej={r["id"]:" ".join(r["reasons"]) for r in d["rejected"]}; unc={u["id"] for u in d["unchanged"]}
+ok = acc=={"C01"} and set(rej)=={"C02","C03","C04"} and "숫자" in rej["C02"] and "headline" in rej["C03"] and "금지어" in rej["C04"] and "C06" in unc and d["applied"] is False
+sys.exit(0 if ok else 1)
+PY
+[ ! -f "$HZ/cuts.original.md" ] && grep -q '홍삼차 우릴 시간 없이' "$HZ/cuts.md" && ok "--apply 없이는 cuts.md 불변" || bad "cuts.md 불변" "원본이 바뀌었다"
+cp "$HZ/cuts.humanized.md" "$HZ/cuts.md"
+python3 "$SCRIPTS/check_cuts.py" "$HZ" --category health_food --platform smartstore >"$HZ/.g1" 2>&1 \
+  && ok "윤문 결과물이 게이트 1 PASS" || bad "윤문 결과물 게이트 1" "$(tail -1 "$HZ/.g1")"
+
 echo "[의존성 점검]"
 if bash "$SCRIPTS/check_deps.sh" >"$TMP/deps.out" 2>&1; then
   ok "check_deps.sh exit 0"

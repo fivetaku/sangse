@@ -89,6 +89,17 @@ gptaku-plugins 마켓플레이스와 `pumasi` 플러그인(`/pumasi:image`, Code
 
 플랫폼이 스마트스토어·크몽이면 모바일 세로 스크롤을 전제로 문장을 더 짧게 끊는다.
 
+### Step 4-1. 윤문 — GPT가 사람답게 재생성 → `cuts.humanized.md`, `qa/humanize.json`
+**타입**: script(외부 모델) + rag(`references/humanize.md`)
+
+같은 모델이 쓰고 같은 모델이 고치면 같은 습관이 남는다. Step 4의 카피(headline·sub·body·footnote·cta)를 **Codex CLI(GPT)** 에게 넘겨 컷마다 "이 컷이 하려는 말"을 한 문장으로 해석한 뒤 그 의미를 사람이 쓴 문장으로 다시 쓰게 한다. 규칙은 humanize-korean의 AI 티 분류(번역투·광고 상투구·대구 공식·리듬 균일·hedging·접속사)를 커머스 카피용으로 추린 시스템 프롬프트(`humanize.md` §4)다. 게이트 1 **앞**에서 한다 — 윤문 결과도 카피이므로 그 뒤에 검사한다.
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/humanize_cuts.py "sangse/{slug}" --category {common|food|health_food|cosmetics}
+```
+
+코드가 컷별로 가드한다 — 원본에 없던 숫자 유입·플레이스홀더 소실·템플릿 슬롯 초과·카테고리 금지어 유입이면 그 컷은 원문 유지(`qa/humanize.json`의 `rejected`). template·Q·h·bg·visual·image·tags는 원본에서 그대로 복사된다. 결과를 보는 순서: ① `meanings`의 해석이 Step 4의 의도와 같은 컷만 인정(해석이 틀렸으면 재생성도 틀렸다) ② 채택된 컷의 diff를 훑고 ③ 문제없으면 `--apply`로 재실행(원본은 `cuts.original.md`)하거나 `cuts.humanized.md`를 `cuts.md`로 옮긴다. 거부 사유가 슬롯 한도면 GPT 문장을 한도 안으로 다듬어 채택할 수 있고, 숫자·금지어면 채택하지 않는다. codex가 없으면(exit 3) 이 단계를 건너뛰고 보고에 "윤문 생략(codex 없음)"을 적는다. Step 7 승인 요약에 "윤문: 채택 n/총 컷, 거부 m(사유)"를 넣는다. `/sangse humanize <dir>`로 이 단계만 다시 돌릴 수 있다.
+
 ### Step 5. 검증 게이트 1 — 자동 검사 → `qa/check_cuts.json`
 **타입**: script + rag(`references/verification.md`)
 
@@ -179,6 +190,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 - `references/verification.md` — 검증 3중 게이트: 자동 검사 항목표, 고객 시뮬 리뷰어 4인 프롬프트 골격과 통과 기준, 렌더·5초 테스트 절차, 스코어카드 형식
 - `references/evidence.md` — 8질문을 뒷받침·보완하는 외부 근거(A~C등급만): 표준 anatomy, 인식 단계, 첫 화면 데이터, VoC 실측, 프레임워크 대응표. 카피 인용용이 아니라 "왜 이 규칙인가" 설명용
 - `references/compliance.md` — 규제 업종 표현 필터: 식품표시광고법 금지 유형, 건강기능식품 고시 문구·심의·필수 표시, 일반식품 기능성 표시 조건
+- `references/humanize.md` — Step 4-1 윤문: GPT(codex)용 시스템 프롬프트 정본(humanize-korean AI 티 분류 차용), 컷별 가드 규칙, 결과 판독법
 - `references/cut-sheet.md` — 컷 시트 문법(cuts.md·legal.md), 기본 14컷 시퀀스, 텍스트 안전 규칙, 앵커 규칙
 - `references/reference-patterns.md` — 컬리·쿠팡·정관장몰·삼성·LG 실제 상세 5종 해부: 형식 결론, 타이포·여백·색 실측, 컷 템플릿 카탈로그 19종, 8질문↔컷 매핑, 법정 표시 배치, 채널별 차이
 - `references/image-briefs.md` — 컷 이미지 생성 규격: 앵커→--ref 순서, 포그라운드·재개 규칙, 텍스트+물리 정합성 검수, 질문 스킵 키워드, 컷 프롬프트 골격, 저장 경로
@@ -187,6 +199,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 ## Scripts
 
 - `scripts/check_cuts.py` — 검증 게이트 1(컷 시트). 컷 문법·템플릿 슬롯 한도·Q 커버리지·앵커·법정 가드·숫자 출처·금지어·legal 블록·이미지 실존, `qa/check_cuts.json`, FAIL이면 exit 1
+- `scripts/humanize_cuts.py` — Step 4-1 윤문. cuts.md 카피를 codex(GPT)가 재생성 → 숫자·플레이스홀더·슬롯·금지어 가드 통과 컷만 치환, `cuts.humanized.md`+`qa/humanize.json`, `--apply`/`--dry-run`/`--from-json`
 - `scripts/check_copy.py` — 게이트 1(문단형 copy.md 호환 모드)
 - `scripts/assemble_html.py` — copy.md + images.json → index.html 조립(문단·불릿·표·CTA·플레이스홀더). 표준 라이브러리만. 누락 섹션·이미지·플레이스홀더를 JSON으로 보고
 - `scripts/check_deps.sh` — Step 0 의존성 점검·자동 설치(gptaku-plugins 마켓·pumasi·insane-search·codex 플래그·playwright·python3)
@@ -196,5 +209,6 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 ## Assets
 
 - `assets/cut-templates.json` — 컷 템플릿 19종 규격(높이 범위·슬롯 글자 한도·Q·영문 레이아웃 서술). check_cuts.py와 이미지 프롬프트가 읽는다
+- `assets/humanize-schema.json` — humanize_cuts.py가 프롬프트에 인라인하는 GPT 응답 스키마(컷 id·meaning·바뀐 필드)
 - `assets/banned-words.json` — 카테고리별(common/q1_hero/food/health_food/cosmetics) 금지·경고 정규식
 - `assets/template.html` — 모바일 우선 단일 파일 HTML 템플릿. `{{TITLE}}` `{{WIDTH}}` `{{PLATFORM}}` `{{SECTIONS}}` 치환
