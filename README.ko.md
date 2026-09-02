@@ -1,6 +1,10 @@
-[English](README.md) | 한국어
+[English](README.md) | 한국어 | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md)
 
 # sangse (상세) — 상세페이지 제작 플러그인
+
+<p align="center">
+  <img src="assets/sangse-hero.png" alt="sangse — 예시 앵커 컷(가상 상품)" width="320">
+</p>
 
 제품 정보를 던지면 **검증된 이미지 컷 시트**를 만드는 Claude Code 플러그인입니다. 컬리·쿠팡·네이버 스마트스토어·브랜드 자사몰이 실제로 쓰는 형식 — 폭 1000px 세로 컷 12~20장, 카피는 이미지 안, 법정 표시는 HTML 블록 — 그대로입니다.
 
@@ -81,7 +85,7 @@ sangse/
 
 ## 변경 이력
 
-[CHANGELOG.md](CHANGELOG.md) 참조.
+[CHANGELOG.md](CHANGELOG.md) 참조. 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따르고, bump 전에 `tests/test-gates.sh`가 PASS해야 한다.
 
 ## 라이선스
 

@@ -1,6 +1,10 @@
-English | [한국어](README.ko.md)
+English | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md)
 
 # sangse (상세) — Korean e-commerce detail page builder
+
+<p align="center">
+  <img src="assets/sangse-hero.png" alt="sangse — example anchor cut (fictional product)" width="320">
+</p>
 
 A Claude Code plugin that turns product facts into a **verified image cut sheet** — the format real Korean commerce detail pages actually use (Kurly, Coupang, Naver Smart Store, brand malls): 12~20 vertically stacked image cuts with the copy rendered inside the image, plus an HTML legal block.
 
@@ -75,7 +79,7 @@ The format was derived by capturing real detail pages in a headful browser and d
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md).
+See [CHANGELOG.md](CHANGELOG.md). Release procedure (version bump → GitHub release → marketplace submodule pointer → cache) follows [gptaku_plugins/PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md); `tests/test-gates.sh` must pass before every bump.
 
 ## License (라이선스)
 
