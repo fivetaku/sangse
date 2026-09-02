@@ -1,0 +1,85 @@
+{
+  "path": "/Users/chulrolee/.claude/skills/sangse/examples/jeju-greentea-catechin/cuts.md",
+  "cuts": 14,
+  "category": [
+    "common",
+    "health_food"
+  ],
+  "platform": "smartstore",
+  "checks": [
+    {
+      "id": "T1",
+      "status": "PASS",
+      "message": "컷 헤딩·템플릿·높이 정상",
+      "detail": []
+    },
+    {
+      "id": "T2",
+      "status": "PASS",
+      "message": "텍스트 슬롯 한도 정상",
+      "detail": []
+    },
+    {
+      "id": "T3",
+      "status": "WARN",
+      "message": "컷 수·Q 커버리지·순서",
+      "detail": [
+        "Q4 컷 없음"
+      ]
+    },
+    {
+      "id": "T4",
+      "status": "PASS",
+      "message": "앵커·배경·법정 가드",
+      "detail": []
+    },
+    {
+      "id": "T5",
+      "status": "PASS",
+      "message": "모든 숫자가 입력에 존재",
+      "detail": []
+    },
+    {
+      "id": "T6",
+      "status": "PASS",
+      "message": "금지어 0건 / 경고어 0건",
+      "detail": []
+    },
+    {
+      "id": "T7",
+      "status": "PASS",
+      "message": "legal 블록 6개 존재",
+      "detail": []
+    },
+    {
+      "id": "I",
+      "status": "PASS",
+      "message": "이미지 14장 실존",
+      "detail": []
+    },
+    {
+      "id": "P",
+      "status": "INFO",
+      "message": "플레이스홀더 14개",
+      "detail": [
+        "[자료 필요: 라벨의 섭취 시 주의사항 원문 전체 (간 질환 관련 문구 포함 여부)]",
+        "[자료 필요: 라벨 문구 원문]",
+        "[자료 필요: 제조원·소재지]",
+        "[자료 필요: 표시일]",
+        "[자료 필요: 광고 심의필 번호]",
+        "[자료 필요: 신고 번호]",
+        "[자료 필요: 건강기능식품 인증 마크 이미지]",
+        "[자료 필요: 1일 섭취량당 열량·탄수화물·당류·단백질·지방·나트륨 표시면]",
+        "[자료 필요: 원료명 및 함량 표시면 원문]",
+        "[자료 필요: 실제 결과물 화면 1장, 첫 구매 고객 후기 1~2개 — 섭취 편의·냄새·배송 경험 위주. 효능 관련 후기는 싣지 않습니다]",
+        "[자료 필요: 실제 배송 정책 — 출고일·택배사]",
+        "[자료 필요: 샘플팩 상품 링크]",
+        "[자료 필요: 배송비·출고일·택배사·교환 절차]",
+        "[자료 필요: 전자상거래법 상품정보제공고시 식품 항목]"
+      ]
+    }
+  ],
+  "fail": 0,
+  "warn": 1,
+  "verdict": "PASS"
+}
