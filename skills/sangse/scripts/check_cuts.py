@@ -131,6 +131,9 @@ def main():
         f = c["fields"]
         head = f.get("headline", "")
         rows = [r for r in head.split("|") if r.strip()] if isinstance(head, str) else []
+        if t["headline_max"] == 0:  # 텍스트 없는 컷(패션 룩북 F2~F4 등)
+            if rows: bad.append(f"{c['id']}: {c['tpl']}은 텍스트 없는 컷인데 headline 있음")
+            continue
         if not rows: bad.append(f"{c['id']}: headline 없음")
         if len(rows) > 3: bad.append(f"{c['id']}: headline {len(rows)}행 (최대 3)")
         for r in rows:

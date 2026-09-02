@@ -1,4 +1,11 @@
 .DS_Store
-.imagen/
+node_modules/
 __pycache__/
 *.pyc
+.claude/*.local.md
+
+# Plugin-specific
+.imagen/
+.imagen-full/
+RESEARCH/
+sangse/

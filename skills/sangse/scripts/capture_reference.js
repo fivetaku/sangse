@@ -19,7 +19,7 @@ const headless = flags.includes('--headless');
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await page.waitForTimeout(3000);
       // 상세정보 탭/더보기 버튼 시도 (플랫폼 공통 후보)
-      for (const sel of ['button:has-text("상세정보 펼쳐보기")', 'button:has-text("상세정보 더보기")', 'button:has-text("더보기")', 'a:has-text("상품정보")', 'button:has-text("상품 상세")', 'text=상세정보']) {
+      for (const sel of ['button:has-text("상세정보 펼쳐보기")', 'button:has-text("상세정보 더보기")', 'button:has-text("더보기")', 'a:has-text("상품설명")', 'a:has-text("상품정보")', 'button:has-text("상품 상세")', 'li:has-text("상품설명")', 'text=상세정보']) {  // 올리브영은 '상품설명' 탭을 눌러야 상세가 펼쳐진다
         try { const el = page.locator(sel).first(); if (await el.isVisible({ timeout: 800 })) { await el.click({ timeout: 2000 }); await page.waitForTimeout(1200); } } catch (e) {}
       }
       // 끝까지 스크롤해 lazy 이미지 로드
@@ -30,7 +30,8 @@ const headless = flags.includes('--headless');
         return document.documentElement.scrollHeight;
       });
       // 이미지 인벤토리: 상세 영역의 큰 이미지들 (폭 300px 이상)
-      const imgs = await page.evaluate(() => [...document.images].map(i => { const r = i.getBoundingClientRect(); return { src: (i.currentSrc || i.src || '').slice(0, 200), w: Math.round(r.width), h: Math.round(r.height), nw: i.naturalWidth, nh: i.naturalHeight, top: Math.round(r.top + window.scrollY), alt: (i.alt || '').slice(0, 80) }; }).filter(i => i.w >= 300 && i.h >= 120));
+      // lazy 이미지(1×1 gif 자리표시자)는 data-src/data-original에 실제 URL이 있다 — 올리브영 실측(2026-09-02)
+      const imgs = await page.evaluate(() => [...document.images].map(i => { const r = i.getBoundingClientRect(); const lazy = i.getAttribute('data-src') || i.getAttribute('data-original') || i.getAttribute('data-lazy') || ''; const cur = i.currentSrc || i.src || ''; const src = (cur.startsWith('data:') && lazy) ? lazy : (lazy && i.naturalWidth <= 1 ? lazy : cur); return { src: src.slice(0, 260), lazy: !!lazy && (cur.startsWith('data:') || i.naturalWidth <= 1), w: Math.round(r.width), h: Math.round(r.height), nw: i.naturalWidth, nh: i.naturalHeight, top: Math.round(r.top + window.scrollY), alt: (i.alt || '').slice(0, 80) }; }).filter(i => i.w >= 300 && i.h >= 120 && !i.src.startsWith('data:')));
       const textStats = await page.evaluate(() => { const t = document.body.innerText || ''; return { chars: t.length, lines: t.split('\n').filter(s => s.trim()).length }; });
       const shot = path.join(outdir, `${slug}-${view.name}-full.png`);
       await page.screenshot({ path: shot, fullPage: true });

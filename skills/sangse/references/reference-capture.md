@@ -9,7 +9,7 @@
 ## 2. 캡처
 ```bash
 cd sangse-작업폴더 && NODE_PATH=~/.insane-search/node/node_modules \
-  node ~/.claude/skills/sangse/scripts/capture_reference.js {slug} "{url}" ./captures
+  node ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/capture_reference.js {slug} "{url}" ./captures
 ```
 - 헤드풀 실제 Chrome(patchright → playwright 폴백)으로 모바일 390·데스크톱 1280 전체 캡처 + 폭 300 이상 이미지 인벤토리(`{slug}.json`).
 - **상세 이미지 원본**이 핵심이다: json에서 `nh`(naturalHeight)가 수천 px인 `src`가 곧 상세 이미지 한 장(컬리 1010×18,468, 쿠팡 1000×24,750, 정관장몰 1000×27,647). `curl`/`urllib`로 Referer 붙여 다운로드한다.

@@ -5,7 +5,7 @@
 ## 게이트 1 — 자동 검사 (결정론적, 코드가 판정)
 
 ```bash
-python3 ~/.claude/skills/sangse/scripts/check_cuts.py "sangse/{slug}" --category {common|food|health_food|cosmetics ...} --platform {web|smartstore|kmong}
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_cuts.py "sangse/{slug}" --category {common|food|health_food|cosmetics ...} --platform {web|smartstore|kmong}
 # 문단형 copy.md(웹 랜딩 호환 모드)는 check_copy.py
 ```
 
@@ -43,7 +43,7 @@ Chairman(메인 Claude)이 4개 결과를 `qa/sim-review-r{n}.md`로 합치고, 
 
 1. 스크립트로 실제 브라우저 렌더 + 계측을 한 번에 한다:
    ```bash
-   python3 ~/.claude/skills/sangse/scripts/render_check.py "sangse/{slug}" --widths 390,860 --full
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/render_check.py "sangse/{slug}" --widths 390,860 --full
    ```
    Playwright viewport 에뮬레이션으로 `qa/render-390.png`·`qa/render-860.png`(첫 화면)와 `-full.png`(전체)를 저장하고, 가로 스크롤·Q1 헤드라인 첫 화면 내 위치·첫 CTA가 두 화면 안인지·깨진 이미지 수를 `qa/render_check.json`에 기록한다. FAIL이면 exit 1.
    **함정**: 헤드리스 Chrome CLI(`--window-size=390,…`)는 최소 창 폭이 500px라 390 스크린샷이 오른쪽이 잘린 것처럼 나온다(2026-09-02 실측: `innerWidth=500`). 이걸 레이아웃 결함으로 오판하지 말 것 — 반드시 viewport 에뮬레이션(Playwright·paseo resize)을 쓴다.
