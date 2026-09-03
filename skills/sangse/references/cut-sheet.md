@@ -10,6 +10,7 @@ platform: smartstore        # web | smartstore | kmong | funding
 width: 1000                 # 스마트스토어 등록 시 860으로 축소
 brand: primary=#7A2E1D neutral=#F3EBDD,#D8C4A2,#F0F0F0 accent=#C8102E
 tone: 담백한 존댓말
+style: checkpoint          # 스타일 팩 id (assets/style-packs/). 시퀀스·프롬프트 스타일·게이트 1 T8이 이 팩을 따른다. 없으면 아래 §3 기본 14컷
 anchor: C02                 # 스타일 앵커 컷(보통 제품명 히어로). 나머지는 --ref로 물린다
 
 ## C01 · K3 · Q1 · h=1350
@@ -47,7 +48,7 @@ image: images/c01.png                   # 생성 후 기록. 없으면 텍스트
 ```
 비어 있는 항목은 `[자료 필요: …]`로 둔다. 레퍼런스(컬리)는 이 블록도 이미지로 넣었지만 sangse는 정확도·수정성·검색 때문에 HTML을 기본으로 한다. 단일 이미지 제출이 강제되면 `--legal-as-image`로 텍스트 컷을 추가 생성한다.
 
-## 3. 기본 컷 시퀀스 (건기식·식품, 14컷)
+## 3. 기본 컷 시퀀스 (건기식·식품, 14컷) — `style:`이 있으면 팩 `sequence`가 이 표를 대체한다 (`references/style-packs.md`)
 
 | # | 템플릿 | Q | 내용 |
 |---|---|---|---|

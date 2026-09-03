@@ -69,6 +69,7 @@ codex features enable image_generation
 Step 0  의존성 점검               check_deps.sh  (--install)
 Step 1  제품 인터뷰               불확실한 슬롯만 · 최대 4문항 × 2라운드
 Step 2  오퍼 점검                 고객이 받는 것 + 줄어드는 불안 + 지금 이유
+Step 2½ 스타일 팩                 인터뷰가 6팩 중 1개 선택(추천 선표시) — 컷 시퀀스·팔레트 전략·강조·비주얼 모드 결정
 Step 3  컷 시트                   cuts.md (기본 14컷) + legal.md
 Step 3½ 윤문                      humanize_cuts.py — GPT(Codex CLI)가 컷마다 하려는 말을 해석해 사람 문장으로 재생성, 컷별 가드로 숫자·플레이스홀더·슬롯 한도 보존
         │
@@ -98,6 +99,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · 스코어
 | 불확실성 기반 인터뷰 | 입력에서 추론 불가한 것만 묻는다. 최대 4문항 × 2라운드 |
 | 오퍼 선행 점검 | 오퍼가 약하면 카피 한 줄 쓰기 전에 알린다 |
 | GPT 윤문 | 다른 모델(Codex CLI)이 컷마다 하려는 말을 해석한 뒤 AI 티(번역투·광고 상투구·리듬 균일·hedging — humanize-korean 규칙 차용) 없이 다시 쓴다. 숫자 유입·플레이스홀더 소실·슬롯 초과·금지어 유입 컷은 코드가 거부하고 원문 유지 |
+| 스타일 팩 | "어떻게 설득할지"를 고른다: 고민 장면 스토리형 / 핵심 포인트 체크리스트형 / 근거·수치 우선형 / 룩북형 / 스펙 쇼케이스형 / 혜택·구성 프로모션형. 팩이 컷 시퀀스·타이포 상한·배경 전략·강조·비주얼 모드·이미지 프롬프트 스타일을 정한다 — 국내 상세 17페이지 해부 실측. 팩 어디에도 브랜드·사이트명 없음 |
 | 게이트 1 — 결정론 체커 | `check_cuts.py`: 템플릿 슬롯 한도, Q1~Q8 커버리지, 모든 숫자의 입력 출처, 카테고리 금지어, 필수 legal 블록, 이미지 실존 |
 | 게이트 2 — 리뷰어 4인 | 작성자와 분리. 통과 = 고객 8/8 "네" + 규제 위반 0건, 최대 2라운드 |
 | 게이트 3 — 실제 렌더 | `render_check.py`: Playwright 390 / 860px 렌더 + 첫 화면 5초 테스트 |
@@ -118,6 +120,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · 스코어
 | `/sangse 스마트스토어 <제품 정보>` | 플랫폼 선지정(`웹`, `크몽`도 가능), 해당 인터뷰 질문 생략 |
 | `/sangse check <dir>` | 기존 `sangse/<slug>` 폴더에 검증 게이트만 실행 |
 | `/sangse humanize <dir>` | 기존 폴더에 GPT 윤문만 실행하고 채택·거부 내역을 보여준다 |
+| `/sangse --style <팩> <제품 정보>` | 스타일 질문을 건너뛰고 팩을 지정(`story-first`, `checkpoint`, `proof-first`, `lookbook`, `spec-showcase`, `offer-first`) |
 
 ### 자연어 트리거
 
@@ -132,12 +135,12 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · 스코어
 |---|---|
 | `commands/sangse.md` | 단일 진입점(`/sangse`), 인자 라우팅 |
 | `skills/sangse/SKILL.md` | 워크플로우(Step 0 → 인터뷰 → 오퍼 점검 → 컷 시트 → 3 게이트 → 이미지 → HTML → 보고), Iron Law, Red Flags |
-| `skills/sangse/references/` | `framework.md`(8질문), `cut-sheet.md`, `reference-patterns.md`(실제 페이지 7종 해부, 템플릿 29종), `interview.md`, `humanize.md`(GPT 윤문 프롬프트·가드), `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
+| `skills/sangse/references/` | `framework.md`(8질문), `cut-sheet.md`, `reference-patterns.md`(실제 페이지 7종 해부, 템플릿 29종), `interview.md`, `humanize.md`(GPT 윤문 프롬프트·가드), `style-packs.md`(팩 6종·추천 규칙·공통 문법), `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
 | `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `capture_reference.js` |
-| `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `humanize-schema.json`, `template.html` |
+| `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `humanize-schema.json`, `style-packs/*.json`(팩 6종+스키마), `template.html` |
 | `setup/` | 최초 실행 셋업(gptaku 표준) |
 | `tests/test-gates.sh` | 회귀: 예시 3종 게이트 1 PASS, 조립기 스모크, 윤문 가드, 의존성 점검, 프런트매터 계약 |
-| `examples/` | 가상 상품 3종의 전 과정 산출물 + `qa/` 결과 |
+| `examples/` | 가상 상품 3종의 전 과정 산출물 + `qa/` 결과. `style-pack-variants/`는 같은 제품을 세 팩으로 편성한 비교 |
 
 ---
 

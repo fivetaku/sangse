@@ -1,0 +1,141 @@
+{
+ "id": "spec-showcase",
+ "name": {
+  "ko": "스펙 쇼케이스형",
+  "en": "Spec showcase"
+ },
+ "status": "measured",
+ "version": "0.2",
+ "summary": "리드 헤드라인이 기술 고유명사·스펙(또는 구매결정 스펙 표)로 시작하고, 원리 인포그래픽 → 동일 프레임 좌우 비교 → 수치 고립 → UI/시연 스크린샷 순으로 증명한다. 탐색재·실용재(가전·디지털·주변기기·신선식품 스펙표).",
+ "lead_mode": "technical-headline",
+ "sequence": [
+  {
+   "tpl": "S1",
+   "q": "Q3",
+   "role": "기술 헤드라인 히어로(고유명사 컬러 강조 1회)"
+  },
+  {
+   "tpl": "S1",
+   "q": "Q3",
+   "role": "원리 인포그래픽(3줄 이내 설명)"
+  },
+  {
+   "tpl": "P3",
+   "q": "Q3",
+   "role": "동일 프레임 좌우 비교(기존 방식 vs)"
+  },
+  {
+   "tpl": "S2",
+   "q": "Q3",
+   "role": "수치 비교 카드(숫자 고립)"
+  },
+  {
+   "tpl": "S1",
+   "q": "Q4",
+   "role": "UI·시연 스크린샷 증명",
+   "optional": true
+  },
+  {
+   "tpl": "L3",
+   "q": "Q6",
+   "role": "치수·분해 도면"
+  },
+  {
+   "tpl": "X8",
+   "q": "Q6",
+   "role": "구성품 캡션 그리드"
+  },
+  {
+   "tpl": "L1",
+   "q": "Q6",
+   "role": "스펙 표"
+  },
+  {
+   "tpl": "X6",
+   "q": "Q5",
+   "role": "설치·사용 STEP 라인아트"
+  },
+  {
+   "tpl": "S4",
+   "q": "Q7",
+   "role": "보증·서비스 카드"
+  },
+  {
+   "tpl": "S3",
+   "q": "Q7",
+   "role": "아코디언 FAQ"
+  }
+ ],
+ "typography": {
+  "headline_chars": [
+   6,
+   22
+  ],
+  "headline_px": [
+   48,
+   64
+  ],
+  "sub_px": 28,
+  "body_px": 22,
+  "body_lines_max": 5,
+  "weight_contrast": "number and unit same size, only the winner colored; icon+value pairs",
+  "tone_default": "담백한 존댓말"
+ },
+ "layout": {
+  "align": "left",
+  "margin_px": 80,
+  "grid_px": 40,
+  "cut_gap": "whitespace-120"
+ },
+ "color_strategy": "dark-editorial",
+ "emphasis": [
+  "icon-value-pair",
+  "comparison-card",
+  "winner-color",
+  "spec-table"
+ ],
+ "visual_mode": "render",
+ "evidence_position": {
+  "position": "middle",
+  "type": "statistical"
+ },
+ "density_dial": "high",
+ "fits": {
+  "categories": [
+   "electronics",
+   "digital",
+   "small_appliance",
+   "living_functional",
+   "footwear_fit"
+  ],
+  "awareness": [
+   "solution-aware",
+   "product-aware"
+  ],
+  "traffic": [
+   "search",
+   "comparison"
+  ]
+ },
+ "image_prompt_style": "product render or macro photo on dark or light-grey studio backdrop, exploded/cutaway or icon-value callouts, left aligned feature copy with a one-line spec below",
+ "sources": [
+  "keychron",
+  "kurly(first-screen spec table)",
+  "spigen",
+  "existing two appliance sites"
+ ],
+ "offer_position": "none",
+ "grammar": [
+  "경쟁 방식과 자사 방식은 동일 프레임 좌우 분할에 이미지 안 고정 라벨로 대비한다",
+  "수치는 문장 밖 대형 폰트로 고립시키고 항상 인포그래픽(막대·스택)과 동반한다",
+  "'쉽다·설치 불필요' 같은 주장은 실제 UI 풀샷으로 증명한다",
+  "전체 중앙 정렬 + 블랙↔라이트 배경 교차로 섹션을 나눈다(구분선 금지)",
+  "교체형 부품은 분해 실사 + 규격 배지 세트로 나란히",
+  "섹션 전환은 구분선이 아니라 배경색 교차(다크=무드·시연, 화이트/크림=스펙·안내)로 신호한다",
+  "정보 블록 2~3개마다 텍스트 없는 사진 컷(X5)을 끼워 리듬을 끊는다",
+  "모든 수치·시험 근거 컷 최하단에 회색 소형 각주(기관·기간·인원·측정 기준)를 둔다 — 입력에 있을 때만",
+  "사이즈는 표 하나로 끝내지 않고 도해→실측 사진(익숙한 사물·줄자·사람)→캡션의 3중으로 보여준다(X2)",
+  "가격·할인·기한은 이미지 안에 두지 않는다. 오퍼가 있으면 신뢰 모듈을 모두 지난 뒤 클로징(X10)에 둔다",
+  "법정 표시·스펙 표는 페이지 최말단 텍스트/표로, CTA 버튼은 이미지 밖(플랫폼 UI)"
+ ]
+}

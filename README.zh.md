@@ -69,6 +69,7 @@ codex features enable image_generation
 Step 0  依赖检查                  check_deps.sh  (--install)
 Step 1  产品访谈                  只问不确定的槽位 · ≤4 个问题 × 2 轮
 Step 2  报价检查                  顾客得到什么 + 消除哪种顾虑 + 为什么是现在
+Step 2½ 风格包                    访谈从 6 个风格包中选 1 个（预选推荐项）——决定切图顺序、配色策略、强调、视觉模式
 Step 3  切图稿                    cuts.md (默认 14 张切图) + legal.md
 Step 3½ 润色                      humanize_cuts.py — GPT（Codex CLI）重新读出每个切图的意图，像人一样重写文案；逐切图守卫保留数字、占位符和槽位上限
         │
@@ -98,6 +99,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 | 不确定性驱动的访谈 | 只问无法从输入推断的内容；最多 4 个问题 × 2 轮 |
 | 写文案前先做报价检查 | 在写下第一行文案之前就标出薄弱的报价 |
 | GPT 润色 | 第二个模型（Codex CLI）解读每个切图想说什么，并去掉 AI 痕迹（翻译腔、广告套话、节奏单一、含糊其辞 — 规则借自 humanize-korean）后重写；凡新增数字、丢失占位符、超出槽位或引入禁用词的切图，代码一律拒绝并保留原文 |
+| 风格包 | 选择"怎样说服"：痛点场景故事型 / 要点清单型 / 证据数字优先型 / 图册型（图片为主、少文案）/ 规格橱窗型（功能、对比、参数表）/ 优惠构成促销型（促销落地页）。风格包决定切图顺序、字数上限、背景策略、强调方式、视觉模式和生图提示词风格——来自 17 个真实韩国详情页的拆解实测。包内不含任何品牌或站点名 |
 | Gate 1 — 确定性检查器 | `check_cuts.py`：模板槽位上限、Q1~Q8 覆盖、每个数字可追溯到输入、品类违禁词、强制法务块、图片是否存在 |
 | Gate 2 — 四个审阅代理 | 与撰写者分离；通过 = 顾客对 8 个问题全部回答"是"且零监管违规，最多 2 轮 |
 | Gate 3 — 真实渲染 | `render_check.py`：Playwright 在 390 / 860 px 下渲染，外加首屏 5 秒测试 |
@@ -118,6 +120,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 | `/sangse 스마트스토어 <产品信息>` | 预设平台（也可用 `웹`、`크몽`），跳过对应的访谈问题 |
 | `/sangse check <dir>` | 只对已有的 `sangse/<slug>` 文件夹运行验证关卡 |
 | `/sangse humanize <dir>` | 仅对现有文件夹运行 GPT 润色，并显示采用与拒绝明细 |
+| `/sangse --style <pack> <产品信息>` | 跳过风格提问，直接指定风格包（`story-first`、`checkpoint`、`proof-first`、`lookbook`、`spec-showcase`、`offer-first`） |
 
 ### 自然语言触发
 
@@ -132,9 +135,9 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 |---|---|
 | `commands/sangse.md` | 单一入口（`/sangse`），参数路由 |
 | `skills/sangse/SKILL.md` | 工作流（Step 0 → 访谈 → 报价检查 → 切图稿 → 3 道关卡 → 图片 → HTML → 报告）、铁律、红旗信号 |
-| `skills/sangse/references/` | `framework.md`（8 个问题）、`cut-sheet.md`、`reference-patterns.md`（拆解 7 个真实页面，29 个模板）、`interview.md`、`humanize.md`（GPT 重写提示词 + 守卫）、`compliance.md`、`verification.md`、`evidence.md`、`image-briefs.md`、`reference-capture.md` |
+| `skills/sangse/references/` | `framework.md`（8 个问题）、`cut-sheet.md`、`reference-patterns.md`（拆解 7 个真实页面，29 个模板）、`interview.md`、`humanize.md`（GPT 重写提示词 + 守卫）、`style-packs.md`（6 个风格包、推荐规则、通用语法）、`compliance.md`、`verification.md`、`evidence.md`、`image-briefs.md`、`reference-capture.md` |
 | `skills/sangse/scripts/` | `check_deps.sh`、`humanize_cuts.py`、`check_cuts.py`、`check_copy.py`、`assemble_html.py`、`render_check.py`、`capture_reference.js` |
-| `skills/sangse/assets/` | `cut-templates.json`、`banned-words.json`、`humanize-schema.json`、`template.html` |
+| `skills/sangse/assets/` | `cut-templates.json`、`banned-words.json`、`humanize-schema.json`、`style-packs/*.json`（6 个风格包 + 模式）、`template.html` |
 | `setup/` | 首次运行设置（gptaku 标准） |
 | `tests/test-gates.sh` | 回归测试：三个示例通过关卡 1、组装器冒烟测试、润色守卫、依赖检查、frontmatter 契约 |
 | `examples/` | 三个虚构产品，附完整产物链和 `qa/` 结果 |

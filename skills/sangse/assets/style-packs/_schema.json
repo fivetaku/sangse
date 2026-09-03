@@ -1,0 +1,245 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "sangse style pack",
+  "description": "제시 방식(리드 모드) 단위 스타일 팩. 브랜드·사이트명 금지. 카테고리·채널 규격은 별도 축.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "lead_mode",
+    "sequence",
+    "typography",
+    "layout",
+    "color_strategy",
+    "emphasis",
+    "visual_mode",
+    "evidence_position",
+    "fits"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]+$"
+    },
+    "name": {
+      "type": "object",
+      "required": [
+        "ko",
+        "en"
+      ],
+      "properties": {
+        "ko": {
+          "type": "string"
+        },
+        "en": {
+          "type": "string"
+        }
+      }
+    },
+    "summary": {
+      "type": "string"
+    },
+    "lead_mode": {
+      "type": "string",
+      "description": "첫 화면이 무엇으로 시작하는가"
+    },
+    "sequence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "tpl",
+          "q",
+          "role"
+        ],
+        "properties": {
+          "tpl": {
+            "type": "string"
+          },
+          "q": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "optional": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "typography": {
+      "type": "object",
+      "properties": {
+        "headline_chars": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "headline_px": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "sub_px": {
+          "type": "integer"
+        },
+        "body_px": {
+          "type": "integer"
+        },
+        "body_lines_max": {
+          "type": "integer"
+        },
+        "weight_contrast": {
+          "type": "string"
+        },
+        "tone_default": {
+          "type": "string"
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "align": {
+          "type": "string",
+          "enum": [
+            "left",
+            "center",
+            "mixed"
+          ]
+        },
+        "margin_px": {
+          "type": "integer"
+        },
+        "grid_px": {
+          "type": "integer"
+        },
+        "cut_gap": {
+          "type": "string"
+        }
+      }
+    },
+    "color_strategy": {
+      "type": "string",
+      "enum": [
+        "mono-brand",
+        "alternating-bg",
+        "white-accent",
+        "dark-editorial"
+      ]
+    },
+    "emphasis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "visual_mode": {
+      "type": "string",
+      "enum": [
+        "dslr-product",
+        "lifestyle",
+        "flat-illustration",
+        "lookbook-model",
+        "render",
+        "ugc-photo",
+        "screenshot"
+      ]
+    },
+    "evidence_position": {
+      "type": "object",
+      "properties": {
+        "position": {
+          "type": "string",
+          "enum": [
+            "top",
+            "middle",
+            "bottom"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "narrative",
+            "statistical",
+            "certification",
+            "mixed"
+          ]
+        }
+      }
+    },
+    "density_dial": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "fits": {
+      "type": "object",
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "awareness": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "traffic": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "image_prompt_style": {
+      "type": "string",
+      "description": "image-briefs 프롬프트 골격의 스타일 줄. 브랜드명 금지"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "해부 출처 slug — 내부 기록, UI 비노출"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "measured",
+        "verified"
+      ],
+      "description": "draft=리서치 기반 초안, measured=해부 실측 반영, verified=3팩 실험 통과"
+    },
+    "version": {
+      "type": "string"
+    },
+    "grammar": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "해부에서 상품군을 가로질러 재현된 규칙(이미지 프롬프트·컷 편성이 따른다)"
+    },
+    "offer_position": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "close",
+        "none"
+      ]
+    }
+  }
+}

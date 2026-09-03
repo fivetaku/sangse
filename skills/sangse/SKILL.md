@@ -64,7 +64,7 @@ gptaku-plugins 마켓플레이스와 `pumasi` 플러그인(`/pumasi:image`, Code
 ### Step 2. 제품 인터뷰 → `intake-checklist.md`
 **타입**: rag(`references/intake-checklist.md`, `references/interview.md`) + review (AskUserQuestion)
 
-카피를 쓰기 전에 **요청에 남은 불확실성만** 묻는다. 절차: ① 필수 4종(무엇·누구에게·가격·고객이 얻는 변화)과 슬롯 10개를 대조해 각 항목을 `확정 / 추론 가능(디폴트) / 불명` 으로 분류한다 ② `불명`만 `interview.md`의 질문 은행에서 우선순위(타겟 → 변화 → 플랫폼 → 증거 → 가격·환불 → 규제 업종 → 산출물·톤) 순으로 골라 **AskUserQuestion 최대 4문항 × 최대 2라운드**로 묻는다. 텍스트 질문·A/B/C 나열은 금지, 선택지는 5개 안팎에 창의적 대안 1~2개와 "자동 판단" 안전망을 넣는다 ③ 타겟이 "모두"거나 불명이면 M1·M4에서 **가장 아픈 고객 장면 3개를 추정해 선택지로** 제시한다 ④ 규제 업종 신호(식품·건기식·화장품·의료기기·금융)가 보이면 규제 질문을 1라운드에 넣는다. 추론 가능한 항목은 묻지 않고 디폴트로 진행하되 첫 보고 서두에 "가정: X"로 선언한다. 2라운드에도 안 풀린 것은 플레이스홀더로 진행한다. 같은 질문은 두 번 하지 않는다. 답변 출처는 `인터뷰 R1-Q2` 형태로 체크리스트에 기록한다. 가상·연습 상품이면 인터뷰를 생략하고 Claude가 설정한 값을 "가상 설정"으로 기록한다.
+카피를 쓰기 전에 **요청에 남은 불확실성만** 묻는다. 스타일 팩 1문항(`interview.md` Q-스타일 팩 — 추천 1개 선표시, `references/style-packs.md` §3 규칙)은 플랫폼 문항과 같은 라운드에 넣는다. 절차: ① 필수 4종(무엇·누구에게·가격·고객이 얻는 변화)과 슬롯 10개를 대조해 각 항목을 `확정 / 추론 가능(디폴트) / 불명` 으로 분류한다 ② `불명`만 `interview.md`의 질문 은행에서 우선순위(타겟 → 변화 → 플랫폼 → 증거 → 가격·환불 → 규제 업종 → 산출물·톤) 순으로 골라 **AskUserQuestion 최대 4문항 × 최대 2라운드**로 묻는다. 텍스트 질문·A/B/C 나열은 금지, 선택지는 5개 안팎에 창의적 대안 1~2개와 "자동 판단" 안전망을 넣는다 ③ 타겟이 "모두"거나 불명이면 M1·M4에서 **가장 아픈 고객 장면 3개를 추정해 선택지로** 제시한다 ④ 규제 업종 신호(식품·건기식·화장품·의료기기·금융)가 보이면 규제 질문을 1라운드에 넣는다. 추론 가능한 항목은 묻지 않고 디폴트로 진행하되 첫 보고 서두에 "가정: X"로 선언한다. 2라운드에도 안 풀린 것은 플레이스홀더로 진행한다. 같은 질문은 두 번 하지 않는다. 답변 출처는 `인터뷰 R1-Q2` 형태로 체크리스트에 기록한다. 가상·연습 상품이면 인터뷰를 생략하고 Claude가 설정한 값을 "가상 설정"으로 기록한다.
 
 ### Step 3. 오퍼 선행 점검 → `offer-check.md`
 **타입**: prompt
@@ -72,7 +72,9 @@ gptaku-plugins 마켓플레이스와 `pumasi` 플러그인(`/pumasi:image`, Code
 카피를 고치기 전에 오퍼를 본다. 오퍼는 가격표가 아니라 "고객이 받는 것 + 줄어드는 불안 + 지금 선택해야 하는 이유"의 전체 약속이다. 세 줄로 판정한다: ① 받는 것이 정보 나열(50강, PDF 20장)인지 불안 해소 장치(상담 질문지, 첫 고객 마케팅 설계)인지 ② 결제 직전 불안(내가 해도 될까, 실패하면, 얼마나 걸리나)에 답하는 구성품이 있는지 ③ 지금 이유가 있는지. 오퍼가 정보 나열이면 **구성품 재해석 제안**을 1개 이상 쓴다 — 단, 없는 구성품을 추가하는 게 아니라 있는 것을 고객 불안 순서로 다시 묶는다. 오퍼가 결정적으로 약하면(받는 것이 불명확) 카피로 넘어가기 전에 그 사실을 사용자에게 한 줄로 알린다. 카피만 바꾸면 클릭은 오르고 결제는 안 나기 때문이다.
 
 ### Step 4. 컷 시트 → `cuts.md` + `legal.md`
-**타입**: prompt + rag(`references/framework.md`, `references/cut-sheet.md`, `references/reference-patterns.md`)
+**타입**: prompt + rag(`references/framework.md`, `references/cut-sheet.md`, `references/style-packs.md`, `references/reference-patterns.md`)
+
+**스타일 팩이 시퀀스를 정한다.** Step 2에서 고른(또는 `--style`로 받은) 팩 id를 `cuts.md` 헤더 `style:`에 적고, `assets/style-packs/{id}.json`의 `sequence`대로 컷을 편성한다(`optional: true` 컷은 입력에 재료가 없으면 생략, 템플릿 한도는 `cut-templates.json`). 팩의 `grammar`(배경 교차·무카피 사진 컷·각주·사이즈 3중 제시·오퍼는 클로징)를 편성에 반영하고, `typography.body_lines_max`·`tone_default`를 카피 상한으로 쓴다. 팩을 못 정했으면 `checkpoint`. 아래 14컷 기본 시퀀스는 팩이 없을 때의 폴백이다.
 
 8질문 순서를 **컷 12~20장**으로 편성한다. 문법·기본 시퀀스(건기식 14컷: K2 히어로 → K3 페르소나 → K4 TPO → K5 목차 → K6 Point 1 → K7 기능성 → K8/L4 근거 → K6 Point 3 → K9 STEP → K10 추천 대상 → K11 구성 → L1 스펙 → C1 보증 → C2 CTA/L2 FAQ)은 `cut-sheet.md`, 템플릿별 슬롯 한도는 `assets/cut-templates.json`. 컷당 헤드 1개(4~17자, 2행이면 행당 5~9자) + 서브 1줄 + 본문 3줄(마지막 줄 볼드) + 비주얼 지시 + 배경색. 텍스트 10줄 이하, 줄당 24자 이하, 20px 미만 글자 금지. 가격·전화번호·심의번호·영양 수치·차트 값은 이미지에 넣지 않고 `legal.md`(주의사항·상세정보 표·영양표·원료명·환불·고시)로 보낸다. 웹 랜딩 전용으로 문단형 `copy.md`가 필요할 때만 `## Q1`~`## Q8` 헤딩 형식을 쓴다.
 
@@ -152,7 +154,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 ### Step 11. 완료 보고
 **타입**: generate
 
-보고에 반드시 넣는다: ① 산출물 경로 ② **검증 스코어카드**(`verification.md` §4 형식 — 게이트 1 fail/warn 수, 게이트 2 고객 네 수·규제 위반·CRO 점수·경쟁 반박 방어 수·라운드 수, 게이트 3 렌더·5초 결과) ③ **채우면 완성되는 항목 표**(플레이스홀더) ④ review-log 요약(번역/삭제 건수 + 대표 예 2개) ⑤ 경고 한 줄 "가격·환불·기한 문구는 실제 결제·법적 책임과 연결됩니다. 퍼블리시 전 직접 확인하세요." ⑥ 첫 A/B 가설 1개(상단 섹션부터) — 게이트 2에서 의견이 갈린 문장이 첫 후보다. "매출이 오른다"는 성과 약속을 보고 어디에도 쓰지 않는다 — 검증 불가능한 주장이고 그 자체가 과장 광고의 문법이다.
+보고에 반드시 넣는다: ⓪ 적용한 스타일 팩 id·표시명과 게이트 1 T8 결과 ① 산출물 경로 ② **검증 스코어카드**(`verification.md` §4 형식 — 게이트 1 fail/warn 수, 게이트 2 고객 네 수·규제 위반·CRO 점수·경쟁 반박 방어 수·라운드 수, 게이트 3 렌더·5초 결과) ③ **채우면 완성되는 항목 표**(플레이스홀더) ④ review-log 요약(번역/삭제 건수 + 대표 예 2개) ⑤ 경고 한 줄 "가격·환불·기한 문구는 실제 결제·법적 책임과 연결됩니다. 퍼블리시 전 직접 확인하세요." ⑥ 첫 A/B 가설 1개(상단 섹션부터) — 게이트 2에서 의견이 갈린 문장이 첫 후보다. "매출이 오른다"는 성과 약속을 보고 어디에도 쓰지 않는다 — 검증 불가능한 주장이고 그 자체가 과장 광고의 문법이다.
 
 ## Red Flags — 이 생각이 들면 멈춘다
 
@@ -191,6 +193,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 - `references/evidence.md` — 8질문을 뒷받침·보완하는 외부 근거(A~C등급만): 표준 anatomy, 인식 단계, 첫 화면 데이터, VoC 실측, 프레임워크 대응표. 카피 인용용이 아니라 "왜 이 규칙인가" 설명용
 - `references/compliance.md` — 규제 업종 표현 필터: 식품표시광고법 금지 유형, 건강기능식품 고시 문구·심의·필수 표시, 일반식품 기능성 표시 조건
 - `references/humanize.md` — Step 4-1 윤문: GPT(codex)용 시스템 프롬프트 정본(humanize-korean AI 티 분류 차용), 컷별 가드 규칙, 결과 판독법
+- `references/style-packs.md` — 스타일 팩 6종(story-first/checkpoint/proof-first/lookbook/spec-showcase/offer-first): 해부 실측 사실 7개, 추천 규칙, 팩이 파이프라인에 주는 것, 공통 문법, 신규 템플릿 P1~P5·X1~X10
 - `references/cut-sheet.md` — 컷 시트 문법(cuts.md·legal.md), 기본 14컷 시퀀스, 텍스트 안전 규칙, 앵커 규칙
 - `references/reference-patterns.md` — 컬리·쿠팡·정관장몰·삼성·LG 실제 상세 5종 해부: 형식 결론, 타이포·여백·색 실측, 컷 템플릿 카탈로그 19종, 8질문↔컷 매핑, 법정 표시 배치, 채널별 차이
 - `references/image-briefs.md` — 컷 이미지 생성 규격: 앵커→--ref 순서, 포그라운드·재개 규칙, 텍스트+물리 정합성 검수, 질문 스킵 키워드, 컷 프롬프트 골격, 저장 경로
@@ -210,5 +213,6 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 
 - `assets/cut-templates.json` — 컷 템플릿 19종 규격(높이 범위·슬롯 글자 한도·Q·영문 레이아웃 서술). check_cuts.py와 이미지 프롬프트가 읽는다
 - `assets/humanize-schema.json` — humanize_cuts.py가 프롬프트에 인라인하는 GPT 응답 스키마(컷 id·meaning·바뀐 필드)
+- `assets/style-packs/*.json` — 스타일 팩 정본(`_schema.json`). `sequence`·`typography`·`layout`·`emphasis`·`visual_mode`·`image_prompt_style`·`grammar`·`fits`. 브랜드·사이트명 금지(tests가 검사)
 - `assets/banned-words.json` — 카테고리별(common/q1_hero/food/health_food/cosmetics) 금지·경고 정규식
 - `assets/template.html` — 모바일 우선 단일 파일 HTML 템플릿. `{{TITLE}}` `{{WIDTH}}` `{{PLATFORM}}` `{{SECTIONS}}` 치환

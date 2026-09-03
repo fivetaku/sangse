@@ -18,6 +18,10 @@
    - 위반 시 프롬프트에 구체적 제약("completely sealed sachet, no jelly visible, stick and pouch are separate objects")을 넣어 1~2회 재생성. 앵커 컷의 위반은 뒤 컷이 전부 물려받으므로 **앵커는 두 항목 모두 통과한 뒤에만** 체인을 시작한다. HTML 후합성으로 도피하지 않는다(사용자가 명시 요청할 때만).
    - 실측 사례(2026-09-02): 매실 젤리 앵커에서 스틱 끝이 뜯겨 젤리가 밀려 나온 채 렌더됐는데 텍스트 검수만 해서 통과됨 → 사용자가 발견. 물리 정합성 항목을 추가한 이유.
 
+## 1-1. 스타일 팩이 프롬프트에 주는 것
+
+`cuts.md` 헤더 `style:`의 팩(`assets/style-packs/<id>.json`)을 읽어 앵커 프롬프트에 넣는다: `image_prompt_style`(스타일 줄), `layout.align`(좌/중앙), `emphasis`(형광 박스·콜아웃·큰 숫자·영문 라벨 중 그 컷에 맞는 1~2개), `visual_mode`(실사/라이프스타일/일러스트/모델/렌더), `color_strategy`(배경 교차·단색·화이트+포인트). 참조(`--ref`)가 있는 컷은 스타일 줄을 걷어내고 팩의 `emphasis`만 남긴다. 팩 문장에 브랜드·사이트명은 없다 — 있으면 버그다.
+
 ## 2. 질문 폭발 억제 — args 필수 키워드
 
 | 스킵 대상 | 넣을 키워드 |
@@ -32,7 +36,7 @@
 ```
 코덱스로 {비율 키워드} 고품질 — 상세페이지 컷 {Cnn} ({템플릿 이름}), 폭 1000px 기준.
 [참조 있음] Keep the exact color palette, lighting, material rendering and typographic tone of the attached reference image. Change only the layout, subject arrangement and text below.
-[참조 없음(앵커)] 스타일: 사실적 제품 사진(DSLR 룩) + 정갈한 편집 디자인. 브랜드 주색 {primary}, 뉴트럴 {neutral}, 포인트 {accent}. 조명 {방향·색온도}.
+[참조 없음(앵커)] 스타일: {style-pack.image_prompt_style — cuts.md `style:` 팩의 문장. 팩이 없으면 "사실적 제품 사진(DSLR 룩) + 정갈한 편집 디자인"}. 정렬 {style-pack.layout.align}, 강조 {style-pack.emphasis 중 1~2}. 브랜드 주색 {primary}, 뉴트럴 {neutral}, 포인트 {accent}. 조명 {방향·색온도}.
 
 Layout: {cut-templates.json[tpl].layout}
 Background: {bg}

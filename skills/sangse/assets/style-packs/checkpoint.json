@@ -1,0 +1,152 @@
+{
+ "id": "checkpoint",
+ "name": {
+  "ko": "핵심 포인트 체크리스트형",
+  "en": "Checkpoint"
+ },
+ "status": "verified",
+ "version": "0.3",
+ "summary": "제품명 타이포/실물 히어로 뒤에 핵심 포인트를 아이콘 그리드(3~5)로 목차화하고, 포인트마다 심화 컷 1개씩 푼다. 해부 실측: 포인트 그리드는 라벨+1줄만, 심화 컷은 사진+근거 배지 짝. 솔루션 인지 고객·검색 유입·오픈마켓·큐레이션몰 체크포인트 모듈.",
+ "lead_mode": "hero-then-point-grid",
+ "sequence": [
+  {
+   "tpl": "K2",
+   "q": "Q2",
+   "role": "제품명·구성 히어로(타이포 또는 실물)"
+  },
+  {
+   "tpl": "K5",
+   "q": "Q2",
+   "role": "핵심 포인트 아이콘 그리드 3~5(라벨+1줄)"
+  },
+  {
+   "tpl": "K6",
+   "q": "Q3",
+   "role": "Point 1 — 사진 + 근거 배지"
+  },
+  {
+   "tpl": "K6",
+   "q": "Q3",
+   "role": "Point 2"
+  },
+  {
+   "tpl": "K6",
+   "q": "Q3",
+   "role": "Point 3"
+  },
+  {
+   "tpl": "X7",
+   "q": "Q4",
+   "role": "계산식 공개 표 / 수치 근거(입력 있을 때)",
+   "optional": true
+  },
+  {
+   "tpl": "X1",
+   "q": "Q6",
+   "role": "컬러·옵션 매트릭스(옵션 있을 때)",
+   "optional": true
+  },
+  {
+   "tpl": "K10",
+   "q": "Q1",
+   "role": "추천 대상 2×2"
+  },
+  {
+   "tpl": "X6",
+   "q": "Q5",
+   "role": "STEP 라인아트"
+  },
+  {
+   "tpl": "X8",
+   "q": "Q6",
+   "role": "구성품 캡션 그리드"
+  },
+  {
+   "tpl": "L1",
+   "q": "Q6",
+   "role": "스펙 표"
+  },
+  {
+   "tpl": "L2",
+   "q": "Q7",
+   "role": "FAQ"
+  },
+  {
+   "tpl": "C1",
+   "q": "Q7",
+   "role": "보증·환불"
+  }
+ ],
+ "typography": {
+  "headline_chars": [
+   4,
+   12
+  ],
+  "headline_px": [
+   65,
+   75
+  ],
+  "sub_px": 32,
+  "body_px": 24,
+  "body_lines_max": 3,
+  "weight_contrast": "light/bold 2-line head, body fixed 3 lines, last line bold",
+  "tone_default": "담백한 존댓말"
+ },
+ "layout": {
+  "align": "center",
+  "margin_px": 100,
+  "grid_px": 0,
+  "cut_gap": "whitespace-150"
+ },
+ "color_strategy": "white-accent",
+ "emphasis": [
+  "highlight-box",
+  "point-badge",
+  "last-line-bold",
+  "big-number-index"
+ ],
+ "visual_mode": "dslr-product",
+ "evidence_position": {
+  "position": "middle",
+  "type": "mixed"
+ },
+ "density_dial": "medium",
+ "fits": {
+  "categories": [
+   "food",
+   "health_food",
+   "living",
+   "kids",
+   "service",
+   "small_appliance"
+  ],
+  "awareness": [
+   "solution-aware"
+  ],
+  "traffic": [
+   "search",
+   "marketplace"
+  ]
+ },
+ "image_prompt_style": "clean studio product photography on a neutral backdrop, one numbered Point badge per cut, translucent highlight box behind the key phrase, generous whitespace",
+ "sources": [
+  "fritz",
+  "lumena",
+  "kurly(check point module)",
+  "alzipmat(icon index)",
+  "rawrow(numbered points)"
+ ],
+ "offer_position": "close",
+ "grammar": [
+  "포인트 그리드는 문장 없이 라벨+아이콘, 심화 컷에서만 설명한다(2단 구조)",
+  "기능 다이어그램은 사진 → 도해 순으로 같은 정보를 2번 보여준다",
+  "컬러·옵션 라인업은 초반 1/3 지점에 배치해 선택을 조기에 끝낸다",
+  "후반부 관리·세척·정책 파트는 다크 배경(X4)으로 전환해 실용 파트임을 표시한다",
+  "섹션 전환은 구분선이 아니라 배경색 교차(다크=무드·시연, 화이트/크림=스펙·안내)로 신호한다",
+  "정보 블록 2~3개마다 텍스트 없는 사진 컷(X5)을 끼워 리듬을 끊는다",
+  "모든 수치·시험 근거 컷 최하단에 회색 소형 각주(기관·기간·인원·측정 기준)를 둔다 — 입력에 있을 때만",
+  "사이즈는 표 하나로 끝내지 않고 도해→실측 사진(익숙한 사물·줄자·사람)→캡션의 3중으로 보여준다(X2)",
+  "가격·할인·기한은 이미지 안에 두지 않는다. 오퍼가 있으면 신뢰 모듈을 모두 지난 뒤 클로징(X10)에 둔다",
+  "법정 표시·스펙 표는 페이지 최말단 텍스트/표로, CTA 버튼은 이미지 밖(플랫폼 UI)"
+ ]
+}

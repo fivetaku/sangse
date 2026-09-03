@@ -12,6 +12,7 @@
   T5  cuts.md + legal.md의 숫자가 raw-input.md/intake-checklist.md에 존재(파생 계산식 허용)
   T6  카테고리 금지어(assets/banned-words.json) — cuts.md 전체 + legal.md
   T7  legal.md 필수 블록 존재(카테고리별) — 없으면 FAIL, 내용이 [자료 필요]면 INFO
+  T8  style: 헤더가 있으면 팩(assets/style-packs) 필수 템플릿 순서 대조(WARN), 팩 미존재 FAIL
   I   image: 경로 실존(있는 것만), 해상도 폭 ≥ 900 (sips 없이 PNG/JPEG 헤더 파싱)
 종료코드 0 PASS / 1 FAIL / 2 입력 오류. 결과 qa/check_cuts.json
 """
@@ -34,13 +35,21 @@ LEGAL_REQUIRED = {
 Q_ORDER = ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8"]
 
 
+def load_pack(style_id):
+    """assets/style-packs/<id>.json — 없으면 None. style: 헤더가 없으면 팩 검사를 건너뛴다(레거시 기본 14컷)."""
+    if not style_id: return None
+    p = os.path.join(HERE, "..", "assets", "style-packs", f"{style_id.strip()}.json")
+    if not os.path.exists(p): return None
+    return json.load(open(p, encoding="utf-8"))
+
+
 def klen(s):
     return len(re.sub(r"\s", "", s or ""))
 
 
 def parse_cuts(md):
     header = {}
-    for k in ("platform", "width", "brand", "tone", "anchor"):
+    for k in ("platform", "width", "brand", "tone", "anchor", "style"):
         m = re.search(rf"^{k}:\s*(.+)$", md, re.MULTILINE)
         if m: header[k] = m.group(1).strip()
     cuts = []
@@ -160,7 +169,9 @@ def main():
     add("T3", "FAIL" if bad else ("WARN" if warn else "PASS"), "컷 수·Q 커버리지·순서", bad + warn)
     # T4
     bad = []
-    if cuts and cuts[0]["tpl"] not in ("K2", "K1"): bad.append(f"첫 컷 템플릿 {cuts[0]['tpl']} (K2/K1 권장)")
+    pack = load_pack(header.get("style"))
+    lead_ok = ("K2", "K1") if not pack else tuple({pack["sequence"][0]["tpl"], "K2", "K1"})
+    if cuts and cuts[0]["tpl"] not in lead_ok: bad.append(f"첫 컷 템플릿 {cuts[0]['tpl']} ({'/'.join(lead_ok)} 권장)")
     for c in cuts:
         f = c["fields"]
         if not f.get("bg"): bad.append(f"{c['id']}: bg 없음")
@@ -175,7 +186,7 @@ def main():
     text = re.sub(r"(?m)^## C\d{2}.*$", "", text)
     text = re.sub(r"h\s*=\s*\d+", "", text)
     text = re.sub(r"#[0-9A-Fa-f]{3,6}", "", text)
-    text = re.sub(r"(?m)^(width|platform|anchor|image|visual|text_pos|brand|tone):.*$", "", text)  # 지시문·메타는 카피가 아님
+    text = re.sub(r"(?m)^(width|platform|anchor|image|visual|text_pos|brand|tone|style):.*$", "", text)  # 지시문·메타는 카피가 아님
     src_digits = {re.sub(r"[,\s]", "", d) for d in re.findall(r"\d[\d,\.]*", sources)}
     untraced = sorted({tok for tok in re.findall(r"\d[\d,\.]*", text) if not (len(re.sub(r"[,\s]", "", tok)) == 1 and tok in "1234") and re.sub(r"[,\s]", "", tok) not in src_digits})
     if not sources: add("T5", "WARN", "raw-input/intake 없음 — 출처 추적 불가")
@@ -214,8 +225,22 @@ def main():
     phs = [m.group(0) for m in PH_RE.finditer(md + "\n" + legal)]
     add("P", "INFO", f"플레이스홀더 {len(phs)}개", phs)
 
+    # T8 style pack sequence (style: 헤더가 있을 때만)
+    if header.get("style") and not pack:
+        add("T8", "FAIL", f"스타일 팩 '{header['style']}' 없음 (assets/style-packs/)", [])
+    elif pack:
+        want = [x["tpl"] for x in pack["sequence"] if not x.get("optional")]
+        have = [c["tpl"] for c in cuts]
+        # 필수 템플릿이 순서대로(비연속 허용) 등장하는지
+        i = 0
+        for t in have:
+            if i < len(want) and t == want[i]: i += 1
+        missing = want[i:]
+        extra = sorted({t for t in have if t not in [x["tpl"] for x in pack["sequence"]]})
+        detail = ([f"팩 필수 템플릿 누락/순서 이탈: {missing}"] if missing else []) + ([f"팩 시퀀스에 없는 템플릿: {extra}"] if extra else [])
+        add("T8", "WARN" if detail else "PASS", f"스타일 팩 {pack['id']} 시퀀스" + (" 이탈" if detail else " 일치"), detail)
     n_fail = sum(1 for c in checks if c["status"] == "FAIL"); n_warn = sum(1 for c in checks if c["status"] == "WARN")
-    result = {"path": cp, "cuts": len(cuts), "category": cats, "platform": platform, "checks": checks, "fail": n_fail, "warn": n_warn, "verdict": "PASS" if n_fail == 0 else "FAIL"}
+    result = {"path": cp, "cuts": len(cuts), "category": cats, "platform": platform, "style": header.get("style"), "checks": checks, "fail": n_fail, "warn": n_warn, "verdict": "PASS" if n_fail == 0 else "FAIL"}
     os.makedirs(os.path.join(base, "qa"), exist_ok=True)
     json.dump(result, open(os.path.join(base, "qa", "check_cuts.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     if as_json: print(json.dumps(result, ensure_ascii=False, indent=2))

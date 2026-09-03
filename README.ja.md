@@ -69,6 +69,7 @@ codex features enable image_generation
 Step 0  依存関係チェック          check_deps.sh  (--install)
 Step 1  商品インタビュー          不確かなスロットのみ · 最大4問 × 2ラウンド
 Step 2  オファーチェック          顧客が得るもの + 取り除く不安 + なぜ今なのか
+Step 2½ スタイルパック          インタビューで 6 パックから 1 つを選択（推奨を事前表示）— カット順序・配色戦略・強調・ビジュアルモードを決定
 Step 3  カットシート              cuts.md (デフォルト14カット) + legal.md
 Step 3½ 推敲                     humanize_cuts.py — GPT（Codex CLI）が各カットの意図を読み取り、人が書いたように書き直す。カット単位のガードで数値・プレースホルダー・スロット上限を保持
         │
@@ -98,6 +99,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 | 不確実性駆動のインタビュー | 入力から推測できないことだけを質問。最大 4 問 × 2 ラウンド |
 | コピー前のオファーチェック | 弱いオファーは、コピーを 1 行も書く前に指摘 |
 | GPT 推敲パス | 別モデル（Codex CLI）が各カットの言いたいことを解釈し、AI 臭（翻訳調、広告の常套句、単調なリズム、ぼかし表現 — humanize-korean の規則を借用）を除いて書き直す。数値の追加、プレースホルダーの欠落、スロット超過、禁止語の混入があるカットはコードが拒否して原文を保持 |
+| スタイルパック | 「どう説得するか」を選ぶ: 悩みシーンのストーリー型 / 要点チェックリスト型 / 根拠・数値優先型 / ルックブック型 / スペックショーケース型 / 特典・構成プロモーション型。パックがカット順序・タイポ上限・背景戦略・強調・ビジュアルモード・画像プロンプトのスタイルを決める（国内の商品詳細 17 ページを解剖して実測）。パック内にブランド名・サイト名は一切なし |
 | Gate 1 — 決定論的チェッカー | `check_cuts.py`: テンプレートのスロット上限、Q1~Q8 カバレッジ、全数字の入力への遡及、カテゴリ別禁止語、必須法定ブロック、画像の存在 |
 | Gate 2 — 4 体のレビュアーエージェント | 執筆者とは別。合格 = 顧客が 8 問すべてに「はい」と答え、規制違反ゼロ。最大 2 ラウンド |
 | Gate 3 — 実レンダリング | `render_check.py`: Playwright で 390 / 860 px にレンダリングし、ファーストビューの 5 秒テスト |
@@ -118,6 +120,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 | `/sangse 스마트스토어 <商品情報>` | プラットフォームを事前指定（`웹`、`크몽` も可）、該当するインタビュー質問をスキップ |
 | `/sangse check <dir>` | 既存の `sangse/<slug>` フォルダに対して検証ゲートのみ実行 |
 | `/sangse humanize <dir>` | 既存フォルダに GPT 推敲パスだけを実行し、採用・拒否の内訳を表示 |
+| `/sangse --style <pack> <商品情報>` | スタイルの質問を省き、パックを指定（`story-first`、`checkpoint`、`proof-first`、`lookbook`、`spec-showcase`、`offer-first`） |
 
 ### 自然言語トリガー
 
@@ -132,9 +135,9 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 |---|---|
 | `commands/sangse.md` | 単一エントリーポイント（`/sangse`）、引数ルーティング |
 | `skills/sangse/SKILL.md` | ワークフロー（Step 0 → インタビュー → オファーチェック → カットシート → 3 ゲート → 画像 → HTML → レポート）、鉄の掟、レッドフラグ |
-| `skills/sangse/references/` | `framework.md`（8 つの質問）、`cut-sheet.md`、`reference-patterns.md`（実ページ 7 件の解剖、29 テンプレート）、`interview.md`、`humanize.md`（GPT 書き直しプロンプト + ガード）、`compliance.md`、`verification.md`、`evidence.md`、`image-briefs.md`、`reference-capture.md` |
+| `skills/sangse/references/` | `framework.md`（8 つの質問）、`cut-sheet.md`、`reference-patterns.md`（実ページ 7 件の解剖、29 テンプレート）、`interview.md`、`humanize.md`（GPT 書き直しプロンプト + ガード）、`style-packs.md`（6 パック・推奨ルール・共通文法）、`compliance.md`、`verification.md`、`evidence.md`、`image-briefs.md`、`reference-capture.md` |
 | `skills/sangse/scripts/` | `check_deps.sh`、`humanize_cuts.py`、`check_cuts.py`、`check_copy.py`、`assemble_html.py`、`render_check.py`、`capture_reference.js` |
-| `skills/sangse/assets/` | `cut-templates.json`、`banned-words.json`、`humanize-schema.json`、`template.html` |
+| `skills/sangse/assets/` | `cut-templates.json`、`banned-words.json`、`humanize-schema.json`、`style-packs/*.json`（6 パック + スキーマ）、`template.html` |
 | `setup/` | 初回セットアップ（gptaku 標準） |
 | `tests/test-gates.sh` | リグレッション: 3 つの例で Gate 1 PASS、アセンブラーのスモーク、推敲ガード、依存関係チェック、フロントマター契約 |
 | `examples/` | 架空の商品 3 点。成果物の全履歴と `qa/` 結果つき |

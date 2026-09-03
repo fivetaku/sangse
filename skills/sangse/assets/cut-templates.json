@@ -1,443 +1,671 @@
 {
-  "_note": "reference-patterns.md §4의 컷 템플릿 규격. check_cuts.py가 슬롯 길이·높이를 검사하고, image-briefs.md 프롬프트 골격이 레이아웃 서술을 가져온다. 폭 1000 기준.",
-  "canvas_width": 1000,
-  "templates": {
-    "K1": {
-      "name": "브랜드 매니페스토 히어로",
-      "h": [
-        1000,
-        1350
-      ],
-      "headline_max": 10,
-      "sub_max": 30,
-      "body_lines_max": 5,
-      "line_max": 22,
-      "q": [
-        "brand"
-      ],
-      "layout": "solid brand-color background with 2-3 translucent gradient blobs on the lower-left and upper-right diagonals; wordmark centered at 35% height spanning 70% width; one quotation line below; a short vertical hairline; two centered paragraphs at 55% width; no product photo"
-    },
-    "K2": {
-      "name": "제품명 히어로(해시태그)",
-      "h": [
-        1000,
-        1100
-      ],
-      "headline_max": 9,
-      "sub_max": 12,
-      "body_lines_max": 4,
-      "line_max": 12,
-      "q": [
-        "Q2"
-      ],
-      "layout": "dark-to-brand-color vertical gradient; product name large (70px) at upper-left with 3 outlined pill hashtags beside it and 4 short copy lines below (last line bold); lower 55% is a styled product photo (box plus single unit) lit from upper-left"
-    },
-    "K3": {
-      "name": "타겟 페르소나 선언",
-      "h": [
-        1300,
-        1400
-      ],
-      "headline_max": 16,
-      "sub_max": 22,
-      "body_lines_max": 8,
-      "line_max": 22,
-      "q": [
-        "Q1"
-      ],
-      "layout": "white background; thin kicker line at upper-left, then a two-line calligraphic headline left-aligned 80px inside the column, two sub lines, four hashtag lines with script # marks, and a persona tag in serif brackets like [33세, 대기업 사원]; lower 45% shows a half-body line illustration of the persona on the right 55% and two product units on the left, with one tan brush-stroke diagonal behind"
-    },
-    "K4": {
-      "name": "TPO 장면 지그재그 3",
-      "h": [
-        950,
-        1350
-      ],
-      "headline_max": 12,
-      "sub_max": 16,
-      "body_lines_max": 12,
-      "line_max": 14,
-      "q": [
-        "Q1"
-      ],
-      "layout": "white background; round badge plus small title at upper-left; three scenes stacked 300px each, text block (40% width) and faceless line illustration in a rounded mask (50% width) alternating left/right; emphasized words in the scene heads carry a yellow highlighter stroke; only the product is in brand color; one footnote line at the very bottom"
-    },
-    "K5": {
-      "name": "Check Point 목차 3",
-      "h": [
-        600,
-        700
-      ],
-      "headline_max": 12,
-      "sub_max": 12,
-      "body_lines_max": 6,
-      "line_max": 12,
-      "q": [
-        "Q2"
-      ],
-      "layout": "tan diagonal gradient; kicker plus a large two-line 'Check Point' head at left; three overlapping white circles (300px) in a row at the bottom, each with a brand-color numeral and two short lines"
-    },
-    "K6": {
-      "name": "Point N 단락",
-      "h": [
-        1300,
-        1400
-      ],
-      "headline_max": 10,
-      "sub_max": 10,
-      "body_lines_max": 4,
-      "line_max": 24,
-      "q": [
-        "Q3"
-      ],
-      "layout": "solid cream or tan background; a 'Point N' badge top-center (only N in brand color), hairline, headline (45px), thin sub (33px), hairline, 2-4 body lines; lower 55% is the visual (styled product photo or line icons); one brand-color script callout of ≤10 characters placed diagonally over the visual"
-    },
-    "K7": {
-      "name": "기능성 아이콘 링",
-      "h": [
-        1300,
-        1400
-      ],
-      "headline_max": 8,
-      "sub_max": 10,
-      "body_lines_max": 5,
-      "line_max": 24,
-      "q": [
-        "Q2",
-        "Q3"
-      ],
-      "layout": "cream background; a tan pentagon at center with two product units crossed over it; a round line icon (130px) at each vertex with a brand-color script label; two body lines above; the exact approved functional claim wording as 3 centered lines below"
-    },
-    "K8": {
-      "name": "근거 카드",
-      "h": [
-        1000,
-        1050
-      ],
-      "headline_max": 16,
-      "sub_max": 40,
-      "body_lines_max": 12,
-      "line_max": 30,
-      "q": [
-        "Q4"
-      ],
-      "layout": "white rounded card (82% width) on cream; headline 28px, two-line grey disclaimer 18px, chart title, a chart area (70% width) in dark brand color vs tan, 2-3 conclusion lines, hairline, then 7 left-aligned lines of subject/design/source at 18px. NEVER generate the chart values — leave the chart area as a blank framed panel to be composited or replaced by HTML"
-    },
-    "K9": {
-      "name": "섭취 STEP 3",
-      "h": [
-        990,
-        1400
-      ],
-      "headline_max": 6,
-      "sub_max": 12,
-      "body_lines_max": 9,
-      "line_max": 12,
-      "q": [
-        "Q5"
-      ],
-      "layout": "tan background with a lighter rounded panel (60% width) that has a tab-shaped title at top-center; three STEPs stacked 300px each, a white circle (200px) with a hand illustration alternating left/right/left and three text lines on the opposite side; 'STEP.N' in brand-color italic serif hanging above each circle"
-    },
-    "K10": {
-      "name": "추천 대상 2×2",
-      "h": [
-        700,
-        800
-      ],
-      "headline_max": 18,
-      "sub_max": 14,
-      "body_lines_max": 8,
-      "line_max": 14,
-      "q": [
-        "Q1"
-      ],
-      "layout": "brown-to-orange diagonal gradient; two-line head where the second line sits in a white outlined box; a cross divider splits the lower area into 2×2 cells, each with a white line icon (120px) and two short lines"
-    },
-    "K11": {
-      "name": "제품 구성 연출",
-      "h": [
-        1000,
-        1100
-      ],
-      "headline_max": 6,
-      "sub_max": 14,
-      "body_lines_max": 3,
-      "line_max": 14,
-      "q": [
-        "Q6"
-      ],
-      "layout": "diagonal gradient brightening to peach; styled product photo of the big box, small box and single unit on the diagonal; three spec labels in serif brackets scattered over the photo; head in a white outlined box at top-center"
-    },
-    "S1": {
-      "name": "피처 컷(좌정렬)",
-      "h": [
-        900,
-        1100
-      ],
-      "headline_max": 22,
-      "sub_max": 22,
-      "body_lines_max": 5,
-      "line_max": 22,
-      "q": [
-        "Q3"
-      ],
-      "layout": "headline left-aligned with 140px top margin; an image card (80% width, 16px radius) below; 3-5 body lines; image to text area about 72:28"
-    },
-    "S2": {
-      "name": "비교 카드",
-      "h": [
-        850,
-        950
-      ],
-      "headline_max": 8,
-      "sub_max": 6,
-      "body_lines_max": 6,
-      "line_max": 6,
-      "q": [
-        "Q3"
-      ],
-      "layout": "dark card (24px radius) with 24px padding: title, our product name underlined, 1-2 label/value pairs, then the comparison target name and the same pairs; values in equal size, only the winner in brand color; at most 2 items; the comparison target is our own previous product or the old method, never a competitor"
-    },
-    "S3": {
-      "name": "아코디언 3단",
-      "h": [
-        850,
-        950
-      ],
-      "headline_max": 16,
-      "sub_max": 16,
-      "body_lines_max": 12,
-      "line_max": 22,
-      "q": [
-        "Q7"
-      ],
-      "layout": "one card with three items all expanded: item title, image (80% width × 180), 3 body lines each"
-    },
-    "S4": {
-      "name": "서비스·신뢰 카드",
-      "h": [
-        650,
-        750
-      ],
-      "headline_max": 21,
-      "sub_max": 6,
-      "body_lines_max": 4,
-      "line_max": 21,
-      "q": [
-        "Q7"
-      ],
-      "layout": "card: two-line head at left, a small logo, an underlined link, a flat illustration filling the lower-right 40%"
-    },
-    "L1": {
-      "name": "스펙 요약 4불릿",
-      "h": [
-        550,
-        650
-      ],
-      "headline_max": 8,
-      "sub_max": 20,
-      "body_lines_max": 4,
-      "line_max": 20,
-      "q": [
-        "Q6"
-      ],
-      "layout": "light grey; head 8 characters; four 'label : value' bullet lines"
-    },
-    "L2": {
-      "name": "국소 FAQ 4문항",
-      "h": [
-        650,
-        750
-      ],
-      "headline_max": 8,
-      "sub_max": 22,
-      "body_lines_max": 4,
-      "line_max": 22,
-      "q": [
-        "Q7"
-      ],
-      "layout": "light grey; four rounded Q cards (70px each) prefixed with 'Q' — questions only answer what the previous cut raised"
-    },
-    "L3": {
-      "name": "치수·배치 도면",
-      "h": [
-        850,
-        950
-      ],
-      "headline_max": 8,
-      "sub_max": 8,
-      "body_lines_max": 3,
-      "line_max": 20,
-      "q": [
-        "Q6"
-      ],
-      "layout": "front elevation (55% width) and side/top plan (45%) as clean technical line drawings with dimension lines; three footnote lines at the bottom"
-    },
-    "L4": {
-      "name": "리뷰 카드 스트립",
-      "h": [
-        750,
-        850
-      ],
-      "headline_max": 2,
-      "sub_max": 25,
-      "body_lines_max": 3,
-      "line_max": 25,
-      "q": [
-        "Q4"
-      ],
-      "layout": "star rating plus count, four photo thumbnails, three review cards each with stars, a thumbnail and a single truncated line — ONLY with real reviews supplied in raw-input"
-    },
-    "C1": {
-      "name": "보증·환불 컷",
-      "h": [
-        700,
-        800
-      ],
-      "headline_max": 16,
-      "sub_max": 22,
-      "body_lines_max": 5,
-      "line_max": 22,
-      "q": [
-        "Q7"
-      ],
-      "layout": "light neutral background; a large shield or ribbon badge at center-left with the guarantee period as a big numeral; head and 3-5 lines of the exact refund policy at right; no exaggerated words"
-    },
-    "C2": {
-      "name": "CTA·오퍼 컷",
-      "h": [
-        600,
-        750
-      ],
-      "headline_max": 14,
-      "sub_max": 20,
-      "body_lines_max": 3,
-      "line_max": 20,
-      "q": [
-        "Q8"
-      ],
-      "layout": "brand-color background; head, one line of the actual deadline or condition, a pill CTA button with the action+result wording; prices only when the platform allows them inside the image"
-    },
-    "F1": {
-      "name": "풀바디 룩북 + 모델 정보",
-      "h": [
-        1100,
-        1200
-      ],
-      "headline_max": 5,
-      "sub_max": 14,
-      "body_lines_max": 3,
-      "line_max": 14,
-      "q": [
-        "Q1",
-        "Q4"
-      ],
-      "layout": "studio plain grey backdrop; full-body model centered (65-75% width), 60px top margin; lower-left three short lines: label 'MODEL', height/weight line, worn size line — no other text. Faceless or back-turned figure when generated; real photography strongly preferred"
-    },
-    "F2": {
-      "name": "풀바디 포즈 변형",
-      "h": [
-        1100,
-        1200
-      ],
-      "headline_max": 0,
-      "sub_max": 0,
-      "body_lines_max": 0,
-      "line_max": 0,
-      "q": [
-        "Q4"
-      ],
-      "layout": "same backdrop, lighting and model as the anchor lookbook cut; pose turned 30-45 degrees; no text"
-    },
-    "F3": {
-      "name": "하프바디 근접",
-      "h": [
-        1100,
-        1200
-      ],
-      "headline_max": 0,
-      "sub_max": 0,
-      "body_lines_max": 0,
-      "line_max": 0,
-      "q": [
-        "Q4"
-      ],
-      "layout": "knee-up framing, garment fills 60%+ of frame, hardware and drape visible; no text"
-    },
-    "F4": {
-      "name": "백뷰",
-      "h": [
-        1100,
-        1200
-      ],
-      "headline_max": 0,
-      "sub_max": 0,
-      "body_lines_max": 0,
-      "line_max": 0,
-      "q": [
-        "Q4"
-      ],
-      "layout": "back view of the same outfit, hood down; no text"
-    },
-    "F5": {
-      "name": "STYLE INFO 코디 표",
-      "h": [
-        380,
-        450
-      ],
-      "headline_max": 10,
-      "sub_max": 30,
-      "body_lines_max": 3,
-      "line_max": 30,
-      "q": [
-        "Q6"
-      ],
-      "layout": "white; left 80px grid; head 'STYLE INFO' then three rows 'label | product name [color]' — TEXT-ONLY CUT: render as HTML/vector, never generate as image"
-    },
-    "F6": {
-      "name": "DETAIL 포인트 컷",
-      "h": [
-        1250,
-        1400
-      ],
-      "headline_max": 8,
-      "sub_max": 25,
-      "body_lines_max": 2,
-      "line_max": 25,
-      "q": [
-        "Q3"
-      ],
-      "layout": "white canvas; optional 'DETAIL' header 44px on the first one; product-only close-up photo 800×960 at x80; below it 'POINT 0N' 34px bold and 1-2 bullet lines 26px; left-aligned, bold is the only emphasis"
-    },
-    "F7": {
-      "name": "반품·교환 정책 카드",
-      "h": [
-        1500,
-        2400
-      ],
-      "headline_max": 14,
-      "sub_max": 30,
-      "body_lines_max": 14,
-      "line_max": 30,
-      "q": [
-        "Q7"
-      ],
-      "layout": "light grey (#EFEFEF) card, left 58px; title 54px, lead 2 lines, Q/A pairs with round icons, numbered ①~④ exclusion conditions, contact line — TEXT-ONLY: HTML or platform's official image, never generated"
-    },
-    "F8": {
-      "name": "사이즈 실측표",
-      "h": [
-        600,
-        900
-      ],
-      "headline_max": 10,
-      "sub_max": 20,
-      "body_lines_max": 8,
-      "line_max": 20,
-      "q": [
-        "Q6"
-      ],
-      "layout": "table: size × 총장·어깨·가슴·소매 in cm with a ±tolerance line — MEASUREMENTS MUST NEVER BE GENERATED: HTML table only (legal.md)"
-    }
+ "_note": "reference-patterns.md §4의 컷 템플릿 규격. check_cuts.py가 슬롯 길이·높이를 검사하고, image-briefs.md 프롬프트 골격이 레이아웃 서술을 가져온다. 폭 1000 기준. 2026-09-04 라운드 A 해부(자사몰·플랫폼 17페이지)로 P1~P5(근거)·X1~X10(공통 문법) 추가 — 상세는 references/style-packs.md.",
+ "canvas_width": 1000,
+ "templates": {
+  "K1": {
+   "name": "브랜드 매니페스토 히어로",
+   "h": [
+    1000,
+    1350
+   ],
+   "headline_max": 10,
+   "sub_max": 30,
+   "body_lines_max": 5,
+   "line_max": 22,
+   "q": [
+    "brand"
+   ],
+   "layout": "solid brand-color background with 2-3 translucent gradient blobs on the lower-left and upper-right diagonals; wordmark centered at 35% height spanning 70% width; one quotation line below; a short vertical hairline; two centered paragraphs at 55% width; no product photo"
+  },
+  "K2": {
+   "name": "제품명 히어로(해시태그)",
+   "h": [
+    1000,
+    1100
+   ],
+   "headline_max": 9,
+   "sub_max": 12,
+   "body_lines_max": 4,
+   "line_max": 12,
+   "q": [
+    "Q2"
+   ],
+   "layout": "dark-to-brand-color vertical gradient; product name large (70px) at upper-left with 3 outlined pill hashtags beside it and 4 short copy lines below (last line bold); lower 55% is a styled product photo (box plus single unit) lit from upper-left"
+  },
+  "K3": {
+   "name": "타겟 페르소나 선언",
+   "h": [
+    1300,
+    1400
+   ],
+   "headline_max": 16,
+   "sub_max": 22,
+   "body_lines_max": 8,
+   "line_max": 22,
+   "q": [
+    "Q1"
+   ],
+   "layout": "white background; thin kicker line at upper-left, then a two-line calligraphic headline left-aligned 80px inside the column, two sub lines, four hashtag lines with script # marks, and a persona tag in serif brackets like [33세, 대기업 사원]; lower 45% shows a half-body line illustration of the persona on the right 55% and two product units on the left, with one tan brush-stroke diagonal behind"
+  },
+  "K4": {
+   "name": "TPO 장면 지그재그 3",
+   "h": [
+    950,
+    1350
+   ],
+   "headline_max": 12,
+   "sub_max": 16,
+   "body_lines_max": 12,
+   "line_max": 14,
+   "q": [
+    "Q1"
+   ],
+   "layout": "white background; round badge plus small title at upper-left; three scenes stacked 300px each, text block (40% width) and faceless line illustration in a rounded mask (50% width) alternating left/right; emphasized words in the scene heads carry a yellow highlighter stroke; only the product is in brand color; one footnote line at the very bottom"
+  },
+  "K5": {
+   "name": "Check Point 목차 3",
+   "h": [
+    600,
+    700
+   ],
+   "headline_max": 12,
+   "sub_max": 12,
+   "body_lines_max": 6,
+   "line_max": 12,
+   "q": [
+    "Q2"
+   ],
+   "layout": "tan diagonal gradient; kicker plus a large two-line 'Check Point' head at left; three overlapping white circles (300px) in a row at the bottom, each with a brand-color numeral and two short lines"
+  },
+  "K6": {
+   "name": "Point N 단락",
+   "h": [
+    1300,
+    1400
+   ],
+   "headline_max": 10,
+   "sub_max": 10,
+   "body_lines_max": 4,
+   "line_max": 24,
+   "q": [
+    "Q3"
+   ],
+   "layout": "solid cream or tan background; a 'Point N' badge top-center (only N in brand color), hairline, headline (45px), thin sub (33px), hairline, 2-4 body lines; lower 55% is the visual (styled product photo or line icons); one brand-color script callout of ≤10 characters placed diagonally over the visual"
+  },
+  "K7": {
+   "name": "기능성 아이콘 링",
+   "h": [
+    1300,
+    1400
+   ],
+   "headline_max": 8,
+   "sub_max": 10,
+   "body_lines_max": 5,
+   "line_max": 24,
+   "q": [
+    "Q2",
+    "Q3"
+   ],
+   "layout": "cream background; a tan pentagon at center with two product units crossed over it; a round line icon (130px) at each vertex with a brand-color script label; two body lines above; the exact approved functional claim wording as 3 centered lines below"
+  },
+  "K8": {
+   "name": "근거 카드",
+   "h": [
+    1000,
+    1050
+   ],
+   "headline_max": 16,
+   "sub_max": 40,
+   "body_lines_max": 12,
+   "line_max": 30,
+   "q": [
+    "Q4"
+   ],
+   "layout": "white rounded card (82% width) on cream; headline 28px, two-line grey disclaimer 18px, chart title, a chart area (70% width) in dark brand color vs tan, 2-3 conclusion lines, hairline, then 7 left-aligned lines of subject/design/source at 18px. NEVER generate the chart values — leave the chart area as a blank framed panel to be composited or replaced by HTML"
+  },
+  "K9": {
+   "name": "섭취 STEP 3",
+   "h": [
+    990,
+    1400
+   ],
+   "headline_max": 6,
+   "sub_max": 12,
+   "body_lines_max": 9,
+   "line_max": 12,
+   "q": [
+    "Q5"
+   ],
+   "layout": "tan background with a lighter rounded panel (60% width) that has a tab-shaped title at top-center; three STEPs stacked 300px each, a white circle (200px) with a hand illustration alternating left/right/left and three text lines on the opposite side; 'STEP.N' in brand-color italic serif hanging above each circle"
+  },
+  "K10": {
+   "name": "추천 대상 2×2",
+   "h": [
+    700,
+    800
+   ],
+   "headline_max": 18,
+   "sub_max": 14,
+   "body_lines_max": 8,
+   "line_max": 14,
+   "q": [
+    "Q1"
+   ],
+   "layout": "brown-to-orange diagonal gradient; two-line head where the second line sits in a white outlined box; a cross divider splits the lower area into 2×2 cells, each with a white line icon (120px) and two short lines"
+  },
+  "K11": {
+   "name": "제품 구성 연출",
+   "h": [
+    1000,
+    1100
+   ],
+   "headline_max": 6,
+   "sub_max": 14,
+   "body_lines_max": 3,
+   "line_max": 14,
+   "q": [
+    "Q6"
+   ],
+   "layout": "diagonal gradient brightening to peach; styled product photo of the big box, small box and single unit on the diagonal; three spec labels in serif brackets scattered over the photo; head in a white outlined box at top-center"
+  },
+  "S1": {
+   "name": "피처 컷(좌정렬)",
+   "h": [
+    900,
+    1100
+   ],
+   "headline_max": 22,
+   "sub_max": 22,
+   "body_lines_max": 5,
+   "line_max": 22,
+   "q": [
+    "Q3"
+   ],
+   "layout": "headline left-aligned with 140px top margin; an image card (80% width, 16px radius) below; 3-5 body lines; image to text area about 72:28"
+  },
+  "S2": {
+   "name": "비교 카드",
+   "h": [
+    850,
+    950
+   ],
+   "headline_max": 8,
+   "sub_max": 6,
+   "body_lines_max": 6,
+   "line_max": 6,
+   "q": [
+    "Q3"
+   ],
+   "layout": "dark card (24px radius) with 24px padding: title, our product name underlined, 1-2 label/value pairs, then the comparison target name and the same pairs; values in equal size, only the winner in brand color; at most 2 items; the comparison target is our own previous product or the old method, never a competitor"
+  },
+  "S3": {
+   "name": "아코디언 3단",
+   "h": [
+    850,
+    950
+   ],
+   "headline_max": 16,
+   "sub_max": 16,
+   "body_lines_max": 12,
+   "line_max": 22,
+   "q": [
+    "Q7"
+   ],
+   "layout": "one card with three items all expanded: item title, image (80% width × 180), 3 body lines each"
+  },
+  "S4": {
+   "name": "서비스·신뢰 카드",
+   "h": [
+    650,
+    750
+   ],
+   "headline_max": 21,
+   "sub_max": 6,
+   "body_lines_max": 4,
+   "line_max": 21,
+   "q": [
+    "Q7"
+   ],
+   "layout": "card: two-line head at left, a small logo, an underlined link, a flat illustration filling the lower-right 40%"
+  },
+  "L1": {
+   "name": "스펙 요약 4불릿",
+   "h": [
+    550,
+    650
+   ],
+   "headline_max": 8,
+   "sub_max": 20,
+   "body_lines_max": 4,
+   "line_max": 20,
+   "q": [
+    "Q6"
+   ],
+   "layout": "light grey; head 8 characters; four 'label : value' bullet lines"
+  },
+  "L2": {
+   "name": "국소 FAQ 4문항",
+   "h": [
+    650,
+    750
+   ],
+   "headline_max": 8,
+   "sub_max": 22,
+   "body_lines_max": 4,
+   "line_max": 22,
+   "q": [
+    "Q7"
+   ],
+   "layout": "light grey; four rounded Q cards (70px each) prefixed with 'Q' — questions only answer what the previous cut raised"
+  },
+  "L3": {
+   "name": "치수·배치 도면",
+   "h": [
+    850,
+    950
+   ],
+   "headline_max": 8,
+   "sub_max": 8,
+   "body_lines_max": 3,
+   "line_max": 20,
+   "q": [
+    "Q6"
+   ],
+   "layout": "front elevation (55% width) and side/top plan (45%) as clean technical line drawings with dimension lines; three footnote lines at the bottom"
+  },
+  "L4": {
+   "name": "리뷰 카드 스트립",
+   "h": [
+    750,
+    850
+   ],
+   "headline_max": 2,
+   "sub_max": 25,
+   "body_lines_max": 3,
+   "line_max": 25,
+   "q": [
+    "Q4"
+   ],
+   "layout": "star rating plus count, four photo thumbnails, three review cards each with stars, a thumbnail and a single truncated line — ONLY with real reviews supplied in raw-input"
+  },
+  "C1": {
+   "name": "보증·환불 컷",
+   "h": [
+    700,
+    800
+   ],
+   "headline_max": 16,
+   "sub_max": 22,
+   "body_lines_max": 5,
+   "line_max": 22,
+   "q": [
+    "Q7"
+   ],
+   "layout": "light neutral background; a large shield or ribbon badge at center-left with the guarantee period as a big numeral; head and 3-5 lines of the exact refund policy at right; no exaggerated words"
+  },
+  "C2": {
+   "name": "CTA·오퍼 컷",
+   "h": [
+    600,
+    750
+   ],
+   "headline_max": 14,
+   "sub_max": 20,
+   "body_lines_max": 3,
+   "line_max": 20,
+   "q": [
+    "Q8"
+   ],
+   "layout": "brand-color background; head, one line of the actual deadline or condition, a pill CTA button with the action+result wording; prices only when the platform allows them inside the image"
+  },
+  "F1": {
+   "name": "풀바디 룩북 + 모델 정보",
+   "h": [
+    1100,
+    1200
+   ],
+   "headline_max": 5,
+   "sub_max": 14,
+   "body_lines_max": 3,
+   "line_max": 14,
+   "q": [
+    "Q1",
+    "Q4"
+   ],
+   "layout": "studio plain grey backdrop; full-body model centered (65-75% width), 60px top margin; lower-left three short lines: label 'MODEL', height/weight line, worn size line — no other text. Faceless or back-turned figure when generated; real photography strongly preferred"
+  },
+  "F2": {
+   "name": "풀바디 포즈 변형",
+   "h": [
+    1100,
+    1200
+   ],
+   "headline_max": 0,
+   "sub_max": 0,
+   "body_lines_max": 0,
+   "line_max": 0,
+   "q": [
+    "Q4"
+   ],
+   "layout": "same backdrop, lighting and model as the anchor lookbook cut; pose turned 30-45 degrees; no text"
+  },
+  "F3": {
+   "name": "하프바디 근접",
+   "h": [
+    1100,
+    1200
+   ],
+   "headline_max": 0,
+   "sub_max": 0,
+   "body_lines_max": 0,
+   "line_max": 0,
+   "q": [
+    "Q4"
+   ],
+   "layout": "knee-up framing, garment fills 60%+ of frame, hardware and drape visible; no text"
+  },
+  "F4": {
+   "name": "백뷰",
+   "h": [
+    1100,
+    1200
+   ],
+   "headline_max": 0,
+   "sub_max": 0,
+   "body_lines_max": 0,
+   "line_max": 0,
+   "q": [
+    "Q4"
+   ],
+   "layout": "back view of the same outfit, hood down; no text"
+  },
+  "F5": {
+   "name": "STYLE INFO 코디 표",
+   "h": [
+    380,
+    450
+   ],
+   "headline_max": 10,
+   "sub_max": 30,
+   "body_lines_max": 3,
+   "line_max": 30,
+   "q": [
+    "Q6"
+   ],
+   "layout": "white; left 80px grid; head 'STYLE INFO' then three rows 'label | product name [color]' — TEXT-ONLY CUT: render as HTML/vector, never generate as image"
+  },
+  "F6": {
+   "name": "DETAIL 포인트 컷",
+   "h": [
+    1250,
+    1400
+   ],
+   "headline_max": 8,
+   "sub_max": 25,
+   "body_lines_max": 2,
+   "line_max": 25,
+   "q": [
+    "Q3"
+   ],
+   "layout": "white canvas; optional 'DETAIL' header 44px on the first one; product-only close-up photo 800×960 at x80; below it 'POINT 0N' 34px bold and 1-2 bullet lines 26px; left-aligned, bold is the only emphasis"
+  },
+  "F7": {
+   "name": "반품·교환 정책 카드",
+   "h": [
+    1500,
+    2400
+   ],
+   "headline_max": 14,
+   "sub_max": 30,
+   "body_lines_max": 14,
+   "line_max": 30,
+   "q": [
+    "Q7"
+   ],
+   "layout": "light grey (#EFEFEF) card, left 58px; title 54px, lead 2 lines, Q/A pairs with round icons, numbered ①~④ exclusion conditions, contact line — TEXT-ONLY: HTML or platform's official image, never generated"
+  },
+  "F8": {
+   "name": "사이즈 실측표",
+   "h": [
+    600,
+    900
+   ],
+   "headline_max": 10,
+   "sub_max": 20,
+   "body_lines_max": 8,
+   "line_max": 20,
+   "q": [
+    "Q6"
+   ],
+   "layout": "table: size × 총장·어깨·가슴·소매 in cm with a ±tolerance line — MEASUREMENTS MUST NEVER BE GENERATED: HTML table only (legal.md)"
+  },
+  "P1": {
+   "name": "근거 히어로(통계·판매량 리드)",
+   "h": [
+    900,
+    1100
+   ],
+   "headline_max": 14,
+   "sub_max": 20,
+   "body_lines_max": 4,
+   "line_max": 18,
+   "q": [
+    "Q4",
+    "Q2"
+   ],
+   "layout": "centered oversized statistic or ranking line as the headline (numbers only from input), 3-4 satisfaction/percentage bars or badges below, product small at the bottom edge; neutral or brand-dark background"
+  },
+  "P2": {
+   "name": "인증·수상 배지 그리드",
+   "h": [
+    700,
+    900
+   ],
+   "headline_max": 12,
+   "sub_max": 20,
+   "body_lines_max": 8,
+   "line_max": 16,
+   "q": [
+    "Q4"
+   ],
+   "layout": "2-column grid of 4-8 cards, each an official mark or award icon plus a 2-line caption; one bold head above; light background"
+  },
+  "P3": {
+   "name": "대조군 계측 카드(A/B 비교)",
+   "h": [
+    900,
+    1100
+   ],
+   "headline_max": 12,
+   "sub_max": 22,
+   "body_lines_max": 4,
+   "line_max": 20,
+   "q": [
+    "Q3",
+    "Q4"
+   ],
+   "layout": "two equal panels side by side labelled inside the image (conventional vs ours), same framing and lighting, measured object (scale, UV light, gauge) visible; footnote line with test condition at the bottom"
+  },
+  "P4": {
+   "name": "Before/After 2분할 카드",
+   "h": [
+    850,
+    1000
+   ],
+   "headline_max": 12,
+   "sub_max": 22,
+   "body_lines_max": 3,
+   "line_max": 20,
+   "q": [
+    "Q4"
+   ],
+   "layout": "left grey Before panel and right brand-color After panel with one large percentage badge; grey footnote strip for institution, period, sample size"
+  },
+  "P5": {
+   "name": "리뷰 그리드(사진+핵심문장)",
+   "h": [
+    900,
+    1100
+   ],
+   "headline_max": 8,
+   "sub_max": 16,
+   "body_lines_max": 8,
+   "line_max": 26,
+   "q": [
+    "Q4"
+   ],
+   "layout": "large average rating numeral on top, then 3-5 review cards each with a user photo thumbnail, nickname, usage-period tag and one highlighted sentence"
+  },
+  "X1": {
+   "name": "컬러 스와치 매트릭스",
+   "h": [
+    800,
+    1000
+   ],
+   "headline_max": 10,
+   "sub_max": 16,
+   "body_lines_max": 2,
+   "line_max": 14,
+   "q": [
+    "Q6"
+   ],
+   "layout": "grid of color chips (2-4 columns) with Korean and English names, optional selection-criteria header row; white background"
+  },
+  "X2": {
+   "name": "사이즈 3중 제시",
+   "h": [
+    1000,
+    1300
+   ],
+   "headline_max": 12,
+   "sub_max": 20,
+   "body_lines_max": 3,
+   "line_max": 18,
+   "q": [
+    "Q6"
+   ],
+   "layout": "nested rectangle diagram of size options → photo of a person or a familiar object holding the product with dimension overlays → model-height caption; keep all measurements as given"
+  },
+  "X3": {
+   "name": "선제 FAQ 카드(불량 오인 방지)",
+   "h": [
+    1000,
+    1300
+   ],
+   "headline_max": 10,
+   "sub_max": 22,
+   "body_lines_max": 5,
+   "line_max": 22,
+   "q": [
+    "Q7"
+   ],
+   "layout": "3 stacked cards: left half a close-up comparison photo, right half a bold question line and a 3-5 line answer; reassurance head above the stack"
+  },
+  "X4": {
+   "name": "다크 배너 섹션 전환",
+   "h": [
+    300,
+    450
+   ],
+   "headline_max": 12,
+   "sub_max": 18,
+   "body_lines_max": 1,
+   "line_max": 18,
+   "q": [
+    "brand"
+   ],
+   "layout": "full-width dark band with one label-style headline and an optional one-line sub; used as a section divider before an add-on, care or spec block"
+  },
+  "X5": {
+   "name": "숨 고르기 무카피 사진",
+   "h": [
+    700,
+    1400
+   ],
+   "headline_max": 0,
+   "sub_max": 0,
+   "body_lines_max": 0,
+   "line_max": 0,
+   "q": [
+    "Q1"
+   ],
+   "layout": "single full-bleed lifestyle or texture photograph with no text; inserted between information blocks to reset attention"
+  },
+  "X6": {
+   "name": "STEP 라인아트 그리드",
+   "h": [
+    700,
+    950
+   ],
+   "headline_max": 8,
+   "sub_max": 16,
+   "body_lines_max": 4,
+   "line_max": 14,
+   "q": [
+    "Q5"
+   ],
+   "layout": "3-6 numbered circle badges with simple line illustrations in a grid, arrows between steps, minimal text (one short line per step)"
+  },
+  "X7": {
+   "name": "계산식 공개 표",
+   "h": [
+    700,
+    900
+   ],
+   "headline_max": 12,
+   "sub_max": 20,
+   "body_lines_max": 6,
+   "line_max": 22,
+   "q": [
+    "Q3",
+    "Q4"
+   ],
+   "layout": "comparison bar chart with our product at the far right and a circular badge on the smallest value, then a 3-row table condition / formula / result; footnote with measurement basis"
+  },
+  "X8": {
+   "name": "구성품 캡션 그리드",
+   "h": [
+    600,
+    800
+   ],
+   "headline_max": 8,
+   "sub_max": 16,
+   "body_lines_max": 0,
+   "line_max": 12,
+   "q": [
+    "Q6"
+   ],
+   "layout": "3-5 real photos of included items in a row or 2x2 grid, each with only a short name label beneath; no headline needed"
+  },
+  "X9": {
+   "name": "고객 목소리 말풍선 오프너",
+   "h": [
+    1000,
+    1200
+   ],
+   "headline_max": 12,
+   "sub_max": 20,
+   "body_lines_max": 4,
+   "line_max": 20,
+   "q": [
+    "Q1"
+   ],
+   "layout": "3-4 speech-bubble cards quoting customer complaints or requests (only from input), one headline about why the product was made or renewed; product absent or tiny"
+  },
+  "X10": {
+   "name": "계단식 가격표(클로징 오퍼)",
+   "h": [
+    700,
+    900
+   ],
+   "headline_max": 12,
+   "sub_max": 20,
+   "body_lines_max": 4,
+   "line_max": 18,
+   "q": [
+    "Q8"
+   ],
+   "layout": "3-column step table (early-bird / second round / regular) with only dates and prices from input, one line of scarcity that is true, CTA line; placed after trust modules, not at the top"
   }
+ }
 }

@@ -106,6 +106,55 @@ cp "$HZ/cuts.humanized.md" "$HZ/cuts.md"
 python3 "$SCRIPTS/check_cuts.py" "$HZ" --category health_food --platform smartstore >"$HZ/.g1" 2>&1 \
   && ok "윤문 결과물이 게이트 1 PASS" || bad "윤문 결과물 게이트 1" "$(tail -1 "$HZ/.g1")"
 
+echo "[스타일 팩 — 스키마·템플릿·브랜드명 0건]"
+python3 - "$PLUGIN_DIR" <<'PY' && ok "style-packs: 6팩 필수 필드·시퀀스 템플릿 ID 실존" || bad "style-packs 스키마/템플릿" "위 출력 참조"
+import json,glob,os,sys
+P=sys.argv[1]+"/skills/sangse/assets/"
+sch=json.load(open(P+"style-packs/_schema.json")); T=json.load(open(P+"cut-templates.json"))["templates"]
+packs=[f for f in glob.glob(P+"style-packs/*.json") if not os.path.basename(f).startswith("_")]
+bad=[]
+for f in packs:
+    d=json.load(open(f))
+    for k in sch["required"]:
+        if k not in d: bad.append((os.path.basename(f),"missing",k))
+    for s in d["sequence"]:
+        if s["tpl"] not in T: bad.append((os.path.basename(f),"tpl",s["tpl"]))
+    if d["id"]!=os.path.basename(f)[:-5]: bad.append((os.path.basename(f),"id",d["id"]))
+if len(packs)<6: bad.append(("packs","count",len(packs)))
+print(bad) if bad else None
+sys.exit(1 if bad else 0)
+PY
+python3 - "$PLUGIN_DIR" <<'PY' && ok "style-packs: id·표시명·설명·프롬프트에 브랜드·사이트명 없음(sources 필드 제외)" || bad "style-packs 브랜드·사이트명 0건" "위 출력 참조"
+import json,glob,os,sys,re
+P=sys.argv[1]+"/skills/sangse/assets/style-packs/"
+banned="컬리|쿠팡|정관장|무신사|올리브영|크몽|오늘의집|와디즈|텀블벅|스마트스토어|네이버|카카오|삼성|LG전자|헬로우슬립|코니|알집|하림|페스룸|아누아|롬앤|루메나|키크론|슈피겐|프릳츠|로우로우|인프런|클래스유|패스트캠퍼스|kurly|coupang|musinsa|oliveyoung|kmong|ohou|wadiz|tumblbug|naver|kakao|samsung|hellosleep|konny|alzip|harim|pethroom|anua|romand|lumena|keychron|spigen|fritz|rawrow|inflearn|classu|fastcampus|rakuten|amazon|shopify|taobao|tmall|shopee"
+hits=[]
+for f in glob.glob(P+"*.json"):
+    if os.path.basename(f).startswith("_"): continue
+    d=json.load(open(f)); d.pop("sources",None)
+    m=re.findall(banned, json.dumps(d,ensure_ascii=False), re.I)
+    if m: hits.append((os.path.basename(f),sorted(set(m))))
+print(hits) if hits else None
+sys.exit(1 if hits else 0)
+PY
+
+echo "[게이트 1 T8 — 스타일 팩 시퀀스 검사]"
+T8="$TMP/t8"; mkdir -p "$T8"; cp -R "$EXAMPLES/punggi-red-ginseng-stick/." "$T8/"
+python3 - "$T8/cuts.md" <<'PY'
+import sys,re; p=sys.argv[1]; s=open(p,encoding="utf-8").read(); open(p,"w",encoding="utf-8").write(re.sub(r"^(tone:.*)$", r"\1\nstyle: proof-first", s, count=1, flags=re.M))
+PY
+python3 "$SCRIPTS/check_cuts.py" "$T8" --category health_food --platform smartstore --json >"$T8/.t8.json" 2>/dev/null
+python3 - "$T8/.t8.json" <<'PY' && ok "style: proof-first 에 K 시퀀스 → T8 WARN(FAIL 아님), verdict PASS" || bad "T8 WARN" "$(head -c 200 "$T8/.t8.json")"
+import json,sys; d=json.load(open(sys.argv[1])); t=[c for c in d["checks"] if c["id"]=="T8"]
+sys.exit(0 if t and t[0]["status"]=="WARN" and d["verdict"]=="PASS" and d.get("style")=="proof-first" else 1)
+PY
+sed -i.bak 's/^style: proof-first/style: no-such-pack/' "$T8/cuts.md"
+if python3 "$SCRIPTS/check_cuts.py" "$T8" --category health_food --platform smartstore >/dev/null 2>&1; then
+  bad "T8 미존재 팩" "exit 0 — 없는 팩 id가 FAIL로 잡히지 않는다"
+else
+  ok "style: 없는 팩 id → T8 FAIL, exit 1"
+fi
+
 echo "[의존성 점검]"
 if bash "$SCRIPTS/check_deps.sh" >"$TMP/deps.out" 2>&1; then
   ok "check_deps.sh exit 0"

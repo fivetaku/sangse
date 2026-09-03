@@ -1,7 +1,7 @@
 ---
 name: sangse
 description: "제품 정보를 이미지 컷 시트 상세페이지로 — 8질문 카피, 컴플라이언스, 3중 검증"
-argument-hint: "[제품 정보 텍스트·파일 경로·URL | 카피만 | 스마트스토어용]"
+argument-hint: "[제품 정보 텍스트·파일 경로·URL | 카피만 | 스마트스토어용 | --style <pack> | check <dir> | humanize <dir>]"
 allowed-tools:
   - Bash
   - Read
@@ -39,6 +39,7 @@ Inspect `$ARGUMENTS`:
 | product info (text, file path, URL) | Run the `sangse` skill from Step 0 (dependency check) → Step 1 (collect) |
 | contains `카피만` / `copy only` | Same, but stop after the copy approval gate — no image generation |
 | contains `스마트스토어` / `크몽` / `웹` | Pre-set the platform, skip that interview question |
+| contains `--style <id>` or a pack display name (고민 장면 스토리형 / 핵심 포인트 체크리스트형 / 근거·수치 우선형 / 룩북형 / 스펙 쇼케이스형 / 혜택·구성 프로모션형) | Pre-set the style pack (`assets/style-packs/<id>.json`), skip the Q-스타일 question |
 | `check <dir>` | Run only the verification gates on an existing `sangse/{slug}` folder (check_cuts.py → render_check.py) |
 | `humanize <dir>` | Run only Step 4-1 (GPT humanize via `humanize_cuts.py`) on an existing folder, show `qa/humanize.json`, then `--apply` on approval |
 | (no argument) | Ask for product info with AskUserQuestion — see below |

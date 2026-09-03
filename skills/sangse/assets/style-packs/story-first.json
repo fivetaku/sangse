@@ -1,0 +1,155 @@
+{
+ "id": "story-first",
+ "name": {
+  "ko": "고민 장면 스토리형",
+  "en": "Story-first"
+ },
+ "status": "verified",
+ "version": "0.3",
+ "summary": "첫 화면이 고객의 장면·목소리(고민 말풍선, 콤플렉스 자극, 라이프스타일 착용 장면)로 열리고, 곧바로 제품 각인 → 근거 스택으로 넘어간다. 해부 실측: 스토리 리드는 오프닝 1~3컷에 그치고 본문의 60~70%는 근거·포인트 모듈이 채운다. 비인지·문제 인지 고객, 광고/SNS 유입, 리뉴얼·자기개선 계열.",
+ "lead_mode": "scene-or-voice-opener",
+ "sequence": [
+  {
+   "tpl": "X9",
+   "q": "Q1",
+   "role": "오프너 — 고객 목소리 말풍선 또는 고민 장면(K3/K4로 대체 가능)"
+  },
+  {
+   "tpl": "K2",
+   "q": "Q2",
+   "role": "제품 각인 히어로(오프너 직후 1컷)"
+  },
+  {
+   "tpl": "K6",
+   "q": "Q3",
+   "role": "왜 이 방식 — 기존 한계 → 우리 방식"
+  },
+  {
+   "tpl": "P4",
+   "q": "Q4",
+   "role": "Before/After 또는 대조 근거(입력 있을 때)",
+   "optional": true
+  },
+  {
+   "tpl": "P5",
+   "q": "Q4",
+   "role": "리뷰 그리드(실제 후기 있을 때)",
+   "optional": true
+  },
+  {
+   "tpl": "K4",
+   "q": "Q1",
+   "role": "사용 장면 3"
+  },
+  {
+   "tpl": "X5",
+   "q": "Q1",
+   "role": "숨 고르기 사진"
+  },
+  {
+   "tpl": "K9",
+   "q": "Q5",
+   "role": "사용 STEP"
+  },
+  {
+   "tpl": "K11",
+   "q": "Q6",
+   "role": "구성"
+  },
+  {
+   "tpl": "L1",
+   "q": "Q6",
+   "role": "스펙 요약"
+  },
+  {
+   "tpl": "X3",
+   "q": "Q7",
+   "role": "선제 FAQ(불량 오인 방지)",
+   "optional": true
+  },
+  {
+   "tpl": "C1",
+   "q": "Q7",
+   "role": "보증·환불"
+  },
+  {
+   "tpl": "X10",
+   "q": "Q8",
+   "role": "클로징 오퍼(입력 있을 때)",
+   "optional": true
+  }
+ ],
+ "typography": {
+  "headline_chars": [
+   5,
+   17
+  ],
+  "headline_px": [
+   65,
+   75
+  ],
+  "sub_px": 32,
+  "body_px": 24,
+  "body_lines_max": 3,
+  "weight_contrast": "bold-head/light-sub, last body line bold",
+  "tone_default": "담백한 존댓말"
+ },
+ "layout": {
+  "align": "center",
+  "margin_px": 70,
+  "grid_px": 0,
+  "cut_gap": "bg-alternate"
+ },
+ "color_strategy": "alternating-bg",
+ "emphasis": [
+  "brand-script-callout",
+  "highlight-marker",
+  "last-line-bold"
+ ],
+ "visual_mode": "lifestyle",
+ "evidence_position": {
+  "position": "middle",
+  "type": "narrative"
+ },
+ "density_dial": "medium",
+ "fits": {
+  "categories": [
+   "food",
+   "health_food",
+   "beauty",
+   "kids",
+   "pet",
+   "small_appliance"
+  ],
+  "awareness": [
+   "unaware",
+   "problem-aware"
+  ],
+  "traffic": [
+   "ads",
+   "sns",
+   "content"
+  ]
+ },
+ "image_prompt_style": "warm lifestyle photography with a person-less scene (hands, desk, bag, kitchen), soft natural light, one product in use; headline as a short spoken line overlaid on a calm area",
+ "sources": [
+  "anua",
+  "classu",
+  "pethroom(single product)",
+  "rawrow(brand content)",
+  "konny(lookbook lead)"
+ ],
+ "offer_position": "close",
+ "grammar": [
+  "오프닝 1~3컷만 서사, 이후엔 근거·포인트 모듈로 즉시 전환한다",
+  "문제 제기 컷은 저채도·흐릿한 톤 + ?/! 배지, 해결 컷은 선명한 톤으로 대비한다",
+  "리뷰는 근거 블록 바로 뒤에 붙여 '데이터 신뢰 → 실사용 신뢰' 순서를 만든다",
+  "성과 비교(Before/After)는 수치화가 안 되면 실물 사진 대비만으로 제시한다",
+  "섹션 전환은 구분선이 아니라 배경색 교차(다크=무드·시연, 화이트/크림=스펙·안내)로 신호한다",
+  "정보 블록 2~3개마다 텍스트 없는 사진 컷(X5)을 끼워 리듬을 끊는다",
+  "모든 수치·시험 근거 컷 최하단에 회색 소형 각주(기관·기간·인원·측정 기준)를 둔다 — 입력에 있을 때만",
+  "사이즈는 표 하나로 끝내지 않고 도해→실측 사진(익숙한 사물·줄자·사람)→캡션의 3중으로 보여준다(X2)",
+  "가격·할인·기한은 이미지 안에 두지 않는다. 오퍼가 있으면 신뢰 모듈을 모두 지난 뒤 클로징(X10)에 둔다",
+  "법정 표시·스펙 표는 페이지 최말단 텍스트/표로, CTA 버튼은 이미지 밖(플랫폼 UI)"
+ ]
+}

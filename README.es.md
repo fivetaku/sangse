@@ -69,6 +69,7 @@ datos del producto (texto / archivo / URL)
 Step 0  comprobación de dependencias   check_deps.sh  (--install)
 Step 1  entrevista de producto         solo los huecos inciertos · ≤4 preguntas × 2 rondas
 Step 2  comprobación de la oferta      qué recibe el cliente + qué ansiedad elimina + por qué ahora
+Step 2½ pack de estilo            la entrevista elige 1 de 6 packs (recomendado preseleccionado): secuencia de cortes, paleta, énfasis, modo visual
 Step 3  hoja de cortes                 cuts.md (14 cortes por defecto) + legal.md
 Step 3½ humanizar                 humanize_cuts.py — GPT (Codex CLI) relee la intención de cada corte y reescribe el texto como una persona; guardas por corte conservan cifras, marcadores y límites de slot
         │
@@ -98,6 +99,7 @@ Los cortes siguen las **8 preguntas que un cliente se hace en silencio antes de 
 | Entrevista guiada por la incertidumbre | Pregunta solo lo que no puede inferirse del input; como máximo 4 preguntas × 2 rondas |
 | Comprobación de la oferta antes del copy | Las ofertas débiles se señalan antes de escribir una sola línea de copy |
 | Pase de humanización con GPT | Un segundo modelo (Codex CLI) interpreta qué quiere decir cada corte y lo reescribe sin marcas de IA (calcos de traducción, clichés publicitarios, ritmo uniforme, rodeos — reglas tomadas de humanize-korean); las guardas de código rechazan cualquier corte que añada una cifra, pierda un marcador, desborde un slot o introduzca una palabra prohibida |
+| Packs de estilo | Elige cómo persuade la página: historia (escena del cliente), checklist de puntos, pruebas primero (cifras, sellos, reseñas), lookbook (foto, texto mínimo), vitrina de specs (funciones, comparativas, ficha) u oferta primero (landings promocionales). Cada pack fija la secuencia de cortes, límites tipográficos, estrategia de fondo, énfasis, modo visual y estilo del prompt de imagen, medidos en 17 páginas reales coreanas. Ningún nombre de marca o sitio dentro de los packs |
 | Gate 1 — verificador determinista | `check_cuts.py`: límites de slot de plantilla, cobertura Q1~Q8, cada número rastreado hasta el input, palabras prohibidas por categoría, bloques legales obligatorios, existencia de imágenes |
 | Gate 2 — cuatro agentes revisores | Separados del redactor; aprobado = el cliente responde "sí" a las 8 preguntas y cero infracciones regulatorias, máximo 2 rondas |
 | Gate 3 — render real | `render_check.py`: render con Playwright a 390 / 860 px más una prueba de 5 segundos en la primera pantalla |
@@ -118,6 +120,7 @@ Nada de esto es asesoramiento legal; la redacción final queda sujeta al organis
 | `/sangse 스마트스토어 <información del producto>` | Fija la plataforma de antemano (también `웹`, `크몽`) y omite esa pregunta de la entrevista |
 | `/sangse check <dir>` | Ejecuta solo las puertas de verificación sobre una carpeta `sangse/<slug>` existente |
 | `/sangse humanize <dir>` | Ejecuta solo el pase de humanización con GPT sobre una carpeta existente y muestra qué se aceptó o rechazó |
+| `/sangse --style <pack> <info del producto>` | Omite la pregunta de estilo y fuerza un pack (`story-first`, `checkpoint`, `proof-first`, `lookbook`, `spec-showcase`, `offer-first`) |
 
 ### Disparadores en lenguaje natural
 
@@ -132,9 +135,9 @@ Nada de esto es asesoramiento legal; la redacción final queda sujeta al organis
 |---|---|
 | `commands/sangse.md` | Punto de entrada único (`/sangse`), enrutamiento de argumentos |
 | `skills/sangse/SKILL.md` | Flujo de trabajo (Step 0 → entrevista → comprobación de la oferta → hoja de cortes → 3 puertas → imágenes → HTML → informe), Ley de Hierro, señales de alerta |
-| `skills/sangse/references/` | `framework.md` (8 preguntas), `cut-sheet.md`, `reference-patterns.md` (7 páginas reales diseccionadas, 29 plantillas), `interview.md`, `humanize.md` (prompt de reescritura GPT + guardas), `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
+| `skills/sangse/references/` | `framework.md` (8 preguntas), `cut-sheet.md`, `reference-patterns.md` (7 páginas reales diseccionadas, 29 plantillas), `interview.md`, `humanize.md` (prompt de reescritura GPT + guardas), `style-packs.md` (6 packs, reglas de recomendación, gramática), `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
 | `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `capture_reference.js` |
-| `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `humanize-schema.json`, `template.html` |
+| `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `humanize-schema.json`, `style-packs/*.json` (6 packs + esquema), `template.html` |
 | `setup/` | Configuración de primera ejecución (estándar gptaku) |
 | `tests/test-gates.sh` | Regresión: gate 1 PASS en los tres ejemplos, smoke del ensamblador, guardas de humanización, comprobación de dependencias, contrato del frontmatter |
 | `examples/` | Tres productos ficticios con el rastro completo de artefactos y resultados en `qa/` |

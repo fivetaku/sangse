@@ -169,6 +169,12 @@ def guard(orig, new_fields, cats):
 def build_prompt(header, cuts, cats):
     sysp = load_prompt()
     tone = re.search(r"^tone:\s*(.+)$", header, re.MULTILINE)
+    style = re.search(r"^style:\s*(.+)$", header, re.MULTILINE)
+    if not tone and style:
+        pp = os.path.join(SKILL, "assets", "style-packs", style.group(1).strip() + ".json")
+        if os.path.exists(pp):
+            pt = json.load(open(pp, encoding="utf-8")).get("typography", {}).get("tone_default")
+            if pt: tone = re.match(r"(.+)", pt)
     limits = {}
     for c in cuts:
         t = TEMPLATES.get(c["tpl"])
