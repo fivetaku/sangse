@@ -1,0 +1,116 @@
+{
+ "_note": "채널별 상세 이미지 규격 프리셋. status: verified=공식 문서 2조직 이상 또는 공식 원문 확인(리서치 2026-09-03 claim ledger), unverified=단일 조직 공식 문서 또는 2차 소스 상충 — 사용 시 보고에 '미확정' 표기. 값이 없으면 null. 캔버스는 항상 1000으로 만들고 export_width로 축소한다.",
+ "channels": {
+  "smartstore": {
+   "name": "스마트스토어",
+   "export_width": 860,
+   "max_height_px": null,
+   "max_file_mb": 20,
+   "gif": true,
+   "main_image_text": "금지(무료배송·상품정보·KC 등)",
+   "detail_text_in_image": "허용",
+   "status": "verified",
+   "source": "판매자 헬프 FAQ 3923"
+  },
+  "esm": {
+   "name": "오픈마켓 ESM(템플릿 860)",
+   "export_width": 860,
+   "max_height_px": 160000,
+   "max_file_mb": 60,
+   "gif": true,
+   "main_image_text": "금지(로고·인증마크·쿠폰·할인율·텍스트)",
+   "detail_text_in_image": "허용",
+   "status": "verified",
+   "source": "ESM Plus 상세설명 템플릿 가이드"
+  },
+  "coupang": {
+   "name": "쿠팡",
+   "export_width": 780,
+   "max_height_px": 3000,
+   "max_file_mb": 10,
+   "gif": false,
+   "main_image_text": "금지(문구·로고·워터마크·콜라주·GIF, 상품 80% 이상)",
+   "detail_text_in_image": "허용",
+   "status": "unverified",
+   "source": "상세설명 폭·높이·용량은 공식 등록 가이드에 없음 — 통용값. 대표이미지 1000×1000·10MB·추가 9장은 verified"
+  },
+  "talkstore": {
+   "name": "톡스토어",
+   "export_width": 1000,
+   "max_height_px": 3000,
+   "max_file_mb": 10,
+   "max_images": 5,
+   "gif": false,
+   "main_image_text": "금지(로고·텍스트)",
+   "detail_text_in_image": "허용",
+   "status": "unverified",
+   "source": "공식 1조직"
+  },
+  "kurly": {
+   "name": "큐레이션몰(식품)",
+   "export_width": 1000,
+   "max_height_px": null,
+   "max_file_mb": null,
+   "gif": null,
+   "main_image_text": null,
+   "detail_text_in_image": "허용(상세 대부분 HTML 텍스트·표)",
+   "status": "unverified",
+   "source": "공개 규격 없음 — 상품 이미지 실측 폭 1000~1010"
+  },
+  "ohou": {
+   "name": "리빙 플랫폼",
+   "export_width": 1440,
+   "max_height_px": 10000,
+   "max_file_mb": 6,
+   "gif": false,
+   "main_image_text": "금지(광고 문구·텍스트), 브랜드 로고는 좌상단만",
+   "detail_text_in_image": "허용",
+   "status": "unverified",
+   "source": "공식 1조직(Jina 경유)"
+  },
+  "funding": {
+   "name": "펀딩 스토리",
+   "export_width": 1024,
+   "max_height_px": null,
+   "max_file_mb": 10,
+   "gif": true,
+   "main_image_text": "실물 리워드 금지, 무형 리워드 예외",
+   "detail_text_in_image": "허용(필수항목·금지용어 있음)",
+   "status": "verified",
+   "source": "헬프센터 스토리 이미지 가이드(폭 1,024 verified, 용량 4MB/10MB 상충)"
+  },
+  "tumblbug": {
+   "name": "창작 펀딩",
+   "export_width": 1240,
+   "max_height_px": null,
+   "max_file_mb": 5,
+   "gif": true,
+   "main_image_text": "금지(글자 없는 창작물 이미지)",
+   "detail_text_in_image": "통 이미지 지양, 텍스트 입력 권고",
+   "status": "unverified",
+   "source": "공식 1조직"
+  },
+  "web": {
+   "name": "자사몰·웹 랜딩",
+   "export_width": 720,
+   "max_height_px": null,
+   "max_file_mb": null,
+   "gif": true,
+   "main_image_text": null,
+   "detail_text_in_image": "허용",
+   "status": "verified",
+   "source": "sangse 기본값(해부 자사몰 12곳 폭 1000 이미지 직접 노출)"
+  },
+  "kmong": {
+   "name": "서비스 마켓",
+   "export_width": 720,
+   "max_height_px": null,
+   "max_file_mb": null,
+   "gif": null,
+   "main_image_text": null,
+   "detail_text_in_image": "허용",
+   "status": "unverified",
+   "source": "기존 해부 1건"
+  }
+ }
+}

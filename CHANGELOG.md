@@ -2,6 +2,10 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.7.1 — 2026-09-04
+- `assets/channel-presets.json` 신설 — 채널 10종의 export 폭·최대 높이·용량·이미지 내 텍스트 정책. 공식 2조직 확인은 `verified`, 단일 조직·상충 규격은 `unverified`(보고에 미확정 표기). 팩과 직교.
+- 오픈마켓 상세 본문 1건 해부 추가(브라우저 에이전트 경유) → `checkpoint` 팩에 "포인트마다 즉시 증빙" 문법 반영. 해부 표본 18페이지.
+
 ## 0.7.0 — 2026-09-04
 - **스타일 팩 신설** — 사용자가 "어떻게 설득하는가"를 고른다. `assets/style-packs/` 6종(story-first 고민 장면 스토리형 / checkpoint 핵심 포인트 체크리스트형 / proof-first 근거·수치 우선형 / lookbook 룩북형 / spec-showcase 스펙 쇼케이스형 / offer-first 혜택·구성 프로모션형). 팩이 컷 시퀀스·타이포 상한·배경 전략·강조 시그니처·비주얼 모드·이미지 프롬프트 스타일 줄·문체를 정하고, 카테고리(법정 블록·금지어)와 채널 규격은 직교 축으로 남는다. 팩 이름·설명·프롬프트에 브랜드·사이트명 없음(tests가 검사). 가이드 `references/style-packs.md`.
 - 근거: 국내 자사몰·플랫폼 상세 17페이지 해부(기존 7건 포함). 리드는 대부분 "히어로 → 즉시 근거" 하이브리드, 오퍼는 클로징 모듈, 근거는 권위→다수 이중 적재, 배경색이 내비게이션.

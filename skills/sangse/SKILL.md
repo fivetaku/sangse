@@ -214,5 +214,6 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 - `assets/cut-templates.json` — 컷 템플릿 19종 규격(높이 범위·슬롯 글자 한도·Q·영문 레이아웃 서술). check_cuts.py와 이미지 프롬프트가 읽는다
 - `assets/humanize-schema.json` — humanize_cuts.py가 프롬프트에 인라인하는 GPT 응답 스키마(컷 id·meaning·바뀐 필드)
 - `assets/style-packs/*.json` — 스타일 팩 정본(`_schema.json`). `sequence`·`typography`·`layout`·`emphasis`·`visual_mode`·`image_prompt_style`·`grammar`·`fits`. 브랜드·사이트명 금지(tests가 검사)
+- `assets/channel-presets.json` — 채널별 export 폭·최대 높이·용량·이미지 내 텍스트 정책(status verified/unverified — 미확정 규격은 보고에 표기)
 - `assets/banned-words.json` — 카테고리별(common/q1_hero/food/health_food/cosmetics) 금지·경고 정규식
 - `assets/template.html` — 모바일 우선 단일 파일 HTML 템플릿. `{{TITLE}}` `{{WIDTH}}` `{{PLATFORM}}` `{{SECTIONS}}` 치환
