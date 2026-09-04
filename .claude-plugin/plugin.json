@@ -1,6 +1,6 @@
 {
   "name": "sangse",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Korean e-commerce detail page builder — turns product facts into a verified image cut sheet (Kurly/Coupang/Smart Store style) with compliance filters and a 3-gate QA",
   "author": {
     "name": "chulrolee",

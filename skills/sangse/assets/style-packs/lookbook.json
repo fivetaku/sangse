@@ -4,8 +4,8 @@
   "ko": "룩북형",
   "en": "Lookbook"
  },
- "status": "measured",
- "version": "0.2",
+ "status": "verified",
+ "version": "0.3",
  "summary": "첫 화면이 사진(콜라주·착용 장면)만으로 열리고 텍스트는 영문 소형 라벨 + 짧은 한글 한 줄. 해부 실측: 카피가 0에 가까운 페이지도 있으며, 기능 근거는 통계 대신 '행위 장면'(세탁기에 넣기, 저울, 얼음 위)으로 증명한다. 경험재·쾌락재(패션·잡화·리빙·침구·색조).",
  "lead_mode": "photo-collage-or-worn-shot",
  "sequence": [

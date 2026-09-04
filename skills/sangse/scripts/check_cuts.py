@@ -155,6 +155,7 @@ def main():
         for ln in body:
             if klen(ln) > t["line_max"] and not PH_RE.search(ln): bad.append(f"{c['id']}: body 줄 '{ln[:14]}…' {klen(ln)}자 > {t['line_max']}")
     add("T2", "FAIL" if bad else "PASS", "텍스트 슬롯 한도" + (" 초과" if bad else " 정상"), bad)
+    pack = load_pack(header.get("style"))
     # T3
     bad, warn = [], []
     if not (10 <= len(cuts) <= 20): bad.append(f"컷 수 {len(cuts)} (10~20)")
@@ -165,11 +166,11 @@ def main():
             (warn if q in ("Q4", "Q8") else bad).append(f"{q} 컷 없음")
     firstq = [int(q[1]) for c in cuts for q in [re.split(r"[·,/ ]+", c["q"])[0]] if q.startswith("Q")]
     if firstq and firstq[-1] < 7: bad.append(f"마지막 컷이 Q{firstq[-1]} — Q7/Q8로 끝나야 함")
-    if firstq and firstq[0] > 2: bad.append(f"첫 컷이 Q{firstq[0]} — Q1/Q2로 시작해야 함")
+    offer_lead = bool(pack and pack.get("offer_position") == "lead")  # 랜딩 전용 팩은 Q8 오퍼 히어로로 시작한다
+    if firstq and firstq[0] > 2 and not offer_lead: bad.append(f"첫 컷이 Q{firstq[0]} — Q1/Q2로 시작해야 함")
     add("T3", "FAIL" if bad else ("WARN" if warn else "PASS"), "컷 수·Q 커버리지·순서", bad + warn)
     # T4
     bad = []
-    pack = load_pack(header.get("style"))
     lead_ok = ("K2", "K1") if not pack else tuple({pack["sequence"][0]["tpl"], "K2", "K1"})
     if cuts and cuts[0]["tpl"] not in lead_ok: bad.append(f"첫 컷 템플릿 {cuts[0]['tpl']} ({'/'.join(lead_ok)} 권장)")
     for c in cuts:

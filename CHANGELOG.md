@@ -2,6 +2,12 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.7.2 — 2026-09-04
+- 팩 6종 전부 `verified` — 비식품 가상 입력(린넨 셔츠·무선 가습기·클래스 랜딩)으로 lookbook·spec-showcase·offer-first 편성 실험 추가. 6팩 쌍별 시퀀스 유사도 최대 0.67, 대부분 0.1~0.4. `examples/style-pack-variants/`에 6팩 시트 + 입력 수록.
+- 게이트 1 T3: 랜딩 전용 팩(`offer_position: lead`)은 Q8 오퍼 히어로로 시작 허용.
+- 해부 2건 추가(리빙 플랫폼 본상품, 강의 랜딩 히어로 재확인 → offer-first에 "고정 오퍼 바 + 실제 기한 카운트다운" 문법). 표본 20페이지.
+- tests: 6팩 변형 예시 게이트 1 + T8 회귀(36 assertions).
+
 ## 0.7.1 — 2026-09-04
 - `assets/channel-presets.json` 신설 — 채널 10종의 export 폭·최대 높이·용량·이미지 내 텍스트 정책. 공식 2조직 확인은 `verified`, 단일 조직·상충 규격은 `unverified`(보고에 미확정 표기). 팩과 직교.
 - 오픈마켓 상세 본문 1건 해부 추가(브라우저 에이전트 경유) → `checkpoint` 팩에 "포인트마다 즉시 증빙" 문법 반영. 해부 표본 18페이지.

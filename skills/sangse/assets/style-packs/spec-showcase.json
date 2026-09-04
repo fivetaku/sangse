@@ -4,8 +4,8 @@
   "ko": "스펙 쇼케이스형",
   "en": "Spec showcase"
  },
- "status": "measured",
- "version": "0.2",
+ "status": "verified",
+ "version": "0.3",
  "summary": "리드 헤드라인이 기술 고유명사·스펙(또는 구매결정 스펙 표)로 시작하고, 원리 인포그래픽 → 동일 프레임 좌우 비교 → 수치 고립 → UI/시연 스크린샷 순으로 증명한다. 탐색재·실용재(가전·디지털·주변기기·신선식품 스펙표).",
  "lead_mode": "technical-headline",
  "sequence": [
