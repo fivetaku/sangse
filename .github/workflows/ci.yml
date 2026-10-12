@@ -7,4 +7,10 @@ jobs:
   plugin:
     uses: fivetaku/.github/.github/workflows/plugin-check.yml@main
     with:
-      test-command: python3 -m pytest -q tests && bash tests/test-gates.sh
+      # render gate needs Node playwright + Chromium at the path render_check.py searches
+      test-command: |
+        mkdir -p ~/.insane-search/node
+        npm i --prefix ~/.insane-search/node playwright
+        ~/.insane-search/node/node_modules/.bin/playwright install --with-deps chromium
+        python3 -m pytest -q tests
+        bash tests/test-gates.sh
