@@ -2,6 +2,9 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.8.1 — 2026-10-13
+- **gptaku-core 라우팅 적용.** `gptaku-core`를 의존성으로 선언하고 `routing.json`을 추가해, 이 플러그인 스킬에 맞는 요청이 오면 직접 처리하거나 기본 도구를 쓰기 전에 이 스킬을 먼저 쓰게 했다. 기존 사용자는 업데이트 후 `/reload-plugins`를 실행하거나 플러그인을 다시 설치해야 gptaku-core가 함께 설치된다. 끄기: `GPTAKU_ROUTER=off`.
+
 ## 0.8.0 — 2026-09-06
 - 정량 검증 계약 강화: 숫자 존재 여부 대신 문장·항목·단위·조건의 원문 일치 또는 위치별 검토 출처를 대조한다. `numerical-provenance.md`에 승인 형식과 의미·산술 검증의 한계를 명시했다.
 - 윤문 금지어를 정규식으로 검사한다. `<폴더> --apply`는 원본·결과 SHA-256을 확인한 저장 미리보기만 적용하며, 모델을 재호출하지 않는다. 변경된 미리보기·원본, 추가 인자는 거부하고 최초 백업을 보존한다.
