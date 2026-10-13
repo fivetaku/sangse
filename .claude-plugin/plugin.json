@@ -1,6 +1,6 @@
 {
   "name": "sangse",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Korean e-commerce detail page builder — turns product facts into a verified image cut sheet (Kurly/Coupang/Smart Store style) with compliance filters and a 3-gate QA",
   "author": {
     "name": "chulrolee",
@@ -19,5 +19,8 @@
     "image-cut-sheet",
     "compliance",
     "sangse"
+  ],
+  "dependencies": [
+    "gptaku-core"
   ]
 }
