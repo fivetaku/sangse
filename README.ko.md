@@ -28,7 +28,7 @@
 
 ```
 /plugin install sangse
-/plugin install pumasi          # 이미지 생성 백엔드 (/pumasi:image)
+# pumasi·insane-research·insane-search는 의존성으로 함께 설치됩니다
 ```
 
 설치 후 Claude Code를 재시작합니다.
@@ -158,7 +158,7 @@ Node Playwright와 Chrome이 준비된 환경에서는
 ## 요구사항
 
 - gptaku-plugins 마켓플레이스가 등록된 [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- 컷 이미지용 `pumasi` 플러그인(선택 — 없으면 카피 + HTML 플레이스홀더까지만)
+- `pumasi`(컷 이미지)·`insane-research` 2.11.0+(레퍼런스 이미지 수집)·`insane-search`(차단 페이지 열기) 플러그인 — 의존성으로 함께 설치되고, 빠졌으면 첫 실행 Step 0이 설치·업데이트한다. pumasi가 없으면 카피 + HTML 플레이스홀더까지만
 - `image_generation`이 켜진 [Codex CLI](https://github.com/openai/codex) 로그인(이미지 백엔드)
 - python3 — 게이트·조립기는 표준 라이브러리만 사용
 - (선택) 게이트 3 렌더 계측용 Node + Playwright. `~/.insane-search/node/node_modules`를 자동 탐색

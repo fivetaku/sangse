@@ -34,6 +34,7 @@ sangse/{slug}/
 ├── legal.md              # HTML로 남기는 법정·거래 블록 (주의사항·상세정보 표·영양표·원료·환불·고시)
 ├── review-log.md         # 번역/삭제 문장 로그 = A/B 가설 목록
 ├── images/c01.png …      # 컷 이미지 (생성 원본, JPEG면 c01.jpg, 폭 1000)
+├── refs/                 # Step 1-1 레퍼런스 수집본 (candidates.md·manifest.json·images/) — 참고 전용
 ├── qa/                   # 검증 게이트 산출물
 └── index.html            # 컷 세로 나열 + legal HTML
 ```
@@ -46,25 +47,36 @@ sangse/{slug}/
 **타입**: script
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_deps.sh
+bash ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_deps.sh --install
 ```
 
-gptaku-plugins 마켓플레이스와 `pumasi` 플러그인(`/pumasi:image`, Codex CLI 이미지 생성), `insane-search`(선택), Codex `image_generation` 플래그, Node+Playwright(게이트 3), python3를 점검한다. MISSING이 있으면 출력된 명령을 보여주고 `bash …/check_deps.sh --install`로 설치를 시도한다(`claude plugin marketplace add fivetaku/gptaku_plugins` → `claude plugin install pumasi@gptaku-plugins`). 플러그인을 새로 설치했으면 **세션 재시작이 필요하다고 사용자에게 알린다**. pumasi가 없으면 컷 이미지 없이 카피·legal·텍스트 플레이스홀더 시안까지만 만들고 그 사실을 첫 보고에 적는다.
-
-### Step 0-1. (조건부) 레퍼런스 해부
-**타입**: script + Agent + rag(`references/reference-capture.md`)
-
-카테고리·채널의 컷 패턴이 `references/reference-patterns.md`에 없으면(현재: 건기식·식품 3채널, 가전 2개), 같은 제품군의 실제 상세 2~3개를 `scripts/capture_reference.js`로 캡처하고 상세 이미지 원본을 조각내 해부 에이전트에 맡긴 뒤, 템플릿을 `assets/cut-templates.json`에 추가한다. 패턴이 있으면 건너뛴다.
+처음부터 `--install`로 돌려 빠진 것을 바로 채운다. 필수 플러그인은 `plugin.json`의 `dependencies`와 같다 — `pumasi`(`/pumasi:image`, 컷 이미지), `insane-research` 2.11.0 이상(`insane-research-refs`, Step 1-1 레퍼런스 수집), `insane-search`(차단 페이지 열기). 신규 설치는 Claude Code가 함께 깔고, 업데이트로 들어온 사용자는 이 단계가 설치·업데이트한다. 그 밖에 마켓플레이스 등록, Codex `image_generation` 플래그, Node+Playwright(게이트 3), python3를 점검한다. 방금 설치·업데이트한 플러그인이 있으면 **세션 재시작이 필요하다고 사용자에게 알린다**(재시작 전에는 새 스킬이 로드되지 않는다). 그래도 남은 MISSING은 출력된 명령을 보여준다. pumasi가 없으면 컷 이미지 없이 카피·legal·텍스트 플레이스홀더 시안까지만 만들고, insane-research가 없으면 Step 1-1 폴백을 따른다. 둘 다 첫 보고에 적는다.
 
 ### Step 1. 정보 수집 → `raw-input.md`
 **타입**: prompt (+ WebFetch)
 
 텍스트는 그대로, 파일은 Read로 발췌, URL은 WebFetch(차단 시 insane-search 스킬)로 수집해 한 파일에 병합한다. 경쟁사 URL은 참고용으로만 표시하고 그쪽 수치·후기를 우리 것으로 옮기지 않는다. 기존 상세페이지가 있으면 창업자 언어 문장(스펙·경력·"AI 기반")을 따로 뽑아 "번역 대상" 목록으로 둔다.
 
+### Step 1-1. 레퍼런스 이미지 수집 (매 실행) → `refs/`
+**타입**: api_mcp(Skill `insane-research:insane-research-refs`) + Agent(백그라운드)
+
+카테고리가 이미 해부돼 있어도 **매번** 같은 제품군의 지금 판매 중인 상세를 모은다. 레퍼런스 찾기는 insane-research가 정본이다 — 이 스킬 안에서 검색·크롤링을 즉석으로 짜지 않는다.
+
+1. raw-input에서 카테고리·판매 채널·가격대를 뽑아 args를 만든다: `주제={카테고리} 상세페이지, 채널={판매 채널 + 큐레이션몰·자사몰}, pages=5, out=sangse/{slug}/refs`. 사용자가 레퍼런스 URL을 줬으면 `함께 넣을 URL`로 넘긴다(건너뛰지 않고 후보에 합친다).
+2. **에이전트 1개를 백그라운드로** 띄워 Skill `insane-research:insane-research-refs`를 그 args로 호출하고, 끝나면 `REFS:` 줄과 후보 표만 돌려받는다. 메인 세션은 그동안 Step 2 인터뷰를 한다. 결과는 Step 2-1 전에 수거한다.
+3. 수집본은 **참고 전용**이다. 같은 제품군의 컷 순서·배경 전환·텍스트 밀도·법정 블록 위치를 보는 데 쓰고(Step 2-1, Step 4), 문장·수치·후기·이미지를 옮기지 않는다. 이미지는 판매처 저작물이므로 `pumasi:image`의 `--ref`나 결과물에 넣지 않는다.
+4. `pages ok`가 0이면 그 사실을 첫 보고에 적고 진행한다(레퍼런스는 막는 단계가 아니다).
+5. **insane-research가 없을 때**(Step 0 이후에도 MISSING): 즉석 검색으로 대신하지 않는다. 설치 명령과 재시작 안내를 보여주고, Step 2 1라운드에 "레퍼런스 상세 URL 2~3개" 문항을 넣어 사용자 URL을 받는다. 받은 URL은 `refs/candidates.md`에 `사용자 제공`으로 적는다.
+
 ### Step 2. 제품 인터뷰 → `intake-checklist.md`
 **타입**: rag(`references/intake-checklist.md`, `references/interview.md`) + review (AskUserQuestion)
 
 카피를 쓰기 전에 **요청에 남은 불확실성만** 묻는다. 스타일 팩 1문항(`interview.md` Q-스타일 팩 - 추천 1개 선표시, `references/style-packs.md` §3 규칙)은 플랫폼 문항과 같은 라운드에 넣는다. 절차: ① 필수 4종(무엇·누구에게·가격·고객이 얻는 변화)과 슬롯 10개를 대조해 각 항목을 `확정 / 추론 가능(디폴트) / 불명` 으로 분류한다 ② `불명`만 `interview.md`의 질문 은행에서 우선순위(타겟 → 변화 → 플랫폼 → 증거 → 가격·환불 → 규제 업종 → 산출물·톤) 순으로 골라 **AskUserQuestion 최대 4문항 × 최대 2라운드**로 묻는다. 텍스트 질문·A/B/C 나열은 금지, 선택지는 5개 안팎에 창의적 대안 1~2개와 "자동 판단" 안전망을 넣는다 ③ 타겟이 "모두"거나 불명이면 M1·M4에서 **가장 아픈 고객 장면 3개를 추정해 선택지로** 제시한다 ④ 규제 업종 신호(식품·건기식·화장품·의료기기·금융)가 보이면 규제 질문을 1라운드에 넣는다. 추론 가능한 항목은 묻지 않고 디폴트로 진행하되 첫 보고 서두에 "가정: X"로 선언한다. 2라운드에도 안 풀린 것은 플레이스홀더로 진행한다. 같은 질문은 두 번 하지 않는다. 답변 출처는 `인터뷰 R1-Q2` 형태로 체크리스트에 기록한다. 가상·연습 상품이면 인터뷰를 생략하고 Claude가 설정한 값을 "가상 설정"으로 기록한다.
+
+### Step 2-1. (조건부) 레퍼런스 해부
+**타입**: script + Agent + rag(`references/reference-capture.md`)
+
+카테고리·채널의 컷 패턴이 `references/reference-patterns.md` 상단 "해부된 카테고리" 목록에 없으면, `refs/candidates.md`에서 채널이 겹치지 않게 2~3개를 골라 해부한다. 긴 상세 이미지가 이미 수집된 페이지(`ok`, 높이 수천 px)는 그 원본을 바로 조각내고, `no_large_images`·`blocked` 페이지만 `scripts/capture_reference.js`로 캡처한다. 해부 에이전트 결과로 템플릿을 `assets/cut-templates.json`에 추가한다. 목록에 있으면 건너뛰고 수집본은 Step 4 참고로만 쓴다.
 
 ### Step 3. 오퍼 선행 점검 → `offer-check.md`
 **타입**: prompt
@@ -90,6 +102,8 @@ gptaku-plugins 마켓플레이스와 `pumasi` 플러그인(`/pumasi:image`, Code
 리서치로 보완된 규칙(근거는 `references/evidence.md`): Q6 아래 **사양 표**(성분·용량·규격)를 둔다. 물성 상품·스마트스토어·펀딩이면 Q7 아래 **FAQ 선택 블록**(실제 문의 기반 3~5문항, 배송·교환·AS·호환)을 켠다. 컷 모드에서는 해당 컷과 legal에, 문단형에서는 Q6 표와 Q7 `### FAQ`에 반영한다. **문단형 레거시 모드에서만** 같은 CTA를 Q1 끝·Q2·Q4·Q8에 반복하고 첫 실제 CTA가 두 화면 안에 있는지 계측한다. 검색 유입이면 Q1에 카테고리 키워드와 가까운 가격을 둔다. **컷 모드에서는** 선택한 팩의 클로징·오퍼 배치를 따른다. 가격은 legal 또는 플랫폼 UI에 두며, 이미지 안 CTA의 위치·가독성은 직접 검수한다. Q7/Q8 컷의 존재를 클릭 가능한 CTA나 첫 두 화면 내 CTA의 증거로 쓰지 않는다. 규제 업종이면 `references/compliance.md`를 초안부터 적용한다. 기능성 문구는 고시 문구 그대로, 질병·의약품 용어 금지, 후기로 효능 암시 금지.
 
 플랫폼이 스마트스토어·크몽이면 모바일 세로 스크롤을 전제로 문장을 더 짧게 끊는다.
+
+편성 전에 `refs/candidates.md`의 같은 제품군 상세 1~2개를 Read로 훑어 컷 순서·배경 전환·텍스트 밀도를 비교하고, 크게 다르면 그 이유(팩 선택·입력 재료)를 review-log에 한 줄 남긴다. 레퍼런스의 문장·수치·후기는 옮기지 않는다.
 
 ### Step 4-1. 윤문 - GPT가 사람답게 재생성 → `cuts.humanized.md`, `qa/humanize.json`
 **타입**: script(외부 모델) + rag(`references/humanize.md`)
@@ -166,7 +180,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 ### Step 11. 완료 보고
 **타입**: generate
 
-보고에 반드시 넣는다: ⓪ 적용한 스타일 팩 id·표시명과 게이트 1 T8 결과 ① 산출물 경로 ② **검증 스코어카드**(`verification.md` §4 형식 - 게이트 1 fail/warn 수, 게이트 2 고객 네 수·규제 위반·CRO 점수·경쟁 반박 방어 수·라운드 수, 게이트 3 렌더·5초 결과) ③ **채우면 완성되는 항목 표**(플레이스홀더) ④ review-log 요약(번역/삭제 건수 + 대표 예 2개) ⑤ 경고 한 줄 "가격·환불·기한 문구는 실제 결제·법적 책임과 연결됩니다. 퍼블리시 전 직접 확인하세요." ⑥ 첫 A/B 가설 1개(상단 섹션부터) - 게이트 2에서 의견이 갈린 문장이 첫 후보다. "매출이 오른다"는 성과 약속을 보고 어디에도 쓰지 않는다 - 검증 불가능한 주장이고 그 자체가 과장 광고의 문법이다.
+보고에 반드시 넣는다: ⓪ 적용한 스타일 팩 id·표시명과 게이트 1 T8 결과, 레퍼런스 수집 결과(페이지 ok/전체·이미지 수·해부 여부) ① 산출물 경로 ② **검증 스코어카드**(`verification.md` §4 형식 - 게이트 1 fail/warn 수, 게이트 2 고객 네 수·규제 위반·CRO 점수·경쟁 반박 방어 수·라운드 수, 게이트 3 렌더·5초 결과) ③ **채우면 완성되는 항목 표**(플레이스홀더) ④ review-log 요약(번역/삭제 건수 + 대표 예 2개) ⑤ 경고 한 줄 "가격·환불·기한 문구는 실제 결제·법적 책임과 연결됩니다. 퍼블리시 전 직접 확인하세요." ⑥ 첫 A/B 가설 1개(상단 섹션부터) - 게이트 2에서 의견이 갈린 문장이 첫 후보다. "매출이 오른다"는 성과 약속을 보고 어디에도 쓰지 않는다 - 검증 불가능한 주장이고 그 자체가 과장 광고의 문법이다.
 
 보고의 상태는 **텍스트 초안 PASS / 이미지 검수 / 게시 준비**로 나눈다. 자동 검사 통과나 HTML 조립만으로 이미지 검수·게시 준비를 PASS로 쓰지 않는다. 미생성·교체 대기·미검수 이미지, 남은 자료와 규제 확인을 각각 표시한다. 모든 리뷰의 파일 경로·SHA-256·모드·버전·일시를 붙여 무엇을 검수했는지 식별한다. 가상 상품은 시연용이며 실제 인증·효능·심의가 검증됐거나 게시 준비가 끝났다고 표시하지 않는다.
 
@@ -180,7 +194,9 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 - "HTML 조립됐으니 끝" → 게이트 3 스크린샷을 실제로 보기 전엔 완료가 아니다.
 - "글자만 맞으면 통과" → 컷 검수는 텍스트 + 제품 물리 상태(미개봉·내용물·포장 결합·개수·손가락). 매실 앵커에서 젤리가 밀려 나온 채 통과된 실측 사례가 있다.
 - "이미지 생성은 백그라운드로 띄우고 에이전트는 끝내자" → 에이전트는 포그라운드로 생성·검수·기록까지. 백그라운드는 메인 세션의 몫이다.
-- "이 카테고리 레퍼런스는 없으니 감으로" → `references/reference-capture.md`로 실제 상세를 먼저 해부한다. 텍스트 랜딩을 만들어 놓고 상세페이지라 부른 실측 사례가 이 스킬의 v0.1이다.
+- "이 카테고리 레퍼런스는 없으니 감으로" → Step 1-1 수집본으로 Step 2-1 해부를 먼저 한다(`references/reference-capture.md`). 텍스트 랜딩을 만들어 놓고 상세페이지라 부른 실측 사례가 이 스킬의 v0.1이다.
+- "레퍼런스 몇 개는 WebSearch로 내가 바로 찾지" → 레퍼런스 찾기는 `insane-research:insane-research-refs`가 정본이다. 없으면 사용자 URL을 받는다.
+- "레퍼런스 이미지를 --ref로 물리면 비슷하게 나오겠지" → 판매처 저작물이다. 참고로만 보고 생성 입력에 넣지 않는다.
 - "pumasi:image 질문이 귀찮으니 imagen.sh를 직접" → 스킬 경유 원칙 위반.
 - "환불 불가라니 '만족 보장'이라고 부드럽게" → 정책 그대로. 다른 리스크 감소 장치로.
 
@@ -212,7 +228,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 - `references/cut-sheet.md` - 컷 시트 문법(cuts.md·legal.md), 기본 14컷 시퀀스, 텍스트 안전 규칙, 앵커 규칙
 - `references/reference-patterns.md` - 컬리·쿠팡·정관장몰·삼성·LG 실제 상세 5종 해부: 형식 결론, 타이포·여백·색 실측, 초기 컷 템플릿 카탈로그(현재 전체 44종은 assets/cut-templates.json), 8질문↔컷 매핑, 법정 표시 배치, 채널별 차이
 - `references/image-briefs.md` - 컷 이미지 생성 규격: 앵커→--ref 순서, 포그라운드·재개 규칙, 텍스트+물리 정합성 검수, 질문 스킵 키워드, 컷 프롬프트 골격, 저장 경로
-- `references/reference-capture.md` - 새 카테고리·채널 상세를 해부해 패턴으로 바꾸는 절차: 캡처 스크립트, 채널별 차단 함정(스마트스토어 로그인 벽·쿠팡 paseo 우회), 조각·해부 에이전트 프롬프트, 템플릿 등록
+- `references/reference-capture.md` - 레퍼런스 수집(Step 1-1, insane-research-refs 호출 계약)과 새 카테고리·채널 상세 해부 절차: 후보 고르기, 캡처 스크립트, 채널별 차단 함정(스마트스토어 로그인 벽·쿠팡 paseo 우회), 조각·해부 에이전트 프롬프트, 템플릿 등록
 
 ## Scripts
 
@@ -220,7 +236,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 - `scripts/humanize_cuts.py` - Step 4-1 윤문. cuts.md 카피를 codex(GPT)가 재생성 → 숫자·플레이스홀더·슬롯·금지어 가드 통과 컷만 치환, `cuts.humanized.md`+`qa/humanize.json`, `--apply`/`--dry-run`/`--from-json`
 - `scripts/check_copy.py` - 게이트 1(문단형 copy.md 호환 모드)
 - `scripts/assemble_html.py` - cuts.md + legal.md → index.html 컷 조립. 문단형 레거시 모드에서는 copy.md + images.json(문단·불릿·표·CTA·플레이스홀더). 표준 라이브러리만. 누락 섹션·이미지·플레이스홀더를 JSON으로 보고
-- `scripts/check_deps.sh` - Step 0 의존성 점검·자동 설치(gptaku-plugins 마켓·pumasi·insane-search·codex 플래그·playwright·python3)
+- `scripts/check_deps.sh` - Step 0 의존성 점검·자동 설치·업데이트(gptaku-plugins 마켓·pumasi·insane-research 2.11.0+·insane-search·codex 플래그·playwright·python3)
 - `scripts/capture_reference.js` - 레퍼런스 상세페이지 헤드풀 Chrome 전체 캡처 + 큰 이미지 인벤토리(Node+Playwright)
 - `scripts/render_check.py` - 검증 게이트 3. Playwright(Node)로 viewport 에뮬레이션 스크린샷 + 가로 스크롤·헤드라인·CTA·이미지 계측, `qa/render_check.json`
 

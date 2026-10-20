@@ -7,6 +7,7 @@
 #   2) assemble_html.py 컷 모드가 index.html을 만들고, 컷 이미지 14장이 전부 <img>로 들어간다
 #   3) check_deps.sh가 이 머신에서 exit 0 (필수 의존성 OK) — 없으면 SKIP(환경 문제, 코드 결함 아님)
 #   4) SKILL.md·commands/sangse.md 프런트매터 계약: AskUserQuestion이 allowed-tools에 없다
+#   5) 레퍼런스 수집 연결: 의존성 선언, insane-research-refs 호출, check_deps 없음/구버전/최신 판정
 #
 # 예시 폴더는 절대 건드리지 않는다 — 임시 디렉토리로 복사한 뒤 돌린다.
 # Usage: bash tests/test-gates.sh
@@ -194,6 +195,31 @@ if bash "$SCRIPTS/check_deps.sh" >"$TMP/deps.out" 2>&1; then
 else
   skip "check_deps.sh exit 0" "이 머신에 필수 의존성 누락 — $(grep '❌' "$TMP/deps.out" | head -1)"
 fi
+
+echo "[레퍼런스 수집 연결]"
+deps=$(python3 -c "import json;print(' '.join(json.load(open('$PLUGIN_DIR/.claude-plugin/plugin.json')).get('dependencies',[])))")
+for d in pumasi insane-research insane-search; do
+  case " $deps " in *" $d "*) ok "plugin.json dependencies에 $d";; *) bad "plugin.json dependencies" "$d 없음 ($deps)";; esac
+done
+SK="$PLUGIN_DIR/skills/sangse/SKILL.md"
+grep -q 'insane-research:insane-research-refs' "$SK" && ok "SKILL.md가 insane-research-refs를 이름으로 부른다" || bad "SKILL.md" "insane-research-refs 호출 없음"
+grep -q 'Step 0-1' "$SK" && bad "SKILL.md" "옛 Step 0-1이 남아 있다" || ok "SKILL.md에 옛 Step 0-1 없음"
+grep -q '즉석 검색으로 대신하지 않는다' "$SK" && ok "SKILL.md 미설치 폴백이 즉석 검색을 막는다" || bad "SKILL.md" "미설치 폴백 문구 없음"
+# check_deps: 없음 → install 안내, 구버전(refs 스킬 없음) → update 안내, 새 버전 → OK
+H="$TMP/home-none"; mkdir -p "$H"
+HOME="$H" bash "$SCRIPTS/check_deps.sh" >"$TMP/d1.out" 2>&1; rc=$?
+if [ $rc -ne 0 ] && grep -q '❌ plugin insane-research.*claude plugin install insane-research@gptaku-plugins' "$TMP/d1.out"; then
+  ok "check_deps: insane-research 없음 → MISSING + install 명령"
+else bad "check_deps 없음 케이스" "rc=$rc $(grep insane-research "$TMP/d1.out")"; fi
+H="$TMP/home-old"; mkdir -p "$H/.claude/plugins/cache/gptaku-plugins/insane-research/2.10.2"
+HOME="$H" bash "$SCRIPTS/check_deps.sh" >"$TMP/d2.out" 2>&1
+grep -q '❌ plugin insane-research.*claude plugin update insane-research@gptaku-plugins' "$TMP/d2.out" \
+  && ok "check_deps: refs 스킬 없는 구버전 → update 명령" || bad "check_deps 구버전 케이스" "$(grep insane-research "$TMP/d2.out")"
+mkdir -p "$H/.claude/plugins/cache/gptaku-plugins/insane-research/2.11.0/skills/insane-research-refs"
+touch "$H/.claude/plugins/cache/gptaku-plugins/insane-research/2.11.0/skills/insane-research-refs/SKILL.md"
+HOME="$H" bash "$SCRIPTS/check_deps.sh" >"$TMP/d3.out" 2>&1
+grep -q '✅ plugin insane-research.*2.11.0' "$TMP/d3.out" \
+  && ok "check_deps: 2.11.0(refs 스킬 있음) → OK, 최신 버전 선택" || bad "check_deps 새 버전 케이스" "$(grep insane-research "$TMP/d3.out")"
 
 echo "[프런트매터 계약]"
 for f in commands/sangse.md skills/sangse/SKILL.md; do

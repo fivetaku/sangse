@@ -2,6 +2,13 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.9.0 — 2026-10-20
+- **레퍼런스 이미지 수집을 매 실행 단계로(Step 1-1).** 같은 제품군의 지금 판매 중인 상세를 `insane-research:insane-research-refs`(insane-research 2.11.0 라이트 모드)로 모아 `refs/`(candidates.md·manifest.json·images/)에 남긴다. 백그라운드 에이전트가 돌리고 메인 세션은 그동안 인터뷰를 한다. 사용자가 준 URL은 건너뛰지 않고 후보에 합친다. 검색·크롤링은 sangse에 따로 두지 않는다 — 고치면 insane-research 한 곳에서 고쳐진다.
+- 수집본은 참고 전용이다. 컷 순서·배경 전환·텍스트 밀도 비교(Step 4)와 해부(Step 2-1)에만 쓰고, 이미지는 판매처 저작물이라 `pumasi:image --ref`·결과물에 넣지 않는다(Red Flags 추가).
+- **레퍼런스 해부를 Step 0-1에서 Step 2-1로 옮겼다.** 수집본에 상세 원본이 있으면 바로 조각내고, 못 받은 페이지만 `capture_reference.js`로 캡처한다. 건너뛰기 기준을 `reference-patterns.md` 상단 "해부된 카테고리" 목록 한 곳으로 모았다(패션 포함, 낡은 "건기식·가전" 문구 정리).
+- **의존성 필수화.** `plugin.json` `dependencies`에 `pumasi`·`insane-research`·`insane-search`를 추가했다. Step 0은 처음부터 `check_deps.sh --install`로 돌며, 없으면 설치하고 구버전(예: insane-research 2.10.x, refs 스킬 없음)이면 업데이트한 뒤 세션 재시작을 안내한다.
+- **이전 버전에서 바뀐 계약**: insane-research 2.11.0 이상이 필요하다. 없으면 Step 1-1은 즉석 검색 대신 사용자 URL을 받는다.
+
 ## 0.8.1 — 2026-10-13
 - **gptaku-core 라우팅 적용.** `gptaku-core`를 의존성으로 선언하고 `routing.json`을 추가해, 이 플러그인 스킬에 맞는 요청이 오면 직접 처리하거나 기본 도구를 쓰기 전에 이 스킬을 먼저 쓰게 했다. 기존 사용자는 업데이트 후 `/reload-plugins`를 실행하거나 플러그인을 다시 설치해야 gptaku-core가 함께 설치된다. 끄기: `GPTAKU_ROUTER=off`.
 

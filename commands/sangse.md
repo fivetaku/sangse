@@ -36,7 +36,7 @@ Inspect `$ARGUMENTS`:
 
 | Argument pattern | Action |
 |---|---|
-| product info (text, file path, URL) | Run the `sangse` skill from Step 0 (dependency check) → Step 1 (collect) |
+| product info (text, file path, URL) | Run the `sangse` skill from Step 0 (dependency check, `--install`) → Step 1 (collect) → Step 1-1 (reference images via `insane-research:insane-research-refs`, every run) |
 | contains `카피만` / `copy only` | Same, but stop after the copy approval gate - no image generation |
 | contains `스마트스토어` / `크몽` / `웹` | Pre-set the platform, skip that interview question |
 | contains `--style <id>` or a pack display name (고민 장면 스토리형 / 핵심 포인트 체크리스트형 / 근거·수치 우선형 / 룩북형 / 스펙 쇼케이스형 / 혜택·구성 프로모션형) | Pre-set the style pack (`assets/style-packs/<id>.json`), skip the Q-스타일 question |
@@ -68,7 +68,7 @@ Inspect `$ARGUMENTS`:
 
 ## Execute
 
-Follow `${CLAUDE_PLUGIN_ROOT}/skills/sangse/SKILL.md` exactly - Step 0 dependency check, product interview (only the uncertain slots), offer check, cut sheet (`cuts.md` + `legal.md`), Step 4-1 humanize (`humanize_cuts.py` - GPT rewrites the copy, per-cut guards), gate 1 (`check_cuts.py`), gate 2 (4 simulated reviewers), copy approval, cut images via `/pumasi:image` (anchor → `--ref` chain, text + physical-plausibility inspection), HTML assembly, gate 3 (render + 5-second test), scorecard report. Never invent facts that are not in the input; leave `[자료 필요: …]` placeholders.
+Follow `${CLAUDE_PLUGIN_ROOT}/skills/sangse/SKILL.md` exactly - Step 0 dependency check (install missing), reference image collection via `insane-research:insane-research-refs` (every run, reference only), product interview (only the uncertain slots), offer check, cut sheet (`cuts.md` + `legal.md`), Step 4-1 humanize (`humanize_cuts.py` - GPT rewrites the copy, per-cut guards), gate 1 (`check_cuts.py`), gate 2 (4 simulated reviewers), copy approval, cut images via `/pumasi:image` (anchor → `--ref` chain, text + physical-plausibility inspection), HTML assembly, gate 3 (render + 5-second test), scorecard report. Never invent facts that are not in the input; leave `[자료 필요: …]` placeholders.
 
 In cut mode, gate 2 and copy approval use `cuts.md` + `legal.md` + `raw-input.md` + `intake-checklist.md`. Use `copy.md` only in legacy paragraph mode. Before gate 1, follow `references/numerical-provenance.md`: review quantitative rewordings against exact source statements and record destination-scoped `quantitative-facts` approvals in intake. Derived calculations need their operands, formula, units and rounding reviewed by a human. The gate checks source links, not arithmetic or real-world truth.
 

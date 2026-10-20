@@ -28,7 +28,7 @@ Ejemplos en vivo (productos ficticios de alimentación saludable): https://fivet
 
 ```
 /plugin install sangse
-/plugin install pumasi          # backend de generación de imágenes (/pumasi:image)
+# pumasi, insane-research e insane-search se instalan como dependencias
 ```
 
 Reinicia Claude Code después de la instalación.
@@ -147,7 +147,7 @@ Nada de esto es asesoramiento legal; la redacción final queda sujeta al organis
 ## Requisitos (요구사항)
 
 - CLI de [Claude Code](https://docs.anthropic.com/claude-code) con el marketplace gptaku-plugins
-- Plugin `pumasi` para las imágenes de los cortes (opcional — sin él, la ejecución se detiene en copy + marcadores HTML)
+- Plugins `pumasi` (imágenes de los cortes), `insane-research` 2.11.0+ (recopilación de imágenes de referencia) e `insane-search` (páginas bloqueadas) — se instalan como dependencias; si falta alguno, el Step 0 de la primera ejecución lo instala o actualiza. Sin pumasi la ejecución se detiene en copy + marcadores HTML
 - [Codex CLI](https://github.com/openai/codex) con sesión iniciada y `image_generation` activado (backend de imágenes)
 - python3 — las puertas y el ensamblador usan solo la biblioteca estándar
 - (opcional) Node + Playwright para las comprobaciones de render del gate 3; `~/.insane-search/node/node_modules` se detecta automáticamente

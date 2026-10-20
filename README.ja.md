@@ -28,7 +28,7 @@
 
 ```
 /plugin install sangse
-/plugin install pumasi          # 画像生成バックエンド (/pumasi:image)
+# pumasi・insane-research・insane-search は依存関係として一緒にインストールされます
 ```
 
 インストール後、Claude Code を再起動してください。
@@ -147,7 +147,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 ## 動作要件 (요구사항)
 
 - gptaku-plugins マーケットプレイスを追加した [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- カット画像用の `pumasi` プラグイン（任意 — なければ実行はコピー + HTML プレースホルダーで停止）
+- `pumasi`（カット画像）・`insane-research` 2.11.0+（参考画像の収集）・`insane-search`（ブロックされたページ）プラグイン — 依存関係として一緒にインストールされ、欠けていれば初回実行の Step 0 がインストール・更新する。pumasi がなければコピー + HTML プレースホルダーで停止
 - ログイン済みで `image_generation` を有効にした [Codex CLI](https://github.com/openai/codex)（画像バックエンド）
 - python3 — ゲートとアセンブラーは標準ライブラリのみ使用
 - （任意）Gate 3 のレンダリングチェック用の Node + Playwright。`~/.insane-search/node/node_modules` は自動的に検出

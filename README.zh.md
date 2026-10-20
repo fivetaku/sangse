@@ -28,7 +28,7 @@
 
 ```
 /plugin install sangse
-/plugin install pumasi          # 图片生成后端 (/pumasi:image)
+# pumasi、insane-research、insane-search 会作为依赖一并安装
 ```
 
 安装后请重启 Claude Code。
@@ -147,7 +147,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 ## 环境要求 (요구사항)
 
 - 已添加 gptaku-plugins 市场的 [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- 用于生成切图图片的 `pumasi` 插件（可选 — 没有它，运行会停在文案 + HTML 占位符）
+- `pumasi`（切图图片）、`insane-research` 2.11.0+（参考图片收集）、`insane-search`（被拦截页面）插件 — 作为依赖一并安装；缺少时首次运行的 Step 0 会安装或更新。没有 pumasi 时运行停在文案 + HTML 占位符
 - 已登录且启用了 `image_generation` 的 [Codex CLI](https://github.com/openai/codex)（图片后端）
 - python3 — 关卡和组装器仅使用标准库
 - （可选）Node + Playwright 用于关卡 3 的渲染检查；会自动使用 `~/.insane-search/node/node_modules`

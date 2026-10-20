@@ -28,7 +28,7 @@ Live examples (fictional health-food products): https://fivetaku.github.io/sangs
 
 ```
 /plugin install sangse
-/plugin install pumasi          # image generation backend (/pumasi:image)
+# pumasi · insane-research · insane-search come along as dependencies
 ```
 
 Restart Claude Code after installation.
@@ -153,7 +153,7 @@ Automatic PASS is not image-text approval, product-fidelity approval or publicat
 ## Requirements (요구사항)
 
 - [Claude Code](https://docs.anthropic.com/claude-code) CLI with the gptaku-plugins marketplace
-- `pumasi` plugin for cut images (optional — without it the run stops at copy + HTML placeholders)
+- `pumasi` (cut images), `insane-research` 2.11.0+ (reference image collection) and `insane-search` (blocked pages) plugins — installed as dependencies; if any is missing, the first run's Step 0 installs or updates it. Without pumasi the run stops at copy + HTML placeholders
 - [Codex CLI](https://github.com/openai/codex) logged in with `image_generation` enabled (image backend)
 - python3 — gates and assembler use the standard library only
 - (optional) Node + Playwright for gate 3 render checks; `~/.insane-search/node/node_modules` is picked up automatically
