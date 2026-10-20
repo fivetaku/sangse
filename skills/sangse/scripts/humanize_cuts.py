@@ -10,9 +10,11 @@
   1) cuts.md 파싱 → references/humanize.md의 <!-- PROMPT:BEGIN/END --> 시스템 프롬프트 + 템플릿 한도 + 컷 텍스트로 프롬프트 조립
   2) codex exec 호출 — 응답 스키마(assets/humanize-schema.json)는 프롬프트에 인라인한다. --output-schema는 로컬 프록시(opencodex 등)가
      구조화 출력을 못 받아 스트림이 끊기는 것을 실측(2026-09-03)해 쓰지 않는다. env 프록시는 우회(SANGSE_KEEP_PROXY=1로 해제)
+     모델이 "at capacity"로 막히면 SANGSE_HUMANIZE_FALLBACK_MODELS(기본 gpt-6-sol, 쉼표 구분)로 한 번씩 재시도한다
   3) 컷별 가드: 새 숫자 금지 · 플레이스홀더 보존 · 슬롯 한도(cut-templates.json) · 카테고리 금지어(banned-words.json)
      위반 컷은 원문 유지. headline/sub/body/footnote/cta 외 필드는 원본에서 그대로.
-  4) cuts.humanized.md + qa/humanize.json 기록(원문·결과 SHA-256 포함).
+  4) cuts.humanized.md + qa/humanize.json 기록(원문·결과 SHA-256, 실제 쓴 모델 포함). GPT 응답은 qa/humanize-response.json에 보존 —
+     검토 후 고친 사본을 --from-json으로 넘겨 미리보기를 다시 만든다.
      --apply는 저장된 결과만 검증·적용하며 GPT를 호출하지 않는다. cuts.original.md는 최초 원본 유지.
 종료코드 0 정상(거부 컷이 있어도 0) / 1 GPT 호출·파싱 실패 / 2 입력 오류 / 3 codex 없음
 """
@@ -204,7 +206,27 @@ def codex_bin():
     return shutil.which("codex")
 
 
+# 기본 모델이 "at capacity"로 막히면 이 순서로 한 번씩 더 시도한다(쉼표 구분, 빈 값이면 재시도 안 함)
+FALLBACK_MODELS = [m.strip() for m in os.environ.get("SANGSE_HUMANIZE_FALLBACK_MODELS", "gpt-6-sol").split(",") if m.strip()]
+
+
 def call_codex(prompt, model=None, timeout=600):
+    """(파싱된 응답, 실제 쓴 모델). 용량 초과면 FALLBACK_MODELS로 재시도한다."""
+    tried = []
+    for m in [model] + [x for x in FALLBACK_MODELS if x != model]:
+        ok, raw, err = run_codex(prompt, m, timeout)
+        tried.append(m or "codex default")
+        if ok:
+            if len(tried) > 1:
+                print(f"INFO: 용량 초과로 모델 전환 — 시도 {' → '.join(tried)}", file=sys.stderr)
+            return parse_response(raw), (m or "codex default")
+        if "at capacity" not in err:
+            break
+    sys.stderr.write(err[-2000:])
+    sys.exit(f"ERROR: codex exec 실패 (시도 모델: {', '.join(tried)})")
+
+
+def run_codex(prompt, model, timeout):
     out_path = tempfile.mktemp(prefix="humanize-out-", suffix=".json")
     cmd = [codex_bin(), "exec", "--skip-git-repo-check", "--sandbox", "read-only", "-o", out_path]
     if model:
@@ -219,10 +241,8 @@ def call_codex(prompt, model=None, timeout=600):
     except subprocess.TimeoutExpired:
         sys.exit(f"ERROR: codex exec {timeout}s 타임아웃")
     if r.returncode != 0 or not os.path.exists(out_path):
-        sys.stderr.write((r.stderr or "")[-2000:])
-        sys.exit(f"ERROR: codex exec 실패 (exit {r.returncode})")
-    raw = open(out_path, encoding="utf-8").read().strip()
-    return parse_response(raw)
+        return False, "", f"exit {r.returncode}\n{r.stderr or ''}\n{r.stdout or ''}"
+    return True, open(out_path, encoding="utf-8").read().strip(), ""
 
 
 def parse_response(raw):
@@ -303,12 +323,17 @@ def main():
     if dry:
         print(prompt); return
 
+    os.makedirs(os.path.join(base, "qa"), exist_ok=True)
+    resp_path = os.path.join(base, "qa", "humanize-response.json")
     if from_json:
         resp = json.load(open(from_json, encoding="utf-8"))
+        used_model = f"from-json:{os.path.basename(from_json)}"
     else:
         if not codex_bin():
             print("SKIP: codex CLI 없음 — 윤문 생략", file=sys.stderr); sys.exit(3)
-        resp = call_codex(prompt, model, timeout)
+        resp, used_model = call_codex(prompt, model, timeout)
+        # 원 응답 보존 — 검토 후 일부만 고쳐 --from-json으로 미리보기를 다시 만들 수 있게
+        json.dump(resp, open(resp_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
     guard.all_numbers = numbers(md)
     guard.all_units = {re.sub(r"\s", "", u) for u in UNIT_RE.findall(md)}
@@ -352,12 +377,12 @@ def main():
     change_rate = round(1 - difflib.SequenceMatcher(None, old_all, new_all).ratio(), 3)
     out_md = render(header, new_cuts)
     open(os.path.join(base, "cuts.humanized.md"), "w", encoding="utf-8").write(out_md)
-    os.makedirs(os.path.join(base, "qa"), exist_ok=True)
     report = {
         "cuts": len(cuts), "accepted": accepted, "rejected": rejected, "unchanged": unchanged,
         "change_rate": change_rate, "change_rate_warn": change_rate > 0.5,
         "meanings": meanings, "gpt_notes": resp.get("notes", []),
-        "applied": False, "category": cats, "model": model or "codex default",
+        "applied": False, "category": cats, "model": used_model,
+        "response": os.path.relpath(resp_path, base) if not from_json else None,
         "source_sha256": hashlib.sha256(source_bytes).hexdigest(),
         "output_sha256": hashlib.sha256(out_md.encode("utf-8")).hexdigest(),
     }

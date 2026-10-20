@@ -12,6 +12,8 @@
       copy.md 안에 이미지가 이미 있으면 images.json 항목은 건너뜀.
   - cuts.md (있으면 컷 모드): '## Cnn · 템플릿 · Q · h=px' 블록의 image: 를 폭 100%로 세로 나열. 이미지 없는 컷은
       bg/headline/sub/body/footnote로 텍스트 플레이스홀더 블록 렌더. 뒤에 legal.md(마크다운)를 HTML 표·불릿으로 붙인다.
+      legal.md 첫 '##' 앞의 '# 제목'은 숨기고, '> ' 줄은 안내문(blockquote)으로 렌더한다.
+  - placeholders: 이미지에 구운 컷 텍스트·legal 불릿·표·문단의 '[자료 필요: …]'까지 전부 센다.
 출력:
   - index.html (같은 디렉토리). 이미지 경로는 index.html 기준 상대경로로 변환.
   - 누락 이미지·누락 섹션·잔존 플레이스홀더는 stderr 경고 + stdout JSON 요약.
@@ -36,6 +38,11 @@ def rel(path, base_dir):
         return path, path  # 원격/인라인 경로는 존재 검사 없이 그대로
     abs_path = path if os.path.isabs(path) else os.path.normpath(os.path.join(base_dir, path))
     return os.path.relpath(abs_path, base_dir).replace(os.sep, "/"), abs_path
+
+
+def note_placeholders(text, report):
+    for m in PLACEHOLDER_RE.finditer(str(text)):
+        report["placeholders"].append(m.group(0))
 
 
 def inline(text):
@@ -87,6 +94,7 @@ def render_block(md, base_dir, report):
                 cells = [c.strip() for c in lines[i].strip().strip("|").split("|")]
                 if not all(re.fullmatch(r":?-{3,}:?", c) for c in cells):
                     rows.append(cells)
+                    for c in cells: note_placeholders(c, report)
                 i += 1
             if rows:
                 head_cells, body_rows = rows[0], rows[1:]
@@ -98,9 +106,20 @@ def render_block(md, base_dir, report):
             flush()
             items = []
             while i < len(lines) and lines[i].lstrip().startswith(("- ", "* ")):
+                note_placeholders(lines[i], report)
                 items.append("<li>" + inline(lines[i].lstrip()[2:]) + "</li>")
                 i += 1
             out.append("<ul>" + "".join(items) + "</ul>")
+            continue
+        if line.lstrip().startswith(">"):
+            flush()
+            quote = []
+            while i < len(lines) and lines[i].lstrip().startswith(">"):
+                q = lines[i].lstrip()[1:].strip()
+                note_placeholders(q, report)
+                if q: quote.append(inline(q))
+                i += 1
+            out.append("<blockquote>" + "<br>".join(quote) + "</blockquote>")
             continue
         if line.startswith("### "):
             flush(); out.append("<h3>" + inline(line[4:]) + "</h3>"); i += 1; continue
@@ -146,6 +165,11 @@ def render_cuts(cuts, base_dir, report):
     parts = []
     for c in cuts:
         f = c["f"]
+        body = f.get("body") or []
+        if isinstance(body, str): body = [body]
+        # 이미지에 구운 문구도 남은 자료 요청이다 — 이미지 컷이라고 집계에서 빼지 않는다
+        for x in [f.get("headline", ""), f.get("sub", ""), f.get("tags", "")] + list(body) + [f.get("footnote", "")]:
+            note_placeholders(x, report)
         img = f.get("image")
         if img and not PLACEHOLDER_RE.search(img):
             r, ap = rel(img, base_dir)
@@ -160,10 +184,6 @@ def render_cuts(cuts, base_dir, report):
             rr, gg, bb = int(m.group(1)[0:2], 16), int(m.group(1)[2:4], 16), int(m.group(1)[4:6], 16)
             dark = (0.299 * rr + 0.587 * gg + 0.114 * bb) < 140
         head = "<br>".join(inline(x.strip()) for x in (f.get("headline") or "").split("|") if x.strip())
-        body = f.get("body") or []
-        if isinstance(body, str): body = [body]
-        for x in [f.get("headline", ""), f.get("sub", "")] + list(body) + [f.get("footnote", "")]:
-            for m2 in PLACEHOLDER_RE.finditer(str(x)): report["placeholders"].append(m2.group(0))
         parts.append(
             f'<section class="cut-ph{" dark" if dark else ""}" id="{c["id"].lower()}" data-tpl="{c["tpl"]}" style="background:{html.escape(bg)};min-height:{int(c["h"] * 0.6)}px">'
             f'<div class="cut-meta">{c["id"]} · {c["tpl"]} · {html.escape(c["q"])} · 이미지 미생성</div>'
@@ -214,8 +234,14 @@ def main():
             lmd = open(legal_path, encoding="utf-8").read()
             secs = re.split(r"(?m)^##\s+", lmd)
             blocks = []
-            for sec in secs:
+            for n, sec in enumerate(secs):
                 if not sec.strip(): continue
+                if n == 0:
+                    # 첫 '##' 앞 서두: '# 제목'은 파일 제목이라 숨기고 나머지(안내문 등)만 렌더
+                    intro = "\n".join(x for x in sec.splitlines() if not re.match(r"^#\s", x))
+                    if intro.strip():
+                        blocks.append(f'<section class="legal legal-intro">{render_block(intro, base_dir, report)}</section>')
+                    continue
                 t, _, b = sec.partition("\n")
                 blocks.append(f'<section class="legal"><h2>{inline(t.strip())}</h2>{render_block(b, base_dir, report)}</section>')
             legal_html = "\n".join(blocks)

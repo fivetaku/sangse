@@ -152,6 +152,39 @@ class HumanizeApprovalTests(unittest.TestCase):
                 self.generate()
                 self.assert_failure("APPLY_FLAGS", *args)
 
+    def fake_codex(self, ok_model: str):
+        """ok_model로 부를 때만 응답을 쓰고, 그 외에는 용량 초과로 실패하는 가짜 codex."""
+        script = self.bin / "codex"
+        script.write_text(
+            "#!/bin/bash\n"
+            'echo call >> "${0%/*}/calls.log"\n'
+            'out=""; model=""\n'
+            'while [ $# -gt 0 ]; do case "$1" in -o) out="$2"; shift 2;; -m) model="$2"; shift 2;; *) shift;; esac; done\n'
+            f'if [ "$model" != "{ok_model}" ]; then echo "ERROR: Selected model is at capacity" >&2; exit 1; fi\n'
+            """printf '%s' '{"cuts":[{"id":"C01","body":["가방에 쏙 담아요"]}]}' > "$out"\n""",
+            encoding="utf-8")
+        script.chmod(0o755)
+        return self.bin / "calls.log"
+
+    def test_capacity_falls_back_and_saves_response(self):
+        calls = self.fake_codex("gpt-6-sol")
+        self.env["SANGSE_HUMANIZE_FALLBACK_MODELS"] = "gpt-6-sol"
+        run = self.invoke("--category", "health_food")
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(len(calls.read_text(encoding="utf-8").splitlines()), 2)
+        report = json.loads(self.report_path.read_text(encoding="utf-8"))
+        self.assertEqual(report["model"], "gpt-6-sol")
+        saved = json.loads((self.base / report["response"]).read_text(encoding="utf-8"))
+        self.assertEqual(saved["cuts"][0]["body"], ["가방에 쏙 담아요"])
+
+    def test_capacity_without_fallback_fails_after_one_call(self):
+        calls = self.fake_codex("never")
+        self.env["SANGSE_HUMANIZE_FALLBACK_MODELS"] = ""
+        run = self.invoke("--category", "health_food")
+        self.assertNotEqual(run.returncode, 0)
+        self.assertEqual(len(calls.read_text(encoding="utf-8").splitlines()), 1)
+        self.assertFalse(self.preview.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

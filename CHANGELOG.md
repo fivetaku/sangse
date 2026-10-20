@@ -2,6 +2,15 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.9.1 — 2026-10-20
+가상 무기자차 선크림(스마트스토어) E2E에서 드러난 스크립트 결함을 고쳤다.
+- **게이트 1이 cuts.md 헤더를 읽는다.** `check_cuts.py`는 `--category`·`--platform`을 생략하면 헤더의 `category:`·`platform:`을 쓴다. 카테고리가 common뿐이면 안내를 출력한다. 재실행 때 인자를 빠뜨리면 화장품 경고어 12건이 0건으로 바뀌던 문제를 막는다. `cut-sheet.md` 헤더 문법에 `category:`(선택)를 추가했다.
+- **조립기 플레이스홀더 집계를 바로잡았다.** `assemble_html.py`의 `placeholders`가 이미지 컷에 구운 문구와 legal 불릿·표 안의 `[자료 필요: …]`를 세지 않아 35개를 1개로 보고하던 문제를 고쳤다. 이제 게이트 1 `P` 집계와 같다.
+- **legal.md 서두 처리.** 첫 `##` 앞의 `# 제목`은 숨기고 `> ` 줄은 안내문(blockquote)으로 렌더한다. 전에는 `#`·`>`가 기호째 고객 화면에 나왔다. 판매자 메모는 `[자료 필요: …]`로 쓰라고 `cut-sheet.md` §2에 적었다.
+- **윤문 용량 초과 대응.** `humanize_cuts.py`는 모델이 `at capacity`면 `SANGSE_HUMANIZE_FALLBACK_MODELS`(기본 `gpt-6-sol`)로 한 번씩 재시도하고, 실제 쓴 모델을 `qa/humanize.json`에 남긴다. GPT 응답은 `qa/humanize-response.json`에 보존해 검토 후 `--from-json`으로 다시 쓸 수 있다.
+- **SKILL.md 문구.** Step 7은 인자에 `카피만`이 있으면 "카피만"을 추천으로 올리고 이미지 진행을 "범위 확장"으로 표시한다(그 자리 답이 인자보다 우선). Step 8 앵커는 C01 고정이 아니라 `anchor:` 컷이다(story-first는 고민 장면으로 시작하므로 첫 제품 히어로).
+- 회귀: test-gates 48 PASS(헤더 폴백·플레이스홀더 집계·legal 서두 3건 추가), pytest 40 passed(용량 초과 폴백·무재시도 2건 추가).
+
 ## 0.9.0 — 2026-10-20
 - **레퍼런스 이미지 수집을 매 실행 단계로(Step 1-1).** 같은 제품군의 지금 판매 중인 상세를 `insane-research:insane-research-refs`(insane-research 2.11.0 라이트 모드)로 모아 `refs/`(candidates.md·manifest.json·images/)에 남긴다. 백그라운드 에이전트가 돌리고 메인 세션은 그동안 인터뷰를 한다. 사용자가 준 URL은 건너뛰지 않고 후보에 합친다. 검색·크롤링은 sangse에 따로 두지 않는다 — 고치면 insane-research 한 곳에서 고쳐진다.
 - 수집본은 참고 전용이다. 컷 순서·배경 전환·텍스트 밀도 비교(Step 4)와 해부(Step 2-1)에만 쓰고, 이미지는 판매처 저작물이라 `pumasi:image --ref`·결과물에 넣지 않는다(Red Flags 추가).

@@ -230,6 +230,55 @@ for f in commands/sangse.md skills/sangse/SKILL.md; do
     ok "$f: frontmatter에 AskUserQuestion 없음"
   fi
 done
+echo "[헤더 category 폴백 · 조립기 플레이스홀더·legal 서두]"
+HD="$TMP/header-fallback"
+cp -R "$EXAMPLES/punggi-red-ginseng-stick" "$HD"
+python3 - "$HD/cuts.md" <<'PY'
+import sys
+p = sys.argv[1]; t = open(p, encoding="utf-8").read()
+open(p, "w", encoding="utf-8").write(t.replace("platform: smartstore\n", "platform: smartstore\ncategory: health_food\n", 1))
+PY
+python3 "$SCRIPTS/check_cuts.py" "$HD" --json >"$HD/.h.json" 2>/dev/null
+if python3 -c "import json,sys;d=json.load(open(sys.argv[1]));sys.exit(0 if 'health_food' in d['category'] and d['platform']=='smartstore' else 1)" "$HD/.h.json" 2>/dev/null; then
+  ok "check_cuts.py: --category/--platform 없으면 cuts.md 헤더 사용"
+else
+  bad "check_cuts.py 헤더 폴백" "$(head -c 200 "$HD/.h.json")"
+fi
+python3 - "$HD/cuts.md" <<'PY'
+import sys
+p = sys.argv[1]; t = open(p, encoding="utf-8").read()
+open(p, "w", encoding="utf-8").write(t.replace("headline: 풍기골|홍삼 데일리스틱\n", "headline: 풍기골|홍삼 데일리스틱\nfootnote: [자료 필요: 이미지 컷 각주]\n", 1))
+PY
+cat > "$HD/legal.md" <<'MD'
+# 파일 제목은 숨긴다
+
+> 시안 안내 [자료 필요: 안내 근거]
+
+## 배송·교환·환불
+- [자료 필요: 배송 정책]
+
+| 항목 | 내용 |
+|---|---|
+| 제조국 | [자료 필요: 제조국] |
+MD
+python3 "$SCRIPTS/assemble_html.py" "$HD" --platform smartstore >"$HD/.asm.json" 2>/dev/null
+if python3 - "$HD/.asm.json" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+want = {"[자료 필요: 이미지 컷 각주]", "[자료 필요: 안내 근거]", "[자료 필요: 배송 정책]", "[자료 필요: 제조국]"}
+sys.exit(0 if want <= set(d["placeholders"]) else 1)
+PY
+then
+  ok "assemble_html.py: 이미지 컷·legal 인용·불릿·표의 플레이스홀더까지 집계"
+else
+  bad "assemble_html.py 플레이스홀더 집계" "$(head -c 300 "$HD/.asm.json")"
+fi
+if grep -q "<blockquote>" "$HD/index.html" && ! grep -q "파일 제목은 숨긴다" "$HD/index.html" && ! grep -q "&gt; 시안" "$HD/index.html"; then
+  ok "assemble_html.py: legal 서두 '# 제목' 숨김, '> ' 안내문은 blockquote"
+else
+  bad "assemble_html.py legal 서두" "index.html에 제목·'>' 기호가 남았거나 blockquote 없음"
+fi
+
 v_json=$(python3 -c "import json;print(json.load(open('$PLUGIN_DIR/.claude-plugin/plugin.json'))['version'])")
 if grep -q "^## $v_json " "$PLUGIN_DIR/CHANGELOG.md"; then
   ok "CHANGELOG.md에 plugin.json 버전 $v_json 항목 존재"

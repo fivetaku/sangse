@@ -19,7 +19,9 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/humanize_cuts.py "sangse/{sl
 - 원문 변경은 `SOURCE_MISMATCH`, 미리보기 수정은 `OUTPUT_MISMATCH`, 파일 누락·해시 없는 구형 보고서는 `PREVIEW_INVALID`로 실패한다. 다시 생성하고 diff를 검토해야 한다. 미리보기를 직접 복사해 검증을 우회하지 않는다.
 - 승인 인자는 `<폴더> --apply`만 허용한다. 생성 옵션, 알 수 없는 옵션(`--help` 포함), 추가 위치 인자, 중복 `--apply`는 모두 파일을 바꾸기 전에 `APPLY_FLAGS` 입력 오류로 거부한다. 생성과 승인은 별도 명령이다.
 - 컷별 가드에 걸린 컷은 **원문 유지**, `qa/humanize.json`의 `rejected`에 사유가 남는다. 전체 실패가 아니다.
-- `--dry-run`은 프롬프트만 출력한다(네트워크 없음). `--from-json <file>`은 GPT 응답 대신 파일을 읽는다(테스트용).
+- `--dry-run`은 프롬프트만 출력한다(네트워크 없음). `--from-json <file>`은 GPT 응답 대신 파일을 읽는다(테스트·검토 후 재생성용).
+- GPT 응답은 매번 `qa/humanize-response.json`에 보존된다. 일부 컷만 원문으로 되돌리려면 이 파일의 사본을 고쳐 `--from-json`으로 미리보기를 다시 만든다(원본 응답은 그대로 둔다).
+- 모델이 `at capacity`로 막히면 `SANGSE_HUMANIZE_FALLBACK_MODELS`(기본 `gpt-6-sol`, 쉼표 구분)로 한 번씩 재시도하고, 실제 쓴 모델을 `qa/humanize.json`의 `model`에 남긴다.
 - 백엔드는 Codex CLI(`codex exec`, 응답 스키마 `assets/humanize-schema.json`은 프롬프트에 인라인). `--output-schema`는 쓰지 않는다 — opencodex류 로컬 프록시가 구조화 출력을 못 받아 스트림이 끊기는 것을 실측(2026-09-03). env 프록시는 pumasi:image와 같은 이유로 우회한다(`SANGSE_KEEP_PROXY=1`로 해제). 새 결과를 생성할 때 codex가 없으면 이 단계를 건너뛰고 보고에 "윤문 생략(codex 없음)"을 적는다 — Iron Law보다 우선하는 단계는 아니다.
 
 ## 3. 컷별 가드 (코드가 판정, 위반 = 그 컷 원문 유지)

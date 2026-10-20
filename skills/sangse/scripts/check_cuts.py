@@ -2,7 +2,8 @@
 """sangse 검증 게이트 1 (컷 시트 모드) — cuts.md + legal.md를 결정론적으로 판정. 표준 라이브러리만.
 
 사용법:
-  python3 check_cuts.py <sangse/{slug}> [--category common|food|health_food ...] [--platform web|smartstore|kmong] [--json]
+  python3 check_cuts.py <sangse/{slug}> [--category common|food|health_food|cosmetics ...] [--platform web|smartstore|kmong] [--json]
+  --category/--platform을 생략하면 cuts.md 헤더의 category:/platform:을 쓴다(category 없으면 common만 적용 + 안내).
 
 검사:
   T1  컷 헤딩 문법(## Cnn · 템플릿 · Q · h=px), 템플릿 ID 존재, 높이가 템플릿 범위 안
@@ -55,7 +56,7 @@ def klen(s):
 
 def parse_cuts(md):
     header = {}
-    for k in ("platform", "width", "brand", "tone", "anchor", "style"):
+    for k in ("platform", "category", "width", "brand", "tone", "anchor", "style"):
         m = re.search(rf"^{k}:\s*(.+)$", md, re.MULTILINE)
         if m: header[k] = m.group(1).strip()
     cuts = []
@@ -114,7 +115,7 @@ def main():
         i = args.index("--category") + 1
         while i < len(args) and not args[i].startswith("--"):
             cats.append(args[i]); i += 1
-    platform = args[args.index("--platform") + 1] if "--platform" in args else "web"
+    platform = args[args.index("--platform") + 1] if "--platform" in args else None
     as_json = "--json" in args
     cp = os.path.join(base, "cuts.md")
     if not os.path.exists(cp):
@@ -130,6 +131,12 @@ def main():
     def add(cid, st, msg, detail=None): checks.append({"id": cid, "status": st, "message": msg, "detail": detail or []})
 
     header, cuts = parse_cuts(md)
+    # 인자가 없으면 헤더를 쓴다 — 실행마다 인자를 빠뜨려 검사 조건이 달라지는 것을 막는다
+    if "--category" not in args and header.get("category"):
+        cats += [c for c in re.split(r"[\s,]+", header["category"].split("#")[0]) if c and c != "common"]
+    if len(cats) == 1:
+        print("INFO: 카테고리 common만 적용 — --category 또는 cuts.md 'category:'로 지정하면 카테고리 금지어·legal 블록까지 검사한다", file=sys.stderr)
+    platform = platform or (header.get("platform") or "").split("#")[0].strip() or "web"
     # T1
     bad = []
     for c in cuts:
