@@ -279,6 +279,122 @@ else
   bad "assemble_html.py legal 서두" "index.html에 제목·'>' 기호가 남았거나 blockquote 없음"
 fi
 
+echo "[자리표시 차단 체크리스트 · 리뷰 스탬프 · --final]"
+if python3 - "$HD/qa/placeholders.json" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+labels = {i["label"]: i for i in d["items"]}
+ok = d["unique"] == len(d["items"]) and d["total"] >= d["unique"] and "제조국" in labels \
+    and "legal:배송·교환·환불" in labels["배송 정책"]["locations"] and "C01.footnote" in labels["이미지 컷 각주"]["locations"]
+sys.exit(0 if ok else 1)
+PY
+then
+  ok "assemble_html.py: qa/placeholders.json 자료별 묶음·위치 기록"
+else
+  bad "placeholders 체크리스트" "$(head -c 300 "$HD/qa/placeholders.json")"
+fi
+printf '\n## 테스트\n| 라벨없음 | [자료 필요] |\n' >>"$HD/legal.md"
+printf '\n- 보관방법: 서늘한 곳\n' >>"$HD/raw-input.md"
+printf '| 보관방법 | [자료 필요: 보관방법] |\n| 사용량 | [자료 필요: 1회 보관방법용량] |\n' >>"$HD/legal.md"
+python3 "$SCRIPTS/assemble_html.py" "$HD" >"$HD/.asm2.json" 2>/dev/null
+if python3 -c "import json,sys;d=json.load(open(sys.argv[1]));sys.exit(0 if d['fillable_from_input']==['보관방법'] else 1)" "$HD/.asm2.json" \
+   && grep -q '라벨없음 (legal:테스트 / 라벨없음)' "$HD/qa/placeholders.md"; then
+  ok "assemble_html.py: 원자료 '- 항목: 값'과 같은 이름만 fill 후보, 라벨 없는 자리표시는 표 행 이름"
+else
+  bad "fill 후보·표 행 이름" "$(grep -A3 fillable "$HD/.asm2.json" | tr -d '\n')"
+fi
+if python3 "$SCRIPTS/assemble_html.py" "$HD" --final >/dev/null 2>"$HD/.final.err"; then
+  bad "--final 차단" "자리표시·스탬프 없는데 exit 0"
+elif grep -q 'BLOCKED: 자리표시' "$HD/.final.err" && grep -q 'BLOCKED: 리뷰 스탬프' "$HD/.final.err"; then
+  ok "--final: 자리표시 남음·리뷰 스탬프 없음 → BLOCKED exit 1"
+else
+  bad "--final 차단 사유" "$(cat "$HD/.final.err")"
+fi
+FN="$TMP/final-ok"; cp -R "$EXAMPLES/punggi-red-ginseng-stick" "$FN"
+python3 - "$FN" <<'PY'
+import re, sys
+for f in ("cuts.md", "legal.md"):
+    p = f"{sys.argv[1]}/{f}"; t = open(p, encoding="utf-8").read()
+    open(p, "w", encoding="utf-8").write(re.sub(r"\[(자료 필요|선택|이미지 생성 실패)[^\]]*\]", "확인됨", t))
+PY
+mkdir -p "$FN/qa"; printf '# 규제 심사관\n위반 0\nVERDICT: PASS\n' >"$FN/qa/sim-review-r1-regulator.md"
+if python3 "$SCRIPTS/review_stamp.py" "$FN" verify >/dev/null 2>&1; then bad "review_stamp 스탬프 없음" "exit 0"; else ok "review_stamp verify: 스탬프 없으면 exit 1"; fi
+printf 'no verdict\n' >"$FN/qa/empty.md"
+python3 "$SCRIPTS/review_stamp.py" "$FN" record --review qa/empty.md >/dev/null 2>&1 \
+  && bad "review_stamp record" "VERDICT 없는 파일에 스탬프" || ok "review_stamp record: VERDICT 없는 파일 거부"
+python3 "$SCRIPTS/review_stamp.py" "$FN" record --review qa/sim-review-r1-regulator.md >/dev/null
+if python3 "$SCRIPTS/assemble_html.py" "$FN" --final >/dev/null 2>"$FN/.f.err"; then
+  ok "--final: 자리표시 0 + 스탬프 일치 → exit 0"
+else
+  bad "--final 통과 케이스" "$(cat "$FN/.f.err")"
+fi
+sed -i.bak 's#^image: images/c02.png#image: images/c02.jpg#' "$FN/cuts.md"
+python3 "$SCRIPTS/review_stamp.py" "$FN" verify >/dev/null && ok "review_stamp: image: 줄 변경은 카피 변경이 아니다" || bad "review_stamp image 무시" "$(python3 "$SCRIPTS/review_stamp.py" "$FN" verify)"
+mv "$FN/cuts.md.bak" "$FN/cuts.md"
+python3 - "$FN" <<'PY'
+import re, sys
+p = f"{sys.argv[1]}/cuts.md"; t = open(p, encoding="utf-8").read()
+m = re.search(r"^## C03.*?^headline: ([^\n]*)$", t, re.M | re.S)
+open(p, "w", encoding="utf-8").write(t[:m.start(1)] + m.group(1) + "요" + t[m.end(1):])
+open(f"{sys.argv[1]}/legal.md", "a", encoding="utf-8").write("\n- 사용자 선택 반영 문장\n")
+PY
+out=$(python3 "$SCRIPTS/review_stamp.py" "$FN" verify); rc=$?
+if [ $rc -eq 1 ] && printf '%s' "$out" | grep -q '바뀜 C03' && printf '%s' "$out" | grep -q 'legal:'; then
+  ok "review_stamp verify: 리뷰 뒤 바뀐 컷·legal 섹션만 짚고 exit 1"
+else
+  bad "review_stamp 변경 탐지" "rc=$rc $out"
+fi
+python3 "$SCRIPTS/assemble_html.py" "$FN" --final >/dev/null 2>"$FN/.f2.err" \
+  && bad "--final 미리뷰 변경" "exit 0" || { grep -q 'BLOCKED: 리뷰 스탬프: 바뀜 C03' "$FN/.f2.err" && ok "--final: 리뷰 뒤 수정이 있으면 BLOCKED" || bad "--final 미리뷰 사유" "$(cat "$FN/.f2.err")"; }
+
+echo "[템플릿 레이아웃 글자 크기 — image-briefs §5와 충돌 금지]"
+if small=$(python3 - "$PLUGIN_DIR/skills/sangse/assets/cut-templates.json" <<'PY'
+import json, re, sys
+T = json.load(open(sys.argv[1]))["templates"]
+words = r"(headline|sub|disclaimer|lines?|bullets?|title|header|kicker|label|text|caption)"
+bad = []
+for k, v in T.items():
+    L = v.get("layout", "")
+    for m in re.finditer(words + r"[^;,()]{0,40}?\(?(\d+)px", L):
+        if int(m.group(2)) < 30: bad.append(f"{k}: {m.group(0)}")
+    for m in re.finditer(r"\bthin (sub|kicker|body)|grey (disclaimer|text|body)", L):
+        bad.append(f"{k}: {m.group(0)}")
+print("; ".join(bad)); sys.exit(1 if bad else 0)
+PY
+); then
+  ok "cut-templates.json 레이아웃에 30px 미만·얇은·회색 글자 지시 없음"
+else
+  bad "템플릿 글자 크기" "$small"
+fi
+
+echo "[레퍼런스 수집 검증 — check_refs.py]"
+RF="$TMP/refs"; mkdir -p "$RF/refs"
+cat >"$RF/refs/manifest.json" <<'EOJ'
+{"min_long": 1500, "pages": [
+ {"n": 1, "domain": "a.example", "status": "ok", "found": 19, "images": [{"w": 1000, "h": 1000}, {"w": 1000, "h": 1000}]},
+ {"n": 2, "domain": "b.example", "status": "ok", "found": 3, "images": [{"w": 1000, "h": 1000}, {"w": 800, "h": 26487}]},
+ {"n": 3, "domain": "c.example", "status": "ok", "found": 0, "images": []},
+ {"n": 4, "domain": "d.example", "status": "blocked:403", "images": []}
+]}
+EOJ
+python3 "$SCRIPTS/check_refs.py" "$RF" --json >"$RF/.r.json"; rc=$?
+if [ $rc -eq 0 ] && python3 - "$RF/.r.json" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1])); v = [p["verdict"] for p in d["pages"]]
+sys.exit(0 if v == ["partial:thumbs", "detail", "partial:empty", "blocked:403"] and d["detail_pages"] == 1 and d["collector_ok"] == 3 and d["pages"][0]["saved"] == 2 and d["pages"][0]["found"] == 19 else 1)
+PY
+then
+  ok "check_refs.py: 썸네일뿐인 ok → partial:thumbs, 긴 이미지 있어야 detail, 저장/발견 수 기록"
+else
+  bad "check_refs.py 판정" "rc=$rc $(head -c 300 "$RF/.r.json")"
+fi
+python3 - "$RF/refs/manifest.json" <<'PY'
+import json, sys
+p = sys.argv[1]; d = json.load(open(p)); d["pages"] = [d["pages"][0]]; json.dump(d, open(p, "w"))
+PY
+python3 "$SCRIPTS/check_refs.py" "$RF" >"$RF/.r.out" 2>&1 && bad "check_refs.py 상세 0" "exit 0" \
+  || { grep -q '상세 원본 0/1 (수집기 ok 1)' "$RF/.r.out" && ok "check_refs.py: 상세 원본 0이면 exit 1 + '상세 원본 0/1 (수집기 ok 1)'" || bad "check_refs.py 상세 0 보고" "$(tail -1 "$RF/.r.out")"; }
+
 v_json=$(python3 -c "import json;print(json.load(open('$PLUGIN_DIR/.claude-plugin/plugin.json'))['version'])")
 if grep -q "^## $v_json " "$PLUGIN_DIR/CHANGELOG.md"; then
   ok "CHANGELOG.md에 plugin.json 버전 $v_json 항목 존재"

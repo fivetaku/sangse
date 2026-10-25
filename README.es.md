@@ -136,7 +136,7 @@ Nada de esto es asesoramiento legal; la redacción final queda sujeta al organis
 | `commands/sangse.md` | Punto de entrada único (`/sangse`), enrutamiento de argumentos |
 | `skills/sangse/SKILL.md` | Flujo de trabajo (Step 0 → entrevista → comprobación de la oferta → hoja de cortes → 3 puertas → imágenes → HTML → informe), Ley de Hierro, señales de alerta |
 | `skills/sangse/references/` | `framework.md` (8 preguntas), `cut-sheet.md`, `reference-patterns.md` (análisis de páginas), `interview.md`, `humanize.md` (prompt de reescritura GPT + guardas), `numerical-provenance.md` (contrato de fuentes), `style-packs.md` (6 packs, 44 plantillas en el catálogo), `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
-| `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `capture_reference.js` |
+| `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `check_refs.py`, `review_stamp.py`, `capture_reference.js` |
 | `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `humanize-schema.json`, `style-packs/*.json` (6 packs + esquema), `template.html` |
 | `setup/` | Configuración de primera ejecución (estándar gptaku) |
 | `tests/test-gates.sh` | Regresión: gate 1 PASS en los tres ejemplos, smoke del ensamblador, guardas de humanización, comprobación de dependencias, contrato del frontmatter |

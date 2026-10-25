@@ -136,7 +136,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 | `commands/sangse.md` | 单一入口（`/sangse`），参数路由 |
 | `skills/sangse/SKILL.md` | 工作流（Step 0 → 访谈 → 报价检查 → 切图稿 → 3 道关卡 → 图片 → HTML → 报告）、铁律、红旗信号 |
 | `skills/sangse/references/` | `framework.md`（8 个问题）、`cut-sheet.md`、`reference-patterns.md`（页面分析）、`interview.md`、`humanize.md`（GPT 重写提示词 + 守卫）、`numerical-provenance.md`（来源链接契约）、`style-packs.md`（6 个风格包、目录共 44 个模板）、`compliance.md`、`verification.md`、`evidence.md`、`image-briefs.md`、`reference-capture.md` |
-| `skills/sangse/scripts/` | `check_deps.sh`、`humanize_cuts.py`、`check_cuts.py`、`check_copy.py`、`assemble_html.py`、`render_check.py`、`capture_reference.js` |
+| `skills/sangse/scripts/` | `check_deps.sh`、`humanize_cuts.py`、`check_cuts.py`、`check_copy.py`、`assemble_html.py`、`render_check.py`、`check_refs.py`、`review_stamp.py`、`capture_reference.js` |
 | `skills/sangse/assets/` | `cut-templates.json`、`banned-words.json`、`humanize-schema.json`、`style-packs/*.json`（6 个风格包 + 模式）、`template.html` |
 | `setup/` | 首次运行设置（gptaku 标准） |
 | `tests/test-gates.sh` | 回归测试：三个示例通过关卡 1、组装器冒烟测试、润色守卫、依赖检查、frontmatter 契约 |

@@ -9,6 +9,9 @@
     --full 이면 qa/render-{w}-full.png(전체 페이지)도 저장.
   - 계측: 가로 스크롤 여부(scrollWidth > viewport), 첫 화면 안에 Q1 h2가 있는지, 첫 두 화면(1688px) 안에 CTA가 있는지,
     모든 컷의 실측 폭이 main 폭과 일치하는지(1px 허용), 플레이스홀더(.todo) 개수, 이미지 로드 실패 수.
+  - 가독성: HTML 텍스트(legal·플레이스홀더 컷·푸터)의 글자 크기 14px 미만, 명암비 4.5:1 미만(큰 글자 3:1)을 FAIL로 잡는다.
+    이미지에 구운 글자는 픽셀로 읽을 수 없으므로 컷마다 표시 배율과 '이 폭에서 14px가 되려면 원본에서 몇 px'인지
+    (cutImageScale.sourcePxFor14, 브리프 단위인 폭 1000 환산은 px1000For14) 남긴다 — 이미지 검수는 그 값으로 서브·본문 크기를 판정한다.
     결과를 qa/render_check.json으로 저장하고 FAIL이면 exit 1.
   - 헤드리스 Chrome CLI(--window-size)는 최소 창 폭이 500px라 390 스크린샷이 잘려 보이는 함정이 있다. 이 스크립트는
     Playwright의 viewport 에뮬레이션을 쓰므로 그 문제가 없다.
@@ -72,7 +75,36 @@ try { pw = require('playwright'); } catch (e) { try { pw = require('patchright')
       const closingCut = document.querySelector('.cutsheet [data-q*="Q8"], .cutsheet [data-q*="Q7"]');
       const cta = document.querySelector('.cta');
       const imgs = [...document.images];
+      // 가독성: 직접 텍스트를 가진 보이는 요소마다 글자 크기와 WCAG 명암비(불투명도·반투명 글자색 합성)
+      const parse = c => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(',').map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
+      const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
+      const bgOf = el => { for (let e = el; e; e = e.parentElement) { const c = parse(getComputedStyle(e).backgroundColor); if (c && c.a > 0) return c; } return { r: 255, g: 255, b: 255, a: 1 }; };
+      const opacityOf = el => { let o = 1; for (let e = el; e; e = e.parentElement) o *= Number(getComputedStyle(e).opacity); return o; };
+      const textIssues = [];
+      let textChecked = 0;
+      for (const el of document.querySelectorAll('main *')) {
+        if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
+        const cs = getComputedStyle(el); const rect = el.getBoundingClientRect();
+        if (cs.visibility === 'hidden' || cs.display === 'none' || rect.width === 0 || rect.height === 0) continue;
+        textChecked++;
+        const size = parseFloat(cs.fontSize); const bold = Number(cs.fontWeight) >= 700;
+        const fg = parse(cs.color); const bg = bgOf(el); const a = (fg ? fg.a : 1) * opacityOf(el);
+        const mix = { r: fg.r * a + bg.r * (1 - a), g: fg.g * a + bg.g * (1 - a), b: fg.b * a + bg.b * (1 - a) };
+        const L1 = lum(mix), L2 = lum(bg); const ratio = Math.round((Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05) * 100) / 100;
+        const large = size >= 24 || (size >= 18.66 && bold);
+        const reasons = [];
+        if (size < 14) reasons.push(`글자 ${size}px < 14px`);
+        if (ratio < (large ? 3 : 4.5)) reasons.push(`명암비 ${ratio}:1 < ${large ? 3 : 4.5}:1`);
+        if (reasons.length) textIssues.push({ selector: el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).trim().split(/\s+/).join('.') : ''), text: el.textContent.trim().slice(0, 40), fontSize: size, contrast: ratio, reasons });
+      }
+      const cutImageScale = cuts.flatMap(cut => [...cut.querySelectorAll('img')].filter(i => i.naturalWidth > 0).map(i => {
+        const shown = i.getBoundingClientRect().width; const scale = shown / i.naturalWidth;
+        return { id: cut.id, naturalWidth: i.naturalWidth, scale: Math.round(scale * 1000) / 1000, sourcePxFor14: Math.ceil(14 / scale), px1000For14: Math.ceil(14 * 1000 / shown) };
+      }));
       return {
+        textChecked,
+        textIssues,
+        cutImageScale,
         vw,
         scrollWidth: document.documentElement.scrollWidth,
         horizontalScroll: document.documentElement.scrollWidth > vw + 1,
@@ -150,6 +182,9 @@ def main():
             if not m["q1HeadlineInFirstViewport"]: fails.append(f"Q1 헤드라인이 첫 화면 밖 (top={m['q1HeadlineTop']})")
             if not m["ctaInFirstTwoViewports"]: fails.append(f"첫 CTA가 두 화면 밖 (top={m['firstCtaTop']})")
         if m["brokenImages"]: fails.append(f"깨진 이미지 {m['brokenImages']}/{m['imageCount']}")
+        for t in m.get("textIssues", [])[:10]:
+            fails.append(f"가독성 {t['selector']} '{t['text']}': {', '.join(t['reasons'])}")
+        if len(m.get("textIssues", [])) > 10: fails.append(f"가독성 외 {len(m['textIssues']) - 10}건(qa/render_check.json)")
         checks.append({"width": int(w), "status": "FAIL" if fails else "PASS", "fails": fails, "metrics": m,
                        "screenshot": os.path.join(base, "qa", f"render-{w}.png")})
     result = {"checks": checks, "verdict": "PASS" if all(c["status"] == "PASS" for c in checks) else "FAIL"}
@@ -159,6 +194,10 @@ def main():
         m = c["metrics"]
         extra = f" 컷={m.get('cutCount')}(+미생성 {m.get('placeholderCuts')})" if m.get("cutsMode") else f" CTA@{m['firstCtaTop']}"
         print(f"{mark} {c['width']}px — vw={m['vw']} 높이={m['pageHeight']} 이미지={m['imageCount']} 플레이스홀더={m['placeholders']}{extra} → {c['screenshot']}")
+        if m.get("cutImageScale"):
+            need = max(s["sourcePxFor14"] for s in m["cutImageScale"])
+            per1000 = max(s["px1000For14"] for s in m["cutImageScale"])
+            print(f"     이미지 안 글자: 이 폭에서 14px가 되려면 폭 1000 환산 {per1000}px(원본 최대 {need}px) 이상 — 서브·본문·각주가 이보다 작으면 이미지 검수에서 재생성")
         for f_ in c["fails"]:
             print(f"     - {f_}")
     print(f"\n{result['verdict']} → {os.path.join(base, 'qa', 'render_check.json')}")

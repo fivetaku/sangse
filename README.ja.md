@@ -136,7 +136,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · scorecard
 | `commands/sangse.md` | 単一エントリーポイント（`/sangse`）、引数ルーティング |
 | `skills/sangse/SKILL.md` | ワークフロー（Step 0 → インタビュー → オファーチェック → カットシート → 3 ゲート → 画像 → HTML → レポート）、鉄の掟、レッドフラグ |
 | `skills/sangse/references/` | `framework.md`（8 つの質問）、`cut-sheet.md`、`reference-patterns.md`（ページ分析）、`interview.md`、`humanize.md`（GPT 書き直しプロンプト + ガード）、`numerical-provenance.md`（出典リンク）、`style-packs.md`（6 パック・カタログ全 44 テンプレート）、`compliance.md`、`verification.md`、`evidence.md`、`image-briefs.md`、`reference-capture.md` |
-| `skills/sangse/scripts/` | `check_deps.sh`、`humanize_cuts.py`、`check_cuts.py`、`check_copy.py`、`assemble_html.py`、`render_check.py`、`capture_reference.js` |
+| `skills/sangse/scripts/` | `check_deps.sh`、`humanize_cuts.py`、`check_cuts.py`、`check_copy.py`、`assemble_html.py`、`render_check.py`、`check_refs.py`、`review_stamp.py`、`capture_reference.js` |
 | `skills/sangse/assets/` | `cut-templates.json`、`banned-words.json`、`humanize-schema.json`、`style-packs/*.json`（6 パック + スキーマ）、`template.html` |
 | `setup/` | 初回セットアップ（gptaku 標準） |
 | `tests/test-gates.sh` | リグレッション: 3 つの例で Gate 1 PASS、アセンブラーのスモーク、推敲ガード、依存関係チェック、フロントマター契約 |

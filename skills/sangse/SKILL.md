@@ -65,7 +65,7 @@ bash ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_deps.sh --install
 1. raw-input에서 카테고리·판매 채널·가격대를 뽑아 args를 만든다: `주제={카테고리} 상세페이지, 채널={판매 채널 + 큐레이션몰·자사몰}, pages=5, out=sangse/{slug}/refs`. 사용자가 레퍼런스 URL을 줬으면 `함께 넣을 URL`로 넘긴다(건너뛰지 않고 후보에 합친다).
 2. **에이전트 1개를 백그라운드로** 띄워 Skill `insane-research:insane-research-refs`를 그 args로 호출하고, 끝나면 `REFS:` 줄과 후보 표만 돌려받는다. 메인 세션은 그동안 Step 2 인터뷰를 한다. 결과는 Step 2-1 전에 수거한다.
 3. 수집본은 **참고 전용**이다. 같은 제품군의 컷 순서·배경 전환·텍스트 밀도·법정 블록 위치를 보는 데 쓰고(Step 2-1, Step 4), 문장·수치·후기·이미지를 옮기지 않는다. 이미지는 판매처 저작물이므로 `pumasi:image`의 `--ref`나 결과물에 넣지 않는다.
-4. `pages ok`가 0이면 그 사실을 첫 보고에 적고 진행한다(레퍼런스는 막는 단계가 아니다).
+4. 수거하면 `python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_refs.py "sangse/{slug}"`로 다시 판정한다. 수집기의 `ok`는 "페이지를 열고 이미지를 받았다"일 뿐 긴 상세 이미지를 받았다는 뜻이 아니다(2026-10-20 E2E: 올리브영 2페이지가 `ok`였지만 1000×1000 썸네일뿐). 보고·판단에는 `상세 원본 n/N`과 페이지별 `partial:*`을 쓰고, `ok` 개수를 수집 성공으로 쓰지 않는다. 상세 원본이 0이어도(exit 1) 그 사실을 첫 보고에 적고 진행한다(레퍼런스는 막는 단계가 아니다).
 5. **insane-research가 없을 때**(Step 0 이후에도 MISSING): 즉석 검색으로 대신하지 않는다. 설치 명령과 재시작 안내를 보여주고, Step 2 1라운드에 "레퍼런스 상세 URL 2~3개" 문항을 넣어 사용자 URL을 받는다. 받은 URL은 `refs/candidates.md`에 `사용자 제공`으로 적는다.
 
 ### Step 2. 제품 인터뷰 → `intake-checklist.md`
@@ -76,7 +76,7 @@ bash ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_deps.sh --install
 ### Step 2-1. (조건부) 레퍼런스 해부
 **타입**: script + Agent + rag(`references/reference-capture.md`)
 
-카테고리·채널의 컷 패턴이 `references/reference-patterns.md` 상단 "해부된 카테고리" 목록에 없으면, `refs/candidates.md`에서 채널이 겹치지 않게 2~3개를 골라 해부한다. 긴 상세 이미지가 이미 수집된 페이지(`ok`, 높이 수천 px)는 그 원본을 바로 조각내고, `no_large_images`·`blocked` 페이지만 `scripts/capture_reference.js`로 캡처한다. 해부 에이전트 결과로 템플릿을 `assets/cut-templates.json`에 추가한다. 목록에 있으면 건너뛰고 수집본은 Step 4 참고로만 쓴다.
+카테고리·채널의 컷 패턴이 `references/reference-patterns.md` 상단 "해부된 카테고리" 목록에 없으면, `refs/candidates.md`에서 채널이 겹치지 않게 2~3개를 골라 해부한다. `check_refs.py`가 `detail`로 판정한 페이지는 그 원본을 바로 조각내고, `needs_capture`인 페이지(`partial:*`·`no_large_images`·`blocked`)만 `scripts/capture_reference.js`로 캡처한다. 해부 에이전트 결과로 템플릿을 `assets/cut-templates.json`에 추가한다. 목록에 있으면 건너뛰고 수집본은 Step 4 참고로만 쓴다.
 
 ### Step 3. 오퍼 선행 점검 → `offer-check.md`
 **타입**: prompt
@@ -88,7 +88,7 @@ bash ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_deps.sh --install
 
 **스타일 팩이 시퀀스를 정한다.** Step 2에서 고른(또는 `--style`로 받은) 팩 id를 `cuts.md` 헤더 `style:`에 적고, `assets/style-packs/{id}.json`의 `sequence`대로 컷을 편성한다(`optional: true` 컷은 입력에 재료가 없으면 생략, 템플릿 한도는 `cut-templates.json`). 팩의 `grammar`(배경 교차·무카피 사진 컷·각주·사이즈 3중 제시·오퍼는 클로징)를 편성에 반영하고, `typography.body_lines_max`·`tone_default`를 카피 상한으로 쓴다. 팩을 못 정했으면 `checkpoint`. 아래 14컷 기본 시퀀스는 팩이 없을 때의 폴백이다.
 
-8질문 순서를 **컷 10~20장**으로 편성한다. 문법·기본 시퀀스(건기식 14컷: K2 히어로 → K3 페르소나 → K4 TPO → K5 목차 → K6 Point 1 → K7 기능성 → K8/L4 근거 → K6 Point 3 → K9 STEP → K10 추천 대상 → K11 구성 → L1 스펙 → C1 보증 → C2 CTA/L2 FAQ)은 `cut-sheet.md`, 템플릿별 슬롯 한도는 `assets/cut-templates.json`. 컷당 헤드 1개(4~17자, 2행이면 행당 5~9자) + 서브 1줄 + 본문 3줄(마지막 줄 볼드) + 비주얼 지시 + 배경색. 텍스트 10줄 이하, 줄당 24자 이하, 20px 미만 글자 금지. 가격·전화번호·심의번호·영양 수치·차트 값은 이미지에 넣지 않고 `legal.md`(주의사항·상세정보 표·영양표·원료명·환불·고시)로 보낸다. 웹 랜딩 전용으로 문단형 `copy.md`가 필요할 때만 `## Q1`~`## Q8` 헤딩 형식을 쓴다.
+8질문 순서를 **컷 10~20장**으로 편성한다. 문법·기본 시퀀스(건기식 14컷: K2 히어로 → K3 페르소나 → K4 TPO → K5 목차 → K6 Point 1 → K7 기능성 → K8/L4 근거 → K6 Point 3 → K9 STEP → K10 추천 대상 → K11 구성 → L1 스펙 → C1 보증 → C2 CTA/L2 FAQ)은 `cut-sheet.md`, 템플릿별 슬롯 한도는 `assets/cut-templates.json`. 컷당 헤드 1개(4~17자, 2행이면 행당 5~9자) + 서브 1줄 + 본문 3줄(마지막 줄 볼드) + 비주얼 지시 + 배경색. 텍스트 10줄 이하, 줄당 24자 이하, 이미지 안 글자는 폭 1000 기준 서브 40px·본문 36px·각주 30px 이상에 명암비 4.5:1 이상(회색 본문 금지, `image-briefs.md` §5 — 390px 화면에서 14px). 가격·전화번호·심의번호·영양 수치·차트 값은 이미지에 넣지 않고 `legal.md`(주의사항·상세정보 표·영양표·원료명·환불·고시)로 보낸다. 웹 랜딩 전용으로 문단형 `copy.md`가 필요할 때만 `## Q1`~`## Q8` 헤딩 형식을 쓴다.
 
 각 컷이 답하는 질문의 임무는 framework.md 표를 따른다. 특히:
 - **Q1**은 제품명·브랜드·"AI 기반"으로 시작하지 않는다. 고객이 오늘 겪는 고민의 장면 한 컷으로 시작한다. 배제되는 고객이 있을 만큼 좁게.
@@ -143,12 +143,16 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_cuts.py "sangse/{slug}
 
 카피를 쓴 Claude가 스스로 검사하지 않는다. **별도 에이전트 4개를 한 메시지에 동시 스폰**한다. 의심 많은 타겟 고객(intake M2 페르소나로 Q1~Q8마다 네/아니오 + 걸린 문장 인용 + 원하는 문장), 규제 심사관(compliance.md 기준 위반 열거), CRO 리뷰어(evidence.md 기준 6항목 채점), 경쟁사 마케터(가격 비교로 끌어갈 틈 3개 + 방어 문장)다. 각 리뷰어는 컷 모드에서 **cuts.md·legal.md·raw-input.md·intake-checklist.md**를 읽고 `VERDICT: PASS|FAIL`로 끝낸다. 문단형 레거시 모드에서만 cuts.md 대신 copy.md를 읽는다. 보고마다 읽은 파일 경로·SHA-256·모드·플러그인/스크립트 버전·검토 일시를 기록한다. 이는 해당 텍스트 스냅샷의 리뷰이며 이미지 검수 결과가 아니다.
 
-통과 기준은 **고객 8/8 네 + 규제 위반 0건**. 미달이면 지목 문장만 고쳐 최대 2라운드 재리뷰(전면 재작성 금지), 고친 문장은 `review-log.md`에 `원문 → 수정문 (리뷰어)`로 남긴다. 2라운드 뒤에도 남은 "아니오"는 사용자에게 결정을 넘긴다. 이 게이트가 "맞지만 안 팔리는" 카피를 잡는다.
+통과 기준은 **고객 8/8 네 + 규제 위반 0건**. 미달이면 지목 문장만 고쳐 최대 2라운드 재리뷰(전면 재작성 금지), 고친 문장은 `review-log.md`에 `원문 → 수정문 (리뷰어)`로 남긴다. 2라운드 뒤에도 남은 "아니오"는 사용자에게 결정을 넘긴다. 리뷰를 마치면 `python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/review_stamp.py "sangse/{slug}" record --review qa/sim-review-r{n}-regulator.md`로 리뷰한 카피에 스탬프를 찍는다. 이 게이트가 "맞지만 안 팔리는" 카피를 잡는다.
 
 ### Step 7. 카피 승인 게이트
 **타입**: review (AskUserQuestion 1콜)
 
-컷 모드에서는 cuts.md+legal.md 요약(팩·컷 순서·첫 컷 헤드라인·법정/거래 조건·플레이스홀더·번역/삭제 건수)을 raw-input.md·intake-checklist.md의 근거와 함께 보여준다. copy.md 요약은 문단형 레거시 모드에만 쓴다. 승인 파일 경로·SHA-256·버전·일시를 기록하고 묻는다: ① 이대로 이미지·HTML 진행 (추천) ② 카피 수정할 부분 있음 ③ 카피만 받고 이미지는 생략. 인자에 `카피만`이 있었으면 ③을 추천으로 올리고 ①은 "범위 확장"이라고 표시한다 — 사용자가 이 자리에서 ①을 고르면 그 답이 인자보다 우선한다. 게이트 1·2 스코어를 함께 보여준다. 이 게이트 없이 이미지를 만들지 않는다. "이미지 없이 카피만"이면 이미지 생성을 생략하고 Step 9에서 텍스트 플레이스홀더 시안을 조립한다. 텍스트 초안 승인은 이미지 검수나 게시 승인이 아니다.
+컷 모드에서는 cuts.md+legal.md 요약(팩·컷 순서·첫 컷 헤드라인·법정/거래 조건·플레이스홀더·번역/삭제 건수)을 raw-input.md·intake-checklist.md의 근거와 함께 보여준다. copy.md 요약은 문단형 레거시 모드에만 쓴다. 승인 파일 경로·SHA-256·버전·일시를 기록하고 묻는다: ① 이대로 이미지·HTML 진행 (추천) ② 카피 수정할 부분 있음 ③ 카피만 받고 이미지는 생략. 인자에 `카피만`이 있었으면 ③을 추천으로 올리고 ①은 "범위 확장"이라고 표시한다 — 사용자가 이 자리에서 ①을 고르면 그 답이 인자보다 우선한다. 게이트 1·2 스코어를 함께 보여준다. 이 게이트 없이 이미지를 만들지 않는다.
+
+**마지막 수정은 반드시 다시 리뷰한다.** 사용자가 고른 수정, 이 자리에서 반영한 문장, 이후 legal.md 형식 수정까지 모두 카피 변경이다. 반영 뒤 `review_stamp.py "sangse/{slug}" verify`가 바뀐 컷·legal 섹션을 나열하면, 그 단위만 규제 심사관과 의심 많은 고객 2명에게 다시 보여 주는 **델타 리뷰**(`qa/sim-review-delta-{n}.md`, 바뀐 문장 전후 대조 + `VERDICT`)를 돌리고 다시 `record`한다. 델타 리뷰는 Step 6의 2라운드 상한에 세지 않는다. `verify`가 FRESH가 아니면 Step 8로 가지 않고, Step 9 `--final`도 막힌다(2026-10-20 E2E: Step 7 사용자 선택 4건과 legal 형식 수정이 재리뷰 없이 이미지·HTML로 갔다).
+
+"이미지 없이 카피만"이면 이미지 생성을 생략하고 Step 9에서 텍스트 플레이스홀더 시안을 조립한다. 텍스트 초안 승인은 이미지 검수나 게시 승인이 아니다.
 
 ### Step 8. 컷 이미지 생성 → `pumasi:image` 호출
 **타입**: prompt + api_mcp(Skill `pumasi:image`) + rag(`references/image-briefs.md`)
@@ -172,17 +176,19 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/check_cuts.py "sangse/{slug}
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{slug}" --platform web|smartstore|kmong
 ```
 
-`cuts.md`가 있으면 **컷 모드**: 각 컷 이미지를 폭 100%로 여백 없이 세로 나열하고(스마트스토어 860·웹 720), 이미지가 없는 컷은 배경색·헤드·본문 텍스트 플레이스홀더 블록으로 렌더하며, 끝에 `legal.md`를 HTML 표·불릿으로 붙인다. `[자료 필요: …]`는 노란 박스로 노출한다(숨기지 않는다). stdout JSON의 `missing_images`·`placeholders`를 보고에 반영한다. (`copy.md` 문단형은 구 모드로 그대로 지원.)
+`cuts.md`가 있으면 **컷 모드**: 각 컷 이미지를 폭 100%로 여백 없이 세로 나열하고(스마트스토어 860·웹 720), 이미지가 없는 컷은 배경색·헤드·본문 텍스트 플레이스홀더 블록으로 렌더하며, 끝에 `legal.md`를 HTML 표·불릿으로 붙인다. `[자료 필요: …]`는 노란 박스로 노출한다(숨기지 않는다). stdout JSON의 `missing_images`·`placeholders`·`placeholder_items`를 보고에 반영한다. (`copy.md` 문단형은 구 모드로 그대로 지원.)
+
+조립기는 같은 자료 요청을 묶은 **차단 체크리스트** `qa/placeholders.md`(자료별 위치, 라벨 없는 `[자료 필요]`는 표 행 이름)를 남긴다. `fillable_from_input`에 항목이 있으면 raw-input·intake에 값이 있는데 자리표시로 둔 것이다 — 원문을 확인해 채우고(Step 4-2 출처 승인 포함) 다시 조립한다. 나머지는 사용자에게 체크리스트로 넘긴다. 게시용 최종 렌더는 `assemble_html.py "sangse/{slug}" --final`이며, 자리표시·누락 이미지가 남거나 리뷰 스탬프가 현재 카피와 다르면 `BLOCKED:`와 exit 1이다. 자료가 오기 전 시안은 `--final` 없이 조립해 "시안"으로만 보고한다.
 
 ### Step 10. 검증 게이트 3 - 렌더 검증 + 5초 테스트 → `qa/render-*.png`, `qa/five-second.md`
 **타입**: review (브라우저 도구) + rag(`references/verification.md` §3)
 
-`python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/render_check.py "sangse/{slug}" --widths 390,860 --full`로 Playwright가 **390px와 860px** viewport에서 index.html을 실제로 열어 첫 화면·전체 스크린샷을 `qa/`에 저장하고 가로 스크롤·헤드라인 위치·CTA 위치·깨진 이미지를 계측한다(헤드리스 Chrome CLI는 최소 창 폭 500px라 쓰지 않는다). 스크린샷을 Read로 직접 보고 첫 컷/헤드라인의 가독성, 가로 스크롤 없음, 이미지 안 한글과 제품 물리 상태, 플레이스홀더 노출을 확인한다. 문단형 레거시 모드는 실제 CTA가 첫 두 화면 안에 있어야 한다. 컷 모드의 `closingCutPresent`·`closingCutTop`은 Q7/Q8 보증·클로징 컷의 존재·위치일 뿐 클릭 가능한 CTA의 증거가 아니다. DOM `.cta`가 없으면 `ctaPositionStatus: manual_review`, `firstCtaTop: null`, `ctaInFirstTwoViewports: null`이며 이미지 내부 헤드라인·CTA는 직접 검수한다. DOM CTA가 있으면 `ctaPositionStatus: measured`와 실제 위치를 기록한다. 컷 모드에 문단형의 조기 CTA 배치를 강제하지 않는다. 그다음 **5초 테스트** - 첫 화면 스크린샷 1장만 새 에이전트에 주고 "무엇을 파나 / 누구를 위한 건가 / 사면 뭐가 달라지나"를 답하게 한다. 세 답이 intake M1·M2·M4와 맞아야 통과. 틀리면 Q1 헤드라인이나 히어로 이미지 텍스트를 고치고 재렌더한다. 스크린샷을 안 본 렌더 검증은 검증이 아니다.
+`python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/render_check.py "sangse/{slug}" --widths 390,860 --full`로 Playwright가 **390px와 860px** viewport에서 index.html을 실제로 열어 첫 화면·전체 스크린샷을 `qa/`에 저장하고 가로 스크롤·헤드라인 위치·CTA 위치·깨진 이미지를 계측한다(헤드리스 Chrome CLI는 최소 창 폭 500px라 쓰지 않는다). 게이트는 HTML 글자의 크기(14px 미만)·명암비(4.5:1, 큰 글자 3:1 미만)를 FAIL로 잡고, 이미지 컷마다 `cutImageScale.px1000For14`(이 폭에서 14px가 되는 폭 1000 환산 px — 브리프 단위)와 `sourcePxFor14`(원본 px)를 남긴다. 스크린샷을 Read로 직접 보고 첫 컷/헤드라인의 가독성(이미지 안 서브·본문이 그 값보다 작거나 회색·연한 색이면 그 컷 재생성), 가로 스크롤 없음, 이미지 안 한글과 제품 물리 상태, 플레이스홀더 노출을 확인한다. 문단형 레거시 모드는 실제 CTA가 첫 두 화면 안에 있어야 한다. 컷 모드의 `closingCutPresent`·`closingCutTop`은 Q7/Q8 보증·클로징 컷의 존재·위치일 뿐 클릭 가능한 CTA의 증거가 아니다. DOM `.cta`가 없으면 `ctaPositionStatus: manual_review`, `firstCtaTop: null`, `ctaInFirstTwoViewports: null`이며 이미지 내부 헤드라인·CTA는 직접 검수한다. DOM CTA가 있으면 `ctaPositionStatus: measured`와 실제 위치를 기록한다. 컷 모드에 문단형의 조기 CTA 배치를 강제하지 않는다. 그다음 **5초 테스트** - 첫 화면 스크린샷 1장만 새 에이전트에 주고 "무엇을 파나 / 누구를 위한 건가 / 사면 뭐가 달라지나"를 답하게 한다. 세 답이 intake M1·M2·M4와 맞아야 통과. 틀리면 Q1 헤드라인이나 히어로 이미지 텍스트를 고치고 재렌더한다. 스크린샷을 안 본 렌더 검증은 검증이 아니다.
 
 ### Step 11. 완료 보고
 **타입**: generate
 
-보고에 반드시 넣는다: ⓪ 적용한 스타일 팩 id·표시명과 게이트 1 T8 결과, 레퍼런스 수집 결과(페이지 ok/전체·이미지 수·해부 여부) ① 산출물 경로 ② **검증 스코어카드**(`verification.md` §4 형식 - 게이트 1 fail/warn 수, 게이트 2 고객 네 수·규제 위반·CRO 점수·경쟁 반박 방어 수·라운드 수, 게이트 3 렌더·5초 결과) ③ **채우면 완성되는 항목 표**(플레이스홀더) ④ review-log 요약(번역/삭제 건수 + 대표 예 2개) ⑤ 경고 한 줄 "가격·환불·기한 문구는 실제 결제·법적 책임과 연결됩니다. 퍼블리시 전 직접 확인하세요." ⑥ 첫 A/B 가설 1개(상단 섹션부터) - 게이트 2에서 의견이 갈린 문장이 첫 후보다. "매출이 오른다"는 성과 약속을 보고 어디에도 쓰지 않는다 - 검증 불가능한 주장이고 그 자체가 과장 광고의 문법이다.
+보고에 반드시 넣는다: ⓪ 적용한 스타일 팩 id·표시명과 게이트 1 T8 결과, 레퍼런스 수집 결과(`check_refs.py`의 상세 원본 n/N·`partial` 페이지·저장/발견 이미지 수·해부 여부) ① 산출물 경로 ② **검증 스코어카드**(`verification.md` §4 형식 - 게이트 1 fail/warn 수, 게이트 2 고객 네 수·규제 위반·CRO 점수·경쟁 반박 방어 수·라운드 수, 게이트 3 렌더·5초 결과) ③ **채우면 완성되는 항목 표**(플레이스홀더) ④ review-log 요약(번역/삭제 건수 + 대표 예 2개) ⑤ 경고 한 줄 "가격·환불·기한 문구는 실제 결제·법적 책임과 연결됩니다. 퍼블리시 전 직접 확인하세요." ⑥ 첫 A/B 가설 1개(상단 섹션부터) - 게이트 2에서 의견이 갈린 문장이 첫 후보다. "매출이 오른다"는 성과 약속을 보고 어디에도 쓰지 않는다 - 검증 불가능한 주장이고 그 자체가 과장 광고의 문법이다.
 
 보고의 상태는 **텍스트 초안 PASS / 이미지 검수 / 게시 준비**로 나눈다. 자동 검사 통과나 HTML 조립만으로 이미지 검수·게시 준비를 PASS로 쓰지 않는다. 미생성·교체 대기·미검수 이미지, 남은 자료와 규제 확인을 각각 표시한다. 모든 리뷰의 파일 경로·SHA-256·모드·버전·일시를 붙여 무엇을 검수했는지 식별한다. 가상 상품은 시연용이며 실제 인증·효능·심의가 검증됐거나 게시 준비가 끝났다고 표시하지 않는다.
 
@@ -240,7 +246,9 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/assemble_html.py "sangse/{sl
 - `scripts/assemble_html.py` - cuts.md + legal.md → index.html 컷 조립. 문단형 레거시 모드에서는 copy.md + images.json(문단·불릿·표·CTA·플레이스홀더). 표준 라이브러리만. 누락 섹션·이미지·플레이스홀더를 JSON으로 보고
 - `scripts/check_deps.sh` - Step 0 의존성 점검·자동 설치·업데이트(gptaku-plugins 마켓·pumasi·insane-research 2.11.0+·insane-search·codex 플래그·playwright·python3)
 - `scripts/capture_reference.js` - 레퍼런스 상세페이지 헤드풀 Chrome 전체 캡처 + 큰 이미지 인벤토리(Node+Playwright)
-- `scripts/render_check.py` - 검증 게이트 3. Playwright(Node)로 viewport 에뮬레이션 스크린샷 + 가로 스크롤·헤드라인·CTA·이미지 계측, `qa/render_check.json`
+- `scripts/render_check.py` - 검증 게이트 3. Playwright(Node)로 viewport 에뮬레이션 스크린샷 + 가로 스크롤·헤드라인·CTA·이미지 계측 + HTML 글자 크기·명암비 검사와 컷 이미지 표시 배율, `qa/render_check.json`
+- `scripts/check_refs.py` - Step 1-1 수집 검증. manifest의 `ok`를 긴 상세 이미지 유무로 다시 판정(`detail`/`partial:*`), `refs/refs_check.json`
+- `scripts/review_stamp.py` - 리뷰한 카피의 컷·legal 섹션 해시 기록(`record`)과 이후 변경 탐지(`verify`), `qa/review-stamp.json`
 
 ## Assets
 

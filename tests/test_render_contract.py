@@ -205,6 +205,28 @@ class RenderContractTests(unittest.TestCase):
             self.assertEqual(metrics["imageWidthMismatches"], [{"id": "c02", "width": 200}])
             self.assertFalse(metrics["cutsFillMainWidth"])
 
+    def test_render_gate_rejects_small_or_low_contrast_text(self):
+        run, report = self.render_check()
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+        for check in report["checks"]:
+            self.assertEqual(check["metrics"]["textIssues"], [])
+            self.assertGreater(check["metrics"]["textChecked"], 0)
+            self.assertEqual(len(check["metrics"]["cutImageScale"]), 14)
+            # 브리프(image-briefs §3)는 폭 1000 기준이다 — 390에서 36px, 860에서 17px가 14px로 보인다
+            per1000 = {s["px1000For14"] for s in check["metrics"]["cutImageScale"]}
+            self.assertEqual(per1000, {36 if check["width"] == 390 else 17}, per1000)
+        index = self.base / "index.html"
+        source = index.read_text(encoding="utf-8")
+        _ = index.write_text(source.replace(
+            '</style>', '.legal td { color: #bbb; } footer { font-size: 11px; }</style>'), encoding="utf-8")
+        run, report = self.render_check()
+        self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+        for check in report["checks"]:
+            self.assertEqual(check["status"], "FAIL")
+            issues = check["metrics"]["textIssues"]
+            self.assertTrue(any(i["selector"] == "td" and i["contrast"] < 4.5 for i in issues), issues)
+            self.assertTrue(any(i["selector"] == "footer" and i["fontSize"] == 11 for i in issues), issues)
+
     def test_cut_gate_rejects_missing_closing_cut(self):
         index = self.base / "index.html"
         source = index.read_text(encoding="utf-8")

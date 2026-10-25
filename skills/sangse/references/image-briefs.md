@@ -66,13 +66,14 @@ Visual: {visual}
 
 Text Integration (render exactly, Korean, bold sans-serif unless noted):
 - Headline (65~75px equivalent at 1000px width, {text_pos}): "{headline 행1}" / "{headline 행2}"
-- Sub (32px, thin weight): "{sub}"
-- Body (24px, {줄 수} lines, last line bold): "{body 줄1}" / "{body 줄2}" / "{body 줄3}"
-- Label/tags: "{tags}"
-- Footnote (20px, grey, bottom): "{footnote}"
+- Sub (at least 40px, medium weight, same ink as body): "{sub}"
+- Body (at least 36px, {줄 수} lines, last line bold): "{body 줄1}" / "{body 줄2}" / "{body 줄3}"
+- Label/tags (at least 36px): "{tags}"
+- Footnote (at least 30px, dark grey #444 or darker, bottom): "{footnote}"
+Text color: near-black (#222~#333) on light backgrounds, pure white on dark backgrounds; contrast at least 4.5:1 for every line. No light-grey or pastel body text. Text never sits directly on a busy photo area — put it on a flat background zone or a solid panel.
 No other text. No prices, phone numbers, chart values or small print. Leave 60px safe margin on both sides; nothing important within 40px of top/bottom edges.
 
-Anti-patterns: floating product on plain white with a generic shadow; splash effects; neural-network or hexagon motifs; faces with identifiable features (use faceless line illustrations or hands only); text smaller than 20px equivalent; English placeholder text.
+Anti-patterns: floating product on plain white with a generic shadow; splash effects; neural-network or hexagon motifs; faces with identifiable features (use faceless line illustrations or hands only); text smaller than 36px (footnote 30px) at 1000px width; grey or low-contrast sub/body text; English placeholder text.
 Technical: {높이 힌트 — Vertical 3:4 portrait composition 등}, High quality refined detail, PNG, deliver raw as-is.
 ```
 
@@ -91,4 +92,6 @@ Technical: {높이 힌트 — Vertical 3:4 portrait composition 등}, High quali
 
 - 할 수 있다: 16pt 이상 굵은 한글·영문 헤드라인, 숫자 단순 표기, 헤드+서브+태그 한 컷 통합.
 - 약하다: 8pt 이하 본문, 50자 이상 단락, 가격·전화번호·날짜 정확성, 손글씨 한글, 차트 값.
-- 따라서 컷당 텍스트 10줄 이하, 줄당 24자 이하, 최소 20px 상당. 본문 길면 두 컷으로 나눈다. 첫 결과가 깨지면 "굵은 고딕, 대형, 정확한 자모"를 명시해 재생성.
+- **최소 글자 크기는 모바일 표시 크기에서 거꾸로 잡는다.** 폭 1000 이미지는 390px 화면에서 0.39배로 줄어든다. 원본 24px 본문은 9px, 20px 각주는 8px가 돼 읽히지 않는다(2026-10-20 E2E 5초 테스트 가독성 지적 4건의 원인). 그래서 서브 40px·본문·태그 36px·각주 30px 이상(폭 1000 기준, 390에서 약 14px), 글자색은 밝은 배경에 #222~#333·어두운 배경에 흰색, 명암비 4.5:1 이상이다. 회색 본문·밝은 배경 위 연한 서브는 검수 FAIL. `render_check.py`가 컷마다 `cutImageScale.px1000For14`(이 폭에서 14px가 되는 폭 1000 환산 px — 이 문서의 단위)와 `sourcePxFor14`(원본 px)를 남기므로 이미지 검수는 그 값과 대조한다.
+- **알약 모양 해시태그 칩 안 글자는 잘 커지지 않는다.** 2026-10-25 E2E에서 "36px 이상" → "46px 크게" → "서브 줄과 같은 크기" 세 번 지시해도 칩 안 글자가 원본 34~37px(폭 1254, 390에서 약 12px)에 머물렀다. 본문·서브·말풍선은 같은 지시로 16px 이상이 나왔다. 태그가 390에서 14px가 안 나오면 재시도를 늘리지 말고 "이미지 검수 미완"으로 남기거나 칩을 빼고 일반 텍스트 줄로 바꾸는 구도 변경을 시도한다.
+- 따라서 컷당 텍스트 10줄 이하, 줄당 24자 이하. 본문 길면 두 컷으로 나눈다. 첫 결과가 깨지면 "굵은 고딕, 대형, 정확한 자모"를 명시해 재생성.

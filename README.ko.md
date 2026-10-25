@@ -136,7 +136,7 @@ sangse/<slug>/  cuts.md · legal.md · images/ · index.html · qa/ · 스코어
 | `commands/sangse.md` | 단일 진입점(`/sangse`), 인자 라우팅 |
 | `skills/sangse/SKILL.md` | 워크플로우(Step 0 → 인터뷰 → 오퍼 점검 → 컷 시트 → 3 게이트 → 이미지 → HTML → 보고), Iron Law, Red Flags |
 | `skills/sangse/references/` | `framework.md`(8질문), `cut-sheet.md`, `reference-patterns.md`(페이지 해부), `interview.md`, `humanize.md`(GPT 윤문 프롬프트·가드), `numerical-provenance.md`(출처 연결 계약), `style-packs.md`(팩 6종·카탈로그 템플릿 44종), `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
-| `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `capture_reference.js` |
+| `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `check_refs.py`, `review_stamp.py`, `capture_reference.js` |
 | `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `humanize-schema.json`, `style-packs/*.json`(팩 6종+스키마), `template.html` |
 | `setup/` | 최초 실행 셋업(gptaku 표준) |
 | `tests/test-gates.sh` | 회귀: 예시 3종 게이트 1 PASS, 조립기 스모크, 윤문 가드, 의존성 점검, 프런트매터 계약 |

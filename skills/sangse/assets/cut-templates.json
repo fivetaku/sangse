@@ -45,7 +45,7 @@
    "q": [
     "Q1"
    ],
-   "layout": "white background; thin kicker line at upper-left, then a two-line calligraphic headline left-aligned 80px inside the column, two sub lines, four hashtag lines with script # marks, and a persona tag in serif brackets like [33세, 대기업 사원]; lower 45% shows a half-body line illustration of the persona on the right 55% and two product units on the left, with one tan brush-stroke diagonal behind"
+   "layout": "white background; kicker line (36px, medium weight) at upper-left, then a two-line calligraphic headline left-aligned 80px inside the column, two sub lines, four hashtag lines with script # marks, and a persona tag in serif brackets like [33세, 대기업 사원]; lower 45% shows a half-body line illustration of the persona on the right 55% and two product units on the left, with one tan brush-stroke diagonal behind"
   },
   "K4": {
    "name": "TPO 장면 지그재그 3",
@@ -90,7 +90,7 @@
    "q": [
     "Q3"
    ],
-   "layout": "solid cream or tan background; a 'Point N' badge top-center (only N in brand color), hairline, headline (45px), thin sub (33px), hairline, 2-4 body lines; lower 55% is the visual (styled product photo or line icons); one brand-color script callout of ≤10 characters placed diagonally over the visual"
+   "layout": "solid cream or tan background; a 'Point N' badge top-center (only N in brand color), hairline, headline (45px), sub (40px, medium weight, same ink as body), hairline, 2-4 body lines; lower 55% is the visual (styled product photo or line icons); one brand-color script callout of ≤10 characters placed diagonally over the visual"
   },
   "K7": {
    "name": "기능성 아이콘 링",
@@ -121,7 +121,7 @@
    "q": [
     "Q4"
    ],
-   "layout": "white rounded card (82% width) on cream; headline 28px, two-line grey disclaimer 18px, chart title, a chart area (70% width) in dark brand color vs tan, 2-3 conclusion lines, hairline, then 7 left-aligned lines of subject/design/source at 18px. NEVER generate the chart values — leave the chart area as a blank framed panel to be composited or replaced by HTML"
+   "layout": "white rounded card (82% width) on cream; headline 48px, two-line dark-grey (#444 or darker) disclaimer 30px, chart title, a chart area (70% width) in dark brand color vs tan, 2-3 conclusion lines, hairline, then left-aligned subject/design/source lines at 30px in dark grey (#444 or darker) — anything that does not fit goes to the HTML legal block. NEVER generate the chart values — leave the chart area as a blank framed panel to be composited or replaced by HTML"
   },
   "K9": {
    "name": "섭취 STEP 3",
@@ -407,7 +407,7 @@
    "q": [
     "Q3"
    ],
-   "layout": "white canvas; optional 'DETAIL' header 44px on the first one; product-only close-up photo 800×960 at x80; below it 'POINT 0N' 34px bold and 1-2 bullet lines 26px; left-aligned, bold is the only emphasis"
+   "layout": "white canvas; optional 'DETAIL' header 44px on the first one; product-only close-up photo 800×960 at x80; below it 'POINT 0N' 40px bold and 1-2 bullet lines 36px; left-aligned, bold is the only emphasis"
   },
   "F7": {
    "name": "반품·교환 정책 카드",
@@ -499,7 +499,7 @@
    "q": [
     "Q4"
    ],
-   "layout": "left grey Before panel and right brand-color After panel with one large percentage badge; grey footnote strip for institution, period, sample size"
+   "layout": "left grey Before panel and right brand-color After panel with one large percentage badge; light footnote strip with dark-grey (#444 or darker) 30px text for institution, period, sample size"
   },
   "P5": {
    "name": "리뷰 그리드(사진+핵심문장)",

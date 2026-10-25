@@ -7,7 +7,7 @@
 
 - **호출**: Skill `insane-research:insane-research-refs`, args 예 — `주제=선크림 상세페이지, 채널=올리브영·컬리·자사몰, pages=5, out=sangse/{slug}/refs, 함께 넣을 URL=<사용자 URL>`. 백그라운드 에이전트 1개가 호출하고 `REFS:` 줄과 표만 돌려준다.
 - **결과**: `refs/candidates.md`(도메인·제목·이미지 수·가장 긴 이미지·상태·선정 이유·URL), `refs/manifest.json`(이미지별 원본 URL·폭×높이·SHA-256), `refs/images/pNN/`.
-- **상태 읽기**: `ok` + 가장 긴 이미지 높이 수천 px → 상세 원본을 이미 받았다(§3으로 바로). `no_large_images` → HTML에 상세가 없다, JS 렌더가 필요하면 §2 캡처. `blocked:*` → 아래 채널별 함정 표를 본다.
+- **상태 읽기**: 수집기의 `ok`는 긴 상세 이미지를 보장하지 않는다(썸네일만 받아도 `ok`). 먼저 `scripts/check_refs.py sangse/{slug}`로 다시 판정한다. `detail`(높이 1500px 이상 이미지 있음) → 상세 원본을 이미 받았다(§3으로 바로). `partial:thumbs`·`partial:empty` → 상세 미확보, §2 캡처 대상. `no_large_images` → HTML에 상세가 없다, JS 렌더가 필요하면 §2 캡처. `blocked:*` → 아래 채널별 함정 표를 본다.
 - **없을 때**: insane-research가 설치돼 있지 않으면 즉석 검색으로 대신하지 않는다. 설치 명령(`claude plugin install insane-research@gptaku-plugins`)과 재시작을 안내하고, Step 2 인터뷰에서 사용자 URL 2~3개를 받아 `사용자 제공`으로 적는다.
 - 수집본은 참고 전용이다. 이미지는 판매처 저작물이라 생성 입력(`--ref`)·결과물에 넣지 않는다.
 

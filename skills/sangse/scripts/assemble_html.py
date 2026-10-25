@@ -14,6 +14,10 @@
       bg/headline/sub/body/footnote로 텍스트 플레이스홀더 블록 렌더. 뒤에 legal.md(마크다운)를 HTML 표·불릿으로 붙인다.
       legal.md 첫 '##' 앞의 '# 제목'은 숨기고, '> ' 줄은 안내문(blockquote)으로 렌더한다.
   - placeholders: 이미지에 구운 컷 텍스트·legal 불릿·표·문단의 '[자료 필요: …]'까지 전부 센다.
+  - 컷 모드는 같은 자료 요청을 묶은 체크리스트를 qa/placeholders.md·qa/placeholders.json에 남긴다(위치, 라벨 없는
+    '[자료 필요]'는 표 행 이름으로 보완, raw-input·intake의 '- 항목: 값' 줄과 이름이 겹치면 fill_hint).
+  - --final: 게시용 최종 렌더. 플레이스홀더가 남아 있거나 qa/review-stamp.json이 없거나 현재 카피와 다르면
+    (review_stamp.py verify) index.html은 만들되 final_blockers를 보고하고 exit 1.
 출력:
   - index.html (같은 디렉토리). 이미지 경로는 index.html 기준 상대경로로 변환.
   - 누락 이미지·누락 섹션·잔존 플레이스홀더는 stderr 경고 + stdout JSON 요약.
@@ -194,6 +198,68 @@ def render_cuts(cuts, base_dir, report):
     return "\n".join(parts)
 
 
+FACT_LINE_RE = re.compile(r"^\s*-\s*([^:\n]{2,30}):\s*(.+)$", re.MULTILINE)
+
+
+def placeholder_checklist(cuts, legal_md, base_dir):
+    """같은 자료 요청을 하나로 묶고 위치를 모은다. 라벨 없는 '[자료 필요]'는 표 행 이름으로 보완한다."""
+    found = []  # (label, raw, location)
+
+    def take(text, location, row_key=None):
+        for m in PLACEHOLDER_RE.finditer(str(text)):
+            raw = m.group(0)
+            label = raw[1:-1].split(":", 1)[1].strip() if ":" in raw else ""
+            found.append((label or (row_key or ""), raw, location))
+
+    for c in cuts:
+        for key, val in c["f"].items():
+            if key == "image": continue
+            for x in (val if isinstance(val, list) else [val]):
+                take(x, f"{c['id']}.{key}")
+    section = "서두"
+    for line in legal_md.splitlines():
+        if line.startswith("## "):
+            section = line[3:].strip(); continue
+        row_key = None
+        if line.lstrip().startswith("|"):
+            row_key = line.strip().strip("|").split("|")[0].strip()
+        take(line, f"legal:{section}" + (f" / {row_key}" if row_key else ""), row_key)
+
+    facts = {}
+    for name in ("raw-input.md", "intake-checklist.md"):
+        p = os.path.join(base_dir, name)
+        if not os.path.exists(p): continue
+        for m in FACT_LINE_RE.finditer(open(p, encoding="utf-8").read()):
+            key, val = m.group(1).strip(), m.group(2).strip()
+            if not PLACEHOLDER_RE.search(val) and "없음" not in val:
+                facts.setdefault(key, f"{name}: - {key}: {val}")
+
+    items = {}
+    for label, raw, location in found:
+        it = items.setdefault(label or raw, {"label": label, "placeholder": raw, "locations": [], "fill_hint": None})
+        if location not in it["locations"]: it["locations"].append(location)
+    for it in items.values():
+        if not it["label"]:
+            it["label"] = "(무엇이 필요한지 적혀 있지 않음)"
+        tokens = set(re.split(r"[\s·,()/—\-]+", it["label"]))
+        hits = [v for k, v in facts.items() if k == it["label"] or k in tokens]
+        if hits: it["fill_hint"] = hits[0]
+    return list(items.values())
+
+
+def write_checklist(base_dir, items, total):
+    qa = os.path.join(base_dir, "qa")
+    os.makedirs(qa, exist_ok=True)
+    json.dump({"total": total, "unique": len(items), "items": items},
+              open(os.path.join(qa, "placeholders.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    lines = ["# 채우면 완성되는 항목 — 게시 전 차단 체크리스트", "",
+             f"화면의 자리표시 {total}개 = 서로 다른 자료 {len(items)}건. 전부 채우거나 지운 뒤에만 `assemble_html.py --final`이 통과한다.", ""]
+    for it in items:
+        hint = f" — 원자료에 후보 있음: `{it['fill_hint']}`" if it["fill_hint"] else ""
+        lines.append(f"- [ ] {it['label']} ({', '.join(it['locations'])}){hint}")
+    open(os.path.join(qa, "placeholders.md"), "w", encoding="utf-8").write("\n".join(lines) + "\n")
+
+
 def main():
     args = sys.argv[1:]
     if not args:
@@ -248,6 +314,10 @@ def main():
         else:
             report["placeholders"].append("[자료 필요: legal.md]")
         body_html = f'<div class="cutsheet">{render_cuts(cuts, base_dir, report)}</div>\n{legal_html}'
+        items = placeholder_checklist(cuts, lmd if os.path.exists(legal_path) else "", base_dir)
+        write_checklist(base_dir, items, len(report["placeholders"]))
+        report["placeholder_items"] = len(items)
+        report["fillable_from_input"] = [it["label"] for it in items if it["fill_hint"]]
         template = open(template_path, encoding="utf-8").read()
         out = (template.replace("{{TITLE}}", html.escape(page_title)).replace("{{WIDTH}}", str(PLATFORM_WIDTH.get(platform, 720)))
                        .replace("{{PLATFORM}}", platform).replace("{{SECTIONS}}", body_html))
@@ -256,6 +326,21 @@ def main():
         for p_ in report["missing_images"]: print(f"WARN: 이미지 파일 없음: {p_}", file=sys.stderr)
         if report["placeholders"]: print(f"WARN: 플레이스홀더 {len(report['placeholders'])}개 잔존", file=sys.stderr)
         report["output"] = out_path
+        if "--final" in args:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            from review_stamp import verify
+            blockers = []
+            if report["placeholders"]:
+                blockers.append(f"자리표시 {len(report['placeholders'])}개(자료 {len(items)}건) 남음 — qa/placeholders.md")
+            if report["missing_images"]:
+                blockers.append(f"이미지 누락 {len(report['missing_images'])}개")
+            fresh, detail = verify(base_dir)
+            if not fresh:
+                blockers.append("리뷰 스탬프: " + detail)
+            report["final_blockers"] = blockers
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+            for b in blockers: print(f"BLOCKED: {b}", file=sys.stderr)
+            sys.exit(1 if blockers else 0)
         print(json.dumps(report, ensure_ascii=False, indent=2))
         return
 

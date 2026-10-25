@@ -136,7 +136,7 @@ Nothing here is legal advice; final wording is subject to the relevant review bo
 | `commands/sangse.md` | Single entry point (`/sangse`), argument routing |
 | `skills/sangse/SKILL.md` | Workflow (Step 0 → interview → offer check → cut sheet → 3 gates → images → HTML → report), Iron Law, red flags |
 | `skills/sangse/references/` | `framework.md` (8 questions), `cut-sheet.md`, `reference-patterns.md` (page analysis), `interview.md`, `humanize.md` (GPT rewrite prompt + guards), `numerical-provenance.md` (source-link contract), `style-packs.md` (6 packs, 44 templates in the catalog), `compliance.md`, `verification.md`, `evidence.md`, `image-briefs.md`, `reference-capture.md` |
-| `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `capture_reference.js` |
+| `skills/sangse/scripts/` | `check_deps.sh`, `humanize_cuts.py`, `check_cuts.py`, `check_copy.py`, `assemble_html.py`, `render_check.py`, `check_refs.py`, `review_stamp.py`, `capture_reference.js` |
 | `skills/sangse/assets/` | `cut-templates.json`, `banned-words.json`, `humanize-schema.json`, `style-packs/*.json` (6 packs + schema), `template.html` |
 | `setup/` | First-run setup (gptaku standard) |
 | `tests/test-gates.sh` | Regression: gate 1 PASS on the three examples, assembler smoke, humanize guards, dependency check, frontmatter contract |
