@@ -197,7 +197,7 @@ def main():
         if m.get("cutImageScale"):
             need = max(s["sourcePxFor14"] for s in m["cutImageScale"])
             per1000 = max(s["px1000For14"] for s in m["cutImageScale"])
-            print(f"     이미지 안 글자: 이 폭에서 14px가 되려면 폭 1000 환산 {per1000}px(원본 최대 {need}px) 이상 — 서브·본문·각주가 이보다 작으면 이미지 검수에서 재생성")
+            print(f"     이미지 안 글자: 이 폭에서 14px가 되려면 폭 1000 환산 {per1000}px(원본 최대 {need}px) 이상 — 서브·본문이 이보다 작으면 이미지 검수에서 재생성(각주는 image-briefs.md §5의 각주 최소값으로 판정)")
         for f_ in c["fails"]:
             print(f"     - {f_}")
     print(f"\n{result['verdict']} → {os.path.join(base, 'qa', 'render_check.json')}")
