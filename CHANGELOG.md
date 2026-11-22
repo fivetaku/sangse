@@ -2,6 +2,10 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.9.3 — 2026-11-22
+- Single source for in-image text sizes
+- Footnote judged against its own minimum
+
 ## 0.9.2 — 2026-10-25
 같은 E2E(2026-10-20)에서 남은 결함 5건을 고쳤다.
 - **가독성 검사.** `render_check.py`가 HTML 글자의 크기(14px 미만)와 명암비(4.5:1, 큰 글자 3:1 미만)를 FAIL로 잡고, 컷 이미지마다 표시 배율과 `sourcePxFor14`(그 폭에서 14px가 되는 원본 px)를 남긴다. 템플릿의 12px 글자(푸터·미생성 컷 메모·각주)를 14px로 올렸다. 이미지 브리프는 폭 1000 기준 서브 40·본문 36·각주 30px 이상, 밝은 배경엔 #222~#333, 명암비 4.5:1을 요구한다(전에는 본문 24·각주 20px라 390px 화면에서 9px·8px이었다). 5초 테스트의 가독성 지적은 다음 리비전으로 미루지 않고 재생성·재테스트하거나 "이미지 검수 미완"으로 보고한다.
