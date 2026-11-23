@@ -33,6 +33,8 @@ Live examples (fictional health-food products): https://fivetaku.github.io/sangs
 
 Restart Claude Code after installation.
 
+Codex: `codex plugin marketplace add fivetaku/gptaku_plugins` then `codex plugin add sangse@gptaku-plugins`.
+
 ### 3. Enable the image backend
 
 ```bash

@@ -10,6 +10,52 @@ description: Korean e-commerce detail page builder - turns product facts (text, 
 
 > 예쁘기만 하고 결제가 안 나는 페이지는 "예쁜 쓰레기"다. 상세페이지는 설명서가 아니라 **고객이 결제 전에 조용히 던지는 8가지 질문에 순서대로 답하는 영업사원**이어야 한다. 이 스킬은 창업자가 준 정보를 그 8질문 구조의 고객 언어로 번역하고, 실제 커머스 상세 해부(`references/reference-patterns.md`)에 맞춘 이미지 컷 시트로 만든다. 8질문 정본은 `references/framework.md`.
 
+## 실행 환경 (Claude Code / Codex)
+
+- Claude Code: 선택지 질문은 `AskUserQuestion`으로 묻는다. 다른 스킬은 Skill 도구, 병렬 리뷰·백그라운드 작업은 Agent로 부른다.
+- Codex: 시작 전에 이 폴더의 `references/codex.md`를 읽는다. 질문은 `request_user_input_async`로 한 번에 묻고 형식은 `{"questions":[{"title":"헤더 — 질문","options":["추천안 (추천) — 설명","대안 — 설명"]}]}` 한 가지뿐이다(문항에는 `title`·`options`만).
+- Codex에서는 `${CLAUDE_PLUGIN_ROOT}`를 이 플러그인 루트(이 SKILL.md에서 두 단계 위 폴더)로 바꿔 읽는다.
+
+> **Language (shared/language-policy.md)**: lock `output_lang` to the language of the request text (or, if none, the conversation so far) before reading anything else. Every user-facing output - replies, AskUserQuestion `question`/`header`/`label`/`description`, and files written to disk (`cuts.md`, `legal.md`, the report) - follows `output_lang`. The JSON below is a template: translate its labels, never emit it verbatim in another language. Identifiers, file names, commands and the `[자료 필요: …]` token are not translated. Do not default to Korean because the plugin was made in Korea.
+>
+> **Questioning (shared/questioning-policy.md)**: ask only slots that cannot be inferred from the input (target, platform, traffic source, proof, refund policy, regulated category); at most 4 questions per round, 2 rounds. If the input already answers a slot, do not ask it.
+
+## 인자 처리 (Parse Arguments)
+
+명령이 넘긴 인자(`$ARGUMENTS`, Codex에서는 사용자 요청 문장)를 본다:
+
+| Argument pattern | Action |
+|---|---|
+| product info (text, file path, URL) | Run the `sangse` skill from Step 0 (dependency check, `--install`) → Step 1 (collect) → Step 1-1 (reference images via `insane-research:insane-research-refs`, every run) |
+| contains `카피만` / `copy only` | Same, but stop after the copy approval gate - no image generation |
+| contains `스마트스토어` / `크몽` / `웹` | Pre-set the platform, skip that interview question |
+| contains `--style <id>` or a pack display name (고민 장면 스토리형 / 핵심 포인트 체크리스트형 / 근거·수치 우선형 / 룩북형 / 스펙 쇼케이스형 / 혜택·구성 프로모션형) | Pre-set the style pack (`assets/style-packs/<id>.json`), skip the Q-스타일 question |
+| `check <dir>` | Verify the current folder in its actual mode: gate 1 (`check_cuts.py`, or `check_copy.py` only for legacy mode), gate 2 review of those inputs, then gate 3 if HTML/images exist. Report missing stages as pending, not PASS. |
+| `humanize <dir>` | Generate the Step 4-1 preview, show its diff and `qa/humanize.json`, then apply that saved, hashed preview on approval using only `<dir> --apply`. No generation flags or manual file moves. |
+| (no argument) | Ask for product info with AskUserQuestion - see below |
+
+### 인자가 없을 때
+
+**실행:** AskUserQuestion을 한 번 호출한다 (Codex는 `references/codex.md`):
+
+```json
+{
+  "questions": [
+    {
+      "question": "어떤 제품·서비스의 상세페이지를 만들까요? 정보를 어떤 형태로 주실 수 있나요?",
+      "header": "입력 형태",
+      "options": [
+        {"label": "텍스트로 붙여넣을게요 (추천)", "description": "제품·타겟·가격·구성·환불 정책을 메모 형태로 그대로 주시면 됩니다"},
+        {"label": "파일이 있어요", "description": "PDF·마크다운·기획서 경로를 알려주세요"},
+        {"label": "기존 페이지 URL이 있어요", "description": "지금 쓰는 상세·경쟁 페이지 링크. 창업자 언어를 고객 언어로 번역합니다"},
+        {"label": "가상 상품으로 연습", "description": "인터뷰 없이 Claude가 설정한 가상 상품으로 전체 흐름을 시연합니다"}
+      ],
+      "multiSelect": false
+    }
+  ]
+}
+```
+
 ## Iron Law
 
 **입력에 없는 사례·수치·후기·환불 조건·기한은 만들지 않는다.** 없는 슬롯은 `[자료 필요: …]` 플레이스홀더로 드러낸다. 이유: 상세페이지 문구는 실제 결제·환불·광고 표시와 연결되고, 지어낸 근거 하나가 페이지 전체의 신뢰를 무너뜨린다. 지킬 수 있는 약속을 후킹되게 쓰는 것이 기술이고, 과장은 단기 전환율만 올린다.

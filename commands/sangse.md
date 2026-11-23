@@ -28,60 +28,6 @@ If the output is empty, just continue silently. (AskUserQuestion must NOT be in 
 
 # /sangse
 
-> **Language (shared/language-policy.md)**: lock `output_lang` to the language of the request text (or, if none, the conversation so far) before reading anything else. Every user-facing output - replies, AskUserQuestion `question`/`header`/`label`/`description`, and files written to disk (`cuts.md`, `legal.md`, the report) - follows `output_lang`. The JSON below is a template: translate its labels, never emit it verbatim in another language. Identifiers, file names, commands and the `[자료 필요: …]` token are not translated. Do not default to Korean because the plugin was made in Korea.
->
-> **Questioning (shared/questioning-policy.md)**: ask only slots that cannot be inferred from the input (target, platform, traffic source, proof, refund policy, regulated category); at most 4 questions per round, 2 rounds. If the input already answers a slot, do not ask it.
+인자: `$ARGUMENTS`
 
-Build a Korean e-commerce detail page as an **image cut sheet**: 10~20 vertically stacked cuts (headline, sub, body inside the image, Kurly/Coupang/Smart Store convention) plus an HTML legal block, following the "8 questions a customer silently asks before paying" order.
-
-## Parse Arguments
-
-Inspect `$ARGUMENTS`:
-
-| Argument pattern | Action |
-|---|---|
-| product info (text, file path, URL) | Run the `sangse` skill from Step 0 (dependency check, `--install`) → Step 1 (collect) → Step 1-1 (reference images via `insane-research:insane-research-refs`, every run) |
-| contains `카피만` / `copy only` | Same, but stop after the copy approval gate - no image generation |
-| contains `스마트스토어` / `크몽` / `웹` | Pre-set the platform, skip that interview question |
-| contains `--style <id>` or a pack display name (고민 장면 스토리형 / 핵심 포인트 체크리스트형 / 근거·수치 우선형 / 룩북형 / 스펙 쇼케이스형 / 혜택·구성 프로모션형) | Pre-set the style pack (`assets/style-packs/<id>.json`), skip the Q-스타일 question |
-| `check <dir>` | Verify the current folder in its actual mode: gate 1 (`check_cuts.py`, or `check_copy.py` only for legacy mode), gate 2 review of those inputs, then gate 3 if HTML/images exist. Report missing stages as pending, not PASS. |
-| `humanize <dir>` | Generate the Step 4-1 preview, show its diff and `qa/humanize.json`, then apply that saved, hashed preview on approval using only `<dir> --apply`. No generation flags or manual file moves. |
-| (no argument) | Ask for product info with AskUserQuestion - see below |
-
-## No argument
-
-**EXECUTE:** call AskUserQuestion once:
-
-```json
-{
-  "questions": [
-    {
-      "question": "어떤 제품·서비스의 상세페이지를 만들까요? 정보를 어떤 형태로 주실 수 있나요?",
-      "header": "입력 형태",
-      "options": [
-        {"label": "텍스트로 붙여넣을게요 (추천)", "description": "제품·타겟·가격·구성·환불 정책을 메모 형태로 그대로 주시면 됩니다"},
-        {"label": "파일이 있어요", "description": "PDF·마크다운·기획서 경로를 알려주세요"},
-        {"label": "기존 페이지 URL이 있어요", "description": "지금 쓰는 상세·경쟁 페이지 링크. 창업자 언어를 고객 언어로 번역합니다"},
-        {"label": "가상 상품으로 연습", "description": "인터뷰 없이 Claude가 설정한 가상 상품으로 전체 흐름을 시연합니다"}
-      ],
-      "multiSelect": false
-    }
-  ]
-}
-```
-
-## Execute
-
-Follow `${CLAUDE_PLUGIN_ROOT}/skills/sangse/SKILL.md` exactly - Step 0 dependency check (install missing), reference image collection via `insane-research:insane-research-refs` (every run, reference only), product interview (only the uncertain slots), offer check, cut sheet (`cuts.md` + `legal.md`), Step 4-1 humanize (`humanize_cuts.py` - GPT rewrites the copy, per-cut guards), gate 1 (`check_cuts.py`), gate 2 (4 simulated reviewers), copy approval, cut images via `/pumasi:image` (anchor → `--ref` chain, text + physical-plausibility inspection), HTML assembly, gate 3 (render + 5-second test), scorecard report. Never invent facts that are not in the input; leave `[자료 필요: …]` placeholders.
-
-In cut mode, gate 2 and copy approval use `cuts.md` + `legal.md` + `raw-input.md` + `intake-checklist.md`. Use `copy.md` only in legacy paragraph mode. Before gate 1, follow `references/numerical-provenance.md`: review quantitative rewordings against exact source statements and record destination-scoped `quantitative-facts` approvals in intake. Derived calculations need their operands, formula, units and rounding reviewed by a human. The gate checks source links, not arithmetic or real-world truth.
-
-After reviewing the preview, apply it without `--category`, `--model`, `--timeout`, `--dry-run` or `--from-json`:
-
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/sangse/scripts/humanize_cuts.py "sangse/{slug}" --apply
-```
-
-A stale source or edited preview requires a new preview and review. Never move `cuts.humanized.md` over `cuts.md` to bypass hash checks. Review reports identify input paths, SHA-256 hashes, mode, plugin/script version and review date. Image reviews also identify exact image paths/hashes and the approved text snapshot. Old copy QA cannot certify replacement images.
-
-Report draft text PASS, image verification and publish readiness separately. Missing generation, unreviewed images or placeholders remain pending. Fictional examples are demonstrations, never real-world verified or publish ready.
+`${CLAUDE_PLUGIN_ROOT}/skills/sangse/SKILL.md`를 Read로 끝까지 읽고 그 절차(인자 처리 표 → Step 0~11)를 그대로 따른다. 언어·질문 규칙(`shared/language-policy.md`, `shared/questioning-policy.md`)과 AskUserQuestion 호출 지시도 SKILL.md에 있다. 입력에 없는 사실은 만들지 않고 `[자료 필요: …]` 플레이스홀더로 둔다.

@@ -2,6 +2,11 @@
 
 > 릴리스 절차(버전 bump → GitHub 릴리스 → 마켓 서브모듈 포인터 → 캐시)는 gptaku_plugins의 [PLUGIN_STANDARD.md](https://github.com/fivetaku/gptaku_plugins/blob/main/PLUGIN_STANDARD.md)를 따른다. bump 전 `bash tests/test-gates.sh` PASS 필수.
 
+## 0.10.0 — 2026-11-23
+Codex에서도 같은 스킬로 동작.
+- 명령(`/sangse`)이 하던 인자 처리 표와 입력 형태 질문을 SKILL.md로 옮기고 명령은 얇게 줄였다(Claude Code 동작은 그대로).
+- SKILL.md에 "실행 환경" 블록과 `references/codex.md`를 추가했다(Codex 질문 도구 4단계, 다른 스킬·에이전트 대응).
+
 ## 0.9.3 — 2026-11-22
 - Single source for in-image text sizes
 - Footnote judged against its own minimum
